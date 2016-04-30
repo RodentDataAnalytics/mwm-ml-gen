@@ -116,7 +116,7 @@ A complete list of the available features is shown inside the file *features_lis
 
 ### Labels
 
-A complete list of the available labels is shown inside the file *tags_list.m*. This file can also be updated with user defined features.
+A complete list of the available labels is shown inside the file *tags_list.m*. This file can also be updated with user defined labels.
 
 
 

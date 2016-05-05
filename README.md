@@ -22,45 +22,17 @@ acts as a graphical tool for the labelling of the segments.
 
 • *Sessions:* number of sessions
 
-• *Trials per Session:* must be given in the following format: num1,num2,...,numN, where N = number of sessions.
+• *Trials per Session:* must be given in the following format: num1,num2,...,numN, where N = number of sessions (example: 4,4,4).
 
 • *Trial Types Description:* a name must be given as description.
 
 • *Groups Description:* each animal group must have a unique description. For N animal groups, desc1,desc2,...descN must be given.
 
-For the data provided these were the settings:
-
-• *Sessions:* '3'
-
-• *Trials per Session:* '4,4,4'
-
-• *Trial Types Description:* 'Training'
-
-• *Groups Description:* 'Control,Stress,Control/Food,Stress/Food'.
-
-**Experiment Properties:**
-
-• *Trial Timeout:* 90
-
-• *Centre (X,Y):* 0 0
-
-• *Arena Radius:* 100
-
-• *Platform (X,Y):* -50 10
-
-• *Platform Radius:* 6
-
-• *Platform Proximity Radius:* 5
-
-• *Longest Loop Extension:* 40
-
 **Segmentation:**
 
-According to the paper, three segmentation processes were performed:
+• *Segment Length:* length of the segments.
 
-• *Segment Length:* (a) 250 (b) 250 (c) 300
-
-• *Segment Overlap:* (a) 0.9 (b) 0.7 (c) 0.7
+• *Segment Overlap:* overlap of the segments.
 
 **Segmentation:**
 If all the above inputs are given (validation is performed and in case of error appropriate errormessage appears to the user),
@@ -76,12 +48,12 @@ Loads the above settings from a .mat file.
 **Labelling and Classification:**
 
 • *Labels:* must point to a csv file which contains labelled segments (see browse_trajectories.m, **Save Labels** button). Three of 
-these files are provided inside the data\mwm_peripubertal_stress\ folder and they are (according to the experimental setup):
-(a) segment_labels_250c.csv (b) segment_labels_250_70.csv (c) segment_labels_300_70.csv.
+these files are provided inside the data\mwm_peripubertal_stress\ folder and they are:
+(a) segment_labels_250_90.csv (b) segment_labels_250_70.csv (c) segment_labels_300_70.csv.
 
 • *Segment Configurations:* must point to the .mat file generated from the segmentation process.
 
-• *Number of Clusters:* (a) 75 (b) 35 (c) 37.
+• *Number of Clusters:* number of clusters that will be used during the first clustering stage.
 
 **Browse Trajectories:**
 
@@ -90,8 +62,7 @@ Loads the browse_trajectories gui.
 ### browse_trajectories.m
 ![BROWSE](browse_trajectories.jpg?raw=true "BROWSE")
 
-This file opens the interface which is used for the labelling of specific segments. It can be loaded by typing browse_trajectories or by clicking on 
-the Browse Trajectories button of the gui.m.
+This file opens the interface which is used for the labelling of specific segments. It can be loaded by typing browse_trajectories or by clicking on the Browse Trajectories button of the gui.m.
 
 First of all a segmentation configuation file (created from the segmentation process) must be given by clicking on the button
 **Select Configuration File**. When the file is loaded, the user can see the arena with the whole trajectories as well as 
@@ -118,5 +89,5 @@ A complete list of the available features is shown inside the file *features_lis
 
 A complete list of the available labels is shown inside the file *tags_list.m*. This file can also be updated with user defined labels.
 
-
-
+## Old code results
+In order for the old code results to be generated run TESTING_MODE(1). This command will run the whole program using the default settings described on 'Classification 3' of Table 2 of the publication http://www.nature.com/articles/srep14562. By running TESTING_MODE(2) or TESTING_MODE(3) the whole program will run using the 'Classification 2' or the 'Classification 1' settings respectively.

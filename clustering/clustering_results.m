@@ -294,8 +294,8 @@ classdef clustering_results < handle
             end
         end
         
-        function [cover, cov_flag] = coverage(inst)
-            global g_config;
+        % used in the results_clustering_parameters.m 
+        function [cover, cov_flag] = coverage(inst,feature_length)
             if isempty(inst.cover_)
                 id = [-1, -1, -1];
                 inst.cover_flag_ = zeros(1, inst.segments.count); 
@@ -313,7 +313,7 @@ classdef clustering_results < handle
                     if inst.class_map(i) > 0
                         % this segment is classified
                         off = inst.segments.items(i).offset;
-                        seg_end = inst.segments.items(i).compute_feature(g_config.FEATURE_LENGTH) + off;
+                        seg_end = feature_length(i) + off;
                         inst.cover_flag_(i) = 1;
                         if last_idx > 0 && last_end >= off
                             % mark every segment in between as covered
@@ -460,9 +460,9 @@ classdef clustering_results < handle
             end         
         end
         
-        function w = classes_weights(inst)
+        function w = classes_weights(inst,varargin)
             % do a mapping with constant weights
-            strat_distr = inst.mapping_ordered('DiscardUnknown', 1, 'MinSegments', 1, 'ClassesWeights', ones(1, inst.nclasses));
+            strat_distr = inst.mapping_ordered(varargin{:},'DiscardUnknown', 1, 'MinSegments', 1, 'ClassesWeights', ones(1, inst.nclasses));
                     
             max_len = zeros(1, inst.nclasses); 
             
@@ -499,9 +499,9 @@ classdef clustering_results < handle
             w = repmat(max_max_len, 1, inst.nclasses) ./ max_len;
         end
         
+         % compute the prefered strategy for a small time window for each
+         % trajectory
          function [major_classes, full_distr, seg_class, class_w] = mapping_ordered(inst, varargin)        
-            % compute the prefered strategy for a small time window for each
-            % trajectory
             [classes, discard_unk, class_w, min_seg] = process_options(varargin, ...
                 'Classes', [], 'DiscardUnknown', 1, 'ClassesWeights', [], 'MinSegments', 1);
           
@@ -659,11 +659,6 @@ classdef clustering_results < handle
                      end                     
                      j = j + 1;
                   end
-               %   if (j - lasti) < min_seg && lastc ~= 0
-               %     major_classes(i, lasti:(j - 1)) = major_classes(i, lasti - 1);
-               %     seg_off = sum(part(1:i - 1));                            
-               %     seg_class(seg_off + 1:seg_off + i - 1) = major_classes(i, lasti - 1);
-               %   end
                end               
             end
             
@@ -781,7 +776,7 @@ classdef clustering_results < handle
         end
         
         function tpm = transition_counts_trial(inst, varargin)                       
-            strat_distr = inst.mapping_ordered('DiscardUnknown', 1, varargin{:}, 'MinSegments', 4);
+            strat_distr = inst.mapping_ordered( varargin{:}, 'DiscardUnknown', 1, 'MinSegments', 4);
             tpm = zeros(1, inst.segments.parent.count);
             traj_idx = -1;            
             prev_class = -1;        

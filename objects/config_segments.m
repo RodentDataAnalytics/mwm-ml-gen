@@ -8,16 +8,10 @@ classdef config_segments < handle
         COMMON_PROPERTIES = {};
         % Trajectory groups data
         TRAJECTORY_GROUPS = [];
-        % Trajectories data directory
-        TRAJECTORIES_DIR = [];
         % Output directory        
         OUTPUT_DIR = [];
-        % Cache directory
-        CACHE = [];
-        % Features Cache directory
-        CACHE_FEATURES = [];
-        % Return path
-        RETURN_PATH = [];
+        % Segmentation propertires
+        SEGMENTATION_PROPERTIES = [];
 
         %% GENERATING DATA %%
         TRAJECTORIES = [];
@@ -30,7 +24,7 @@ classdef config_segments < handle
     
     methods
         %% CONSTRUCTOR %%
-        function inst = config_segments(processed_user_input)
+        function inst = config_segments(processed_user_input,varargin)
             
             % Trajectory groups
             inst.TRAJECTORY_GROUPS = read_trajectory_groups(processed_user_input{1,1}{1,1});
@@ -52,26 +46,23 @@ classdef config_segments < handle
                          'PLATFORM_R',processed_user_input{1,3}(7),...
                          'PLATFORM_PROXIMITY_RADIUS',processed_user_input{1,3}(8),...
                          'LONGEST_LOOP_EXTENSION',processed_user_input{1,3}(9)};
-            
-            % Trajectories data directory 
-            inst.TRAJECTORIES_DIR = processed_user_input{1,1}{2};         
+                  
             % Output directory
             inst.OUTPUT_DIR = processed_user_input{1,1}{3};
-            % Cache directory
-            inst.CACHE = create_cache_dir(1,inst.OUTPUT_DIR);
-            % Features directory
-            inst.CACHE_FEATURES = create_cache_dir(2,inst.OUTPUT_DIR);
 
             % Load trajectories
-            inst.TRAJECTORIES = load_data(inst);
+            trajectories_path = processed_user_input{1,1}{1,2};
+            inst.TRAJECTORIES = load_data(inst,trajectories_path,varargin{:});
             
             % Segmentation
-            [inst.SEGMENTS, inst.PARTITION, inst.CUM_PARTITIONS, inst.RETURN_PATH] = inst.TRAJECTORIES.partition(inst.CACHE, 2, 'trajectory_segmentation_constant_len', processed_user_input{1,4}{1}, processed_user_input{1,4}{2});
+            segment_length = processed_user_input{1,4}{1};
+            segment_overlap = processed_user_input{1,4}{2};
+            inst.SEGMENTATION_PROPERTIES = [segment_length,segment_overlap];
+            [inst.SEGMENTS, inst.PARTITION, inst.CUM_PARTITIONS] = inst.TRAJECTORIES.partition(2, 'trajectory_segmentation_constant_len', segment_length, segment_overlap);
             
             % Compute Features
-            inst.FEATURES_VALUES_TRAJECTORIES = compute_features(inst.TRAJECTORIES.items, features_list, inst.COMMON_PROPERTIES, inst.CACHE_FEATURES);
-            inst.FEATURES_VALUES_SEGMENTS = compute_features(inst.SEGMENTS.items, features_list, inst.COMMON_PROPERTIES, inst.CACHE_FEATURES);   
+            inst.FEATURES_VALUES_TRAJECTORIES = compute_features(inst.TRAJECTORIES.items, features_list, inst.COMMON_PROPERTIES);
+            inst.FEATURES_VALUES_SEGMENTS = compute_features(inst.SEGMENTS.items, features_list, inst.COMMON_PROPERTIES);   
         end
-    end
-    
+    end    
 end

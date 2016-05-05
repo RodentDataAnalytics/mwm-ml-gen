@@ -17,11 +17,6 @@ classdef trajectory < handle
         start_index = -1;        
         tags = {};
     end
-    
-    properties(GetAccess = 'protected', SetAccess = 'protected')        
-        feat_val_ = [];    
-        hash_ = -1;
-    end
 
     methods
         % constructor
@@ -49,42 +44,15 @@ classdef trajectory < handle
         
         function set_trial(inst, new_trial, trial_type)
             inst.trial = new_trial;
-            inst.hash_ = -1;
             inst.trial_type = trial_type;                      
         end
         
         function set_track(inst, new_track)
             inst.track = new_track;
-            inst.hash_ = -1;
         end
         
         function set_group(inst, new_group)
             inst.group = new_group;
-            inst.hash_ = -1;
-        end
-        
-        function cache_feature_value(inst, hash, val)
-            if isempty(inst.feat_val_)
-                inst.feat_val_ = containers.Map('KeyType', 'uint32', 'ValueType', 'any');
-            end                   
-            inst.feat_val_(hash) = val;            
-        end
-        
-        function ret = has_feature_value(inst, feat)
-            ret = ~isempty(inst.feat_val_) && inst.feat_val_.isKey(feat);
-        end
-        
-        function out = hash_value(traj)       
-            if traj.hash_ == -1                                          
-                % compute hash
-                len = 0;
-                if traj.offset ~= -1
-                    % length taken only into account when offset is used
-                    len = true_len;
-                end
-                traj.hash_ = trajectory.compute_hash(traj.set, traj.session, traj.track, traj.offset, len);
-            end
-            out = traj.hash_;
         end
         
         % returns the data set and track number where the data originated
@@ -146,80 +114,9 @@ classdef trajectory < handle
          function segs = partition(inst, func, varargin)
              segs = func(inst, varargin{:});
          end
-                
-%         function [ V ] = compute_features(inst, feat)
-%         %COMPUTE_FEATURES Computes a set of features for a trajectory
-%         %   COMPUTE_FEATURES(traj, [F1, F2, ... FN]) computes features F1, F2, ..
-%         %   FN for trajectory traj (features are identified by config defined 
-%         %   at the beginning of this class    
-%             V = [];
-%             for i = 1:length(feat)
-%                 V = [V, inst.compute_feature(feat(i))];
-%             end
-%         end            
-        
-        function val = compute_feature(inst, feat)            
-            % see if value already cached
-            if isempty(inst.feat_val_) || ~inst.feat_val_.isKey(feat.hash_value)
-                val = feat.value(inst);                    
-                                               
-                % cache value for next time
-                inst.cache_feature_value(feat.hash_value, val);
-            else
-                val = inst.feat_val_(feat.hash_value);
-            end           
-        end    
-        
-        function plot(inst, config, varargin)
-            addpath(fullfile(fileparts(mfilename('fullpath')), '/extern'));
-            [clr, arn, ls, lw] = process_options(varargin, ...
-                'Color', [0 0 0], 'DrawArena', 1, 'LineSpec', '-', 'LineWidth', 1);
-            if arn
-                ra = config.property('ARENA_R');
-                x0 = config.property('CENTRE_X');
-                y0 = config.property('CENTRE_Y');
-                
-                axis off;
-                axis tight;
-                xlim([0 2*ra]);
-                ylim([0 2*ra]);
-                daspect([1 1 1]);                
-                               
-                rectangle('Position', [x0 - ra, y0 - ra, ra*2, ra*2],...
-                    'Curvature',[1,1], 'FaceColor',[1, 1, 1], 'edgecolor', [0.2, 0.2, 0.2], 'LineWidth', 3);
-                hold on;
-                axis square;
-                % see if we have a platform to draw
-                if config.has_property('PLATFORM_X')
-                    x0 = config.property('PLATFORM_X');
-                    y0 = config.property('PLATFORM_Y');
-                    rp = config.property('PLATFORM_R');
-                    
-                    rectangle('Position',[x0 - rp, y0 - rp, 2*rp, 2*rp],...
-                        'Curvature',[1,1], 'FaceColor',[1, 1, 1], 'edgecolor', [0.2, 0.2, 0.2], 'LineWidth', 3);             
-                end
-                
-            end
-            plot(inst.points(:,2), inst.points(:,3), ls, 'LineWidth', lw, 'Color', clr);           
-            set(gca, 'LooseInset', [0,0,0,0]);
-        end      
         
         function pts = simplify(inst, tol)
             pts = trajectory_simplify_impl(inst.points, tol);
         end                               
-    end
-    
-    methods(Static)
-        % compute a hash for a trajectory segment
-        % defined here as it is useful in other situations as well
-        function hash = compute_hash(set, session, track, offset, len) 
-            % compute hash            
-            hash = hash_value(set);
-            hash = hash_combine(hash, hash_value(session));
-            hash = hash_combine(hash, hash_value(track));
-            hash = hash_combine(hash, hash_value(floor(offset)));
-            hash = hash_combine(hash, hash_value(floor(len)));
-        end
-    end      
+    end 
 end
-    

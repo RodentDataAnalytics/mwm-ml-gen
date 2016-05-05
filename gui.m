@@ -21,8 +21,11 @@ end
 %% GUI %%
 % --- Executes just before gui is made visible.
 function gui_OpeningFcn(hObject, eventdata, handles, varargin)
-% Assign paths and initialize WIKA
-initializer;
+% Assign default paths and initialize WIKA
+path = initializer;
+set(handles.path_groups,'String',strcat(path{1,2},'\trajectory_groups.csv'));
+set(handles.path_data,'String',path{1,2});
+set(handles.path_output,'String',path{1,1});
 % Choose default command line output for gui
 handles.output = hObject;
 % Update handles structure
@@ -190,19 +193,19 @@ function trajectories_data_path_Callback(hObject, eventdata, handles)
 function segment_path_Callback(hObject, eventdata, handles)
     [FN_seg,PN_seg] = uigetfile({'*.mat','MAT-file (*.mat)'},'Select MAT file containing segmentation data');
     set(handles.seg_path,'String',strcat(PN_seg,FN_seg));
-function classification_path_Callback(hObject, eventdata, handles)
-    [FN_class,PN_class,IND_class] = uigetfile({'*.mat','MAT-files (*.mat)'},'Select MAT files containing classification data','MultiSelect', 'on'); 
-    classifications_paths = {};
-    if iscell(FN_class)
-        for i=1:length(FN_class)
-            classifications_paths{i} = strcat(PN_class,FN_class{i},';;'); 
-        end 
-        set(handles.class_path,'String',strcat(cell2mat(FN_class),';'));
-        set(handles.ghost_text,'String',cell2mat(classifications_paths));
-    elseif FN_class~=0
-        set(handles.class_path,'String',FN_class);
-        set(handles.ghost_text,'String',FN_class);       
-    end    
+% function classification_path_Callback(hObject, eventdata, handles)
+%     [FN_class,PN_class,IND_class] = uigetfile({'*.mat','MAT-files (*.mat)'},'Select MAT files containing classification data','MultiSelect', 'on'); 
+%     classifications_paths = {};
+%     if iscell(FN_class)
+%         for i=1:length(FN_class)
+%             classifications_paths{i} = strcat(PN_class,FN_class{i},';;'); 
+%         end 
+%         set(handles.class_path,'String',strcat(cell2mat(FN_class),';'));
+%         set(handles.ghost_text,'String',cell2mat(classifications_paths));
+%     elseif FN_class~=0
+%         set(handles.class_path,'String',FN_class);
+%         set(handles.ghost_text,'String',FN_class);       
+%     end    
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -258,11 +261,9 @@ function load_traj_buttom_Callback(hObject, eventdata, handles)
         user_input{1,4} = segmentation_properties;
         % compute segments and features
         segmentation_configs = config_segments(user_input);
-        % ask the user to save the config_segments object
-        time = fix(clock);
-        formatOut = 'yyyy-mmm-dd-HH-MM';
-        time = datestr((time),formatOut);
-        uisave('segmentation_configs',strcat('segmentation_configs_',time));
+        % check if object is already cached and if not save it
+        rpath = check_cached_objects(segmentation_configs,1);
+        set(handles.seg_path,'String',rpath);
     end   
     
 function classify_button_Callback(hObject, eventdata, handles) 
@@ -280,11 +281,8 @@ function classify_button_Callback(hObject, eventdata, handles)
         user_input{1,2} = str2num(get(handles.num_clusters,'String'));
         % run the classification
         classification_configs = config_classification(user_input);
-        % ask the user to save the config_classification object
-        time = fix(clock);
-        formatOut = 'yyyy-mmm-dd-HH-MM';
-        time = datestr((time),formatOut);
-        uisave('classification_configs',strcat('classification_configs_',time));
+        % check if object is already cached and if not save it
+        rpath = check_cached_objects(classification_configs,2);
     end   
     
 function button_save_Callback(hObject, eventdata, handles)  

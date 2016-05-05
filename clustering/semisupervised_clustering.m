@@ -84,8 +84,7 @@ classdef semisupervised_clustering < handle
             % run clusterer using a subset of the labels for training and
             % all of them for validation
             if nargout > 1
-                % get also the results for the 1st stage
-                % clustering
+                % get also the results for the 1st stage clustering
                 [res, res1st] = inst.internal_cluster(nclusters, mask, ones(1, inst.nlabels));                
             else
                 res = inst.internal_cluster(nclusters, mask, ones(1, inst.nlabels));

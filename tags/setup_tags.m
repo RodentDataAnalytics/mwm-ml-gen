@@ -1,10 +1,11 @@
 function [ obj, labels, t_list_all, t_list ] = setup_tags(obj,fn)
 %SETUP_TAGS loads trajectory/segment labels from csv file and assign them
 % to our current trajectories/segments
-
+    
+    c = 1 ; % used for progrss 
     t_list = tags_list;
     if exist(fn,'file')
-        disp('Reading labels file...');
+        fprintf('Reading labels file...');
         % read the tags file
         tags_data = read_tags(fn);
         % update list of tags if needed
@@ -37,7 +38,12 @@ function [ obj, labels, t_list_all, t_list ] = setup_tags(obj,fn)
                 obj.items(1,index).tags = tags;   
             else
                 error('MatchTags:InvalidTrajectory','The input file contains wrong data');
-            end       
+            end
+            % display progress
+            if i > c*100
+                fprintf('%d ', c*100);
+                c = c + 1; 
+            end  
         end
         fprintf('Labels loaded: %d\n',i); 
     end

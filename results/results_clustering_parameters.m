@@ -34,14 +34,14 @@ function results_clustering_parameters(segmentation_configs,labels_path)
         if isempty(test_set)
             if ptest > 0          
                 fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'\'), sprintf('test_set.mat', n));
-                if exist(fn ,'file')
-                    load(fn);
-                else                
+                %if exist(fn ,'file')
+                %    load(fn);
+                %else                
                     test_set = zeros(1, classif.nlabels);
                     idx = 1:classif.nlabels;
                     test_set(idx(randsample(length(idx), floor(length(idx)*ptest)))) = 1;
                     save(fn, 'test_set');
-                end
+                %end
             else
                 test_set = [];
             end
@@ -50,12 +50,12 @@ function results_clustering_parameters(segmentation_configs,labels_path)
         % i) two-phase clustering (default)        
         % see if we already have the data
         fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'\'), sprintf('clustering_n%d.mat', n));
-        if exist(fn ,'file')
-            load(fn);
-        else            
+        %if exist(fn ,'file')
+        %    load(fn);
+        %else            
             [res, res1st] = classif.cluster_cross_validation(n, 'Folds', 10, 'TestSet', test_set);
             save(fn, 'res', 'res1st');
-        end 
+        %end 
         res.compress;
         res1st.compress;
         
@@ -66,12 +66,12 @@ function results_clustering_parameters(segmentation_configs,labels_path)
         % see if we already have the data
         classif.two_stage = 1;        
         fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'\'), sprintf('clustering_all_constr_%d.mat', n));
-        if exist(fn ,'file')
-            load(fn);
-        else            
+        %if exist(fn ,'file')
+        %    load(fn);
+        %else            
             res = classif.cluster(n);
             save(fn, 'res');
-        end        
+        %end        
         res3 = [res3, res];
         covering = [covering, res.coverage(feature_length)];      
     end

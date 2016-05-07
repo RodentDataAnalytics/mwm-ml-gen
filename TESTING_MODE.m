@@ -1,4 +1,4 @@
-function paper_results(varargin)
+function TESTING_MODE(varargin)
 %TESTING_MODE is used for testing purposes and to generate the paper's
 %results
 

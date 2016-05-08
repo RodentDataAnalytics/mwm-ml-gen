@@ -3,7 +3,7 @@ function results_confusion_matrix(segmentation_configs,classification_configs,fo
 % Values are the total number of missclassifications for a N-fold
 % cross-validation of the clustering algorithm
         
-    fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'\'), 'confusion_matrix.mat');
+    fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'/'), 'confusion_matrix.mat');
 
     % get classifier object
     classif = classification_configs.SEMISUPERVISED_CLUSTERING;

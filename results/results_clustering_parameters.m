@@ -33,7 +33,7 @@ function results_clustering_parameters(segmentation_configs,labels_path)
                 
         if isempty(test_set)
             if ptest > 0          
-                fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'\'), sprintf('test_set.mat', n));
+                fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('test_set.mat', n));
                 %if exist(fn ,'file')
                 %    load(fn);
                 %else                
@@ -49,7 +49,7 @@ function results_clustering_parameters(segmentation_configs,labels_path)
         
         % i) two-phase clustering (default)        
         % see if we already have the data
-        fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'\'), sprintf('clustering_n%d.mat', n));
+        fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('clustering_n%d.mat', n));
         %if exist(fn ,'file')
         %    load(fn);
         %else            
@@ -65,7 +65,7 @@ function results_clustering_parameters(segmentation_configs,labels_path)
         % ii) clustering using all the constraints
         % see if we already have the data
         classif.two_stage = 1;        
-        fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'\'), sprintf('clustering_all_constr_%d.mat', n));
+        fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('clustering_all_constr_%d.mat', n));
         %if exist(fn ,'file')
         %    load(fn);
         %else            
@@ -77,7 +77,7 @@ function results_clustering_parameters(segmentation_configs,labels_path)
     end
     
     % export data
-    save(fullfile(strcat(segmentation_configs.OUTPUT_DIR,'\'), 'clustering_parameters.mat'), 'res1', 'res2', 'res3');
+    save(fullfile(strcat(segmentation_configs.OUTPUT_DIR,'/'), 'clustering_parameters.mat'), 'res1', 'res2', 'res3');
     
     % remap the classes as to not invalidate mixed clusters
     % because we want to compare the clustering errors
@@ -102,7 +102,7 @@ function results_clustering_parameters(segmentation_configs,labels_path)
     set(gca, 'FontSize', 10, 'LineWidth', 1.5);
     h1 = gca;
     box off;
-    export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'\'), 'clusters_dep_err');
+    export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), 'clusters_dep_err');
 
     % percentage of unknown segments
     figure(78);
@@ -116,7 +116,7 @@ function results_clustering_parameters(segmentation_configs,labels_path)
     set(gca, 'FontSize', 10, 'LineWidth', 1.5);
     h2 = gca;
     box off;
-    export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'\'), 'clusters_dep_undef');
+    export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), 'clusters_dep_undef');
     
     % final number of clusters
     figure(79);
@@ -130,7 +130,7 @@ function results_clustering_parameters(segmentation_configs,labels_path)
     set(gca, 'FontSize', 10, 'LineWidth', 1.5);
     h3 = gca;
     box off;
-    export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'\'), 'clusters_dep_deltan');
+    export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), 'clusters_dep_deltan');
 
     % percentage of the full swimming paths that are covered by at least
     % one segment of a known class
@@ -143,5 +143,5 @@ function results_clustering_parameters(segmentation_configs,labels_path)
     set(gca, 'FontSize', 10, 'LineWidth', 1.5, 'YLim', [80, 100]);
     h1 = gca;
     box off;
-    export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'\'), 'clusters_dep_coverage');
+    export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), 'clusters_dep_coverage');
 end

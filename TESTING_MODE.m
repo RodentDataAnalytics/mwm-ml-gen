@@ -48,7 +48,7 @@ path = initializer;
 folds = 10;
 group_1 = 1;
 group_2 = 2;
-path_groups = strcat(path{1,2},'\trajectory_groups.csv');
+path_groups = strcat(path{1,2},'/trajectory_groups.csv');
 path_data = path{1,2};
 path_output = path{1,1};  
 
@@ -62,7 +62,7 @@ switch setup
         path_seg = check_cached_objects(segmentation_configs_1,1);
 
         % Clustering + Classification
-        path_labels = strcat(path{1,2},'\segment_labels_250_90.csv');
+        path_labels = strcat(path{1,2},'/segment_labels_250_90.csv');
         user_input = {{path_labels,path_seg},75};
         classification_configs_1 = config_classification(user_input);
         % Save the object if it is now existed in cache
@@ -79,7 +79,7 @@ switch setup
         path_seg = check_cached_objects(segmentation_configs_2,1);
         
         % Clustering + Classification
-        path_labels = strcat(path{1,2},'\segment_labels_250_70.csv');
+        path_labels = strcat(path{1,2},'/segment_labels_250_70.csv');
         user_input = {{path_labels,path_seg},35};
         classification_configs_2 = config_classification(user_input);
         % Save the object if it is now existed in cache
@@ -96,7 +96,7 @@ switch setup
         path_seg = check_cached_objects(segmentation_configs_3,1);
         
         % Clustering + Classification
-        path_labels = strcat(path{1,2},'\segment_labels_300_70.csv');
+        path_labels = strcat(path{1,2},'/segment_labels_300_70.csv');
         user_input = {{path_labels,path_seg},37};
         classification_configs_3 = config_classification(user_input);
         % Save the object if it is now existed in cache

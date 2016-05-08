@@ -129,7 +129,7 @@ function results_transition_counts(segmentation_configs,classification_configs,v
     box off;  
     set(gcf,'papersize',[8,8], 'paperposition',[0,0,8,8]);
 
-    export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'\'), 'transision_counts');
+    export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), 'transision_counts');
 
     p = friedman(mfried, nanimals, 'off');
     str = sprintf('p_frdm: %g', p);            

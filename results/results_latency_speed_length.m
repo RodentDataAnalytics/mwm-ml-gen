@@ -87,7 +87,7 @@ function results_latency_speed_length(segmentation_configs,varargin)
         set(gca, 'LineWidth', 1.5);
         box off;        
         ylabel(ylabels{i}, 'FontSize', 10);
-        export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'\'), sprintf('control_stress_%s', names{i}));
+        export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('control_stress_%s', names{i}));
         
         % Do the same for each trial
         clf;
@@ -177,7 +177,7 @@ function results_latency_speed_length(segmentation_configs,varargin)
         set(gcf, 'Color', 'w');
         box off;        
         set(gcf,'papersize',[8,8], 'paperposition',[0,0,8,8]);
-        export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'\'), sprintf('animals_%s', names{i}));
+        export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('animals_%s', names{i}));
         
         % run friedman test            
         p = friedman(fried, n);

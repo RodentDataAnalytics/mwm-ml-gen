@@ -56,7 +56,10 @@ function results_strategies_transition_prob(segmentation_configs,classification_
     for i = 1:segments_classification.nclasses
         fprintf('\nClass %d: %s', i, segments_classification.classes{1,i}{1,2});
     end
-    figure;    
+    
+    fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'/'), 'trans_prob.mat');
+    save(fn, 'trans_prob1','trans_prob2');
+    figure; 
     trans_prob1
     imagesc(trans_prob1);
     figure;

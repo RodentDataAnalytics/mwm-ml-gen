@@ -21,7 +21,7 @@ function TESTING_MODE(varargin)
 
 %% User Input
 if isempty(varargin) % Activated only by running as script
-    prompt={'Generating original results. Please choose setup 1, 2 or 3 for the equivalent classifications as shown on Table 2 page 6'};
+    prompt={'Please choose setup 1, 2 or 3 for the 	respective classifications as shown on Table 2 page 6'};
     name = 'Original results';
     defaultans = {'3'};
     options.Interpreter = 'tex';

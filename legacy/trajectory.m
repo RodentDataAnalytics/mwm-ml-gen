@@ -39,7 +39,7 @@ classdef trajectory < handle
         
         % returns the full trajectory (or segment identification)
         function [ ident ] = identification(traj)
-            ident = [traj.group, traj.id, traj.trial, traj.segment];
+            ident = [traj.set, traj.group, traj.session, traj.trial, traj.id];
         end
         
         function set_trial(inst, new_trial, trial_type)
@@ -57,7 +57,7 @@ classdef trajectory < handle
         
         % returns the data set and track number where the data originated
         function [ ident ] = data_identification(traj)
-            ident = [traj.set, traj.session, traj.track];
+            ident = [traj.set, traj.group, traj.session, traj.trial, traj.id];
         end                              
                         
         function [ segment ] = sub_segment(traj, beg, len)

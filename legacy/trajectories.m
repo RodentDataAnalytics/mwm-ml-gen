@@ -8,7 +8,7 @@ classdef trajectories < handle
         clustering_must_link = 0;
     end
     
-    properties(GetAccess = 'public', SetAccess = 'protected')
+    properties(GetAccess = 'public', SetAccess = 'public')
         items = [];        
         parent = []; % parent set of trajectories (if these are the segments)
     end
@@ -54,7 +54,7 @@ classdef trajectories < handle
             off = 0;
             func = str2func(func); %segmentation function
             for i = 1:obj.count                
-                newseg = obj.items(i).partition(func,varargin{:});
+                newseg = obj.items(i).partition(func,varargin{:},i);
                 if newseg.count >= nmin                    
                     segments = segments.append(newseg);
                     partition(i) = newseg.count;
@@ -75,7 +75,7 @@ classdef trajectories < handle
         
         function out = partitions(inst)
             if inst.count > 0 && isempty(inst.partitions_)
-                id = [-1, -1, -1];
+                id = [-1, -1, -1, -1, -1];
                 n = 0;
                 for i = 1:inst.count    
                     if ~isequal(id, inst.items(i).data_identification)

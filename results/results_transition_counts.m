@@ -7,8 +7,16 @@ function results_transition_counts(segmentation_configs,classification_configs,v
     par = segmentation_configs.PARTITION;
     trials_per_session = segmentation_configs.COMMON_SETTINGS{1,4}{1,1};
     total_trials = sum(trials_per_session);
-    group_1 = varargin{1,1};
-    group_2 = varargin{1,2};
+    groups = arrayfun( @(t) t.group, segmentation_configs.TRAJECTORIES.items);
+    
+    if length(varargin) > 1 %run from other function
+        groups = [varargin{1,1},varargin{1,2}];
+    else    
+        groups = validate_groups(unique(groups), varargin{:});
+    end    
+    if groups==-1
+        return
+    end  
 
     vals = [];
     vals_grps = [];           
@@ -22,7 +30,6 @@ function results_transition_counts(segmentation_configs,classification_configs,v
     
     trans = segments_classification.transition_counts_trial(segmentation_configs,classification_configs);
     
-    % select only animal groups controlled and stressed
     all_trials = arrayfun( @(t) t.trial, trajectories_.items);                   
     all_groups = arrayfun( @(t) t.group, trajectories_.items);                       
     all_groups = all_groups(trajectories_.segmented_index);
@@ -38,7 +45,7 @@ function results_transition_counts(segmentation_configs,classification_configs,v
                 ids_grp = [];
             end
 
-            sel = find(all_trials == t & all_groups == g);
+            sel = find(all_trials == t & all_groups == groups(g));
             
             for i = 1:length(sel)       
                 if sel(i) == 0
@@ -68,8 +75,6 @@ function results_transition_counts(segmentation_configs,classification_configs,v
                             id_pos = length(ids_grp);
                         end
                     else
-                        % add only as many as animals as in the
-                        % first group as?
                         if length(ids_grp) < nanimals
                             ids_grp = [ids_grp, id];
                             id_pos = length(ids_grp);

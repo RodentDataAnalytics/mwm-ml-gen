@@ -1,6 +1,5 @@
 function mapping = cluster_to_class( sz_clusters, class_idx, cluster_idx, varargin )
-%CLUSTER_TO_CLASS Maps clusters to classes    
-    global g_config;    
+%CLUSTER_TO_CLASS Maps clusters to classes       
     
     [min_samples_p, min_samples_exp, discard_mixed] = process_options(varargin, ...
         'MinSamplesPercentage', 0.01, ...

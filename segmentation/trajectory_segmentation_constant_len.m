@@ -1,4 +1,4 @@
-function segments = trajectory_segmentation_constant_len( traj, lseg, ovlp)
+function segments = trajectory_segmentation_constant_len( traj, lseg, ovlp, count)
     %SEGMENT_TRAJECTORY Splits the trajectory in segments of length
     % lseg with an overlap of ovlp %
     % Returns an array of instances of the same trajectory class (now repesenting segments)        
@@ -49,7 +49,7 @@ function segments = trajectory_segmentation_constant_len( traj, lseg, ovlp)
         end
 
         segments = segments.append(...
-            trajectory(pts, traj.set, traj.track, traj.group, traj.id, traj.trial, traj.session, seg + 1, seg_off, starti, traj.trial_type) ...
+            trajectory(pts, count, traj.track, traj.group, traj.id, traj.trial, traj.session, seg + 1, seg_off, starti, traj.trial_type) ...
         );
     end            
 end

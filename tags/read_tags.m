@@ -1,24 +1,6 @@
 function [ tags_data ] = read_tags( fn )
 %LOAD_TAGS reads tag data from a csv file
 
-% %% Determine if csv file is correct %%  -> Tiago's files
-% file = fopen(fn);
-% while ~feof(file)    
-%     line = textscan(fgetl(file),'%s','Delimiter',',');
-%     % each line should have at least 7 cells
-%     if length(line{1,1}) < 7     
-%         error('read_tags:InvalidFileFormat',['The input file ',fn,' is invalid']);
-%     else   
-%         % first 6 need to be numerics
-%         for i=1:6 
-%             if isempty(str2num(line{1,1}{i}))
-%                 error('read_tags:InvalidFileFormat',['The input file ',fn,' is invalid']);
-%             end
-%         end 
-%     end  
-% end 
-% fclose(file);
-
 %% Determine if csv file is correct %%
 file = fopen(fn);
 while ~feof(file)    

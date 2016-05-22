@@ -63,6 +63,9 @@ function select_file_Callback(hObject, eventdata, handles)
     error = 1;
     while error
         [FN_group,PN_group] = uigetfile({'*.mat','MAT-file (*.mat)'},'Select a segmentation configuration file');
+        if PN_group == 0
+            return;
+        end 
         load(strcat(PN_group,FN_group));
         if exist('segmentation_configs')
             if isa(segmentation_configs,'config_segments')
@@ -85,28 +88,33 @@ function select_file_Callback(hObject, eventdata, handles)
         list_data{i+1} = strcat('seg_',num2str(i)); 
     end
     set(handles.seg_list,'String',list_data);
-    % save the loaded data in select_file 'user data'
+    % save the configs inside the UserData
     set(handles.select_file, 'UserData', segmentation_configs);
     
-  
+ 
+          
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%% BUTTON: LOAD LABELS FILE %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function labels_file_Callback(hObject, eventdata, handles) 
+function labels_file_Callback(hObject, eventdata, handles)
     [FN_labels,PN_labels] = uigetfile({'*.csv','CSV-file (*.csv)'},'Select CSV file containing segment labels');
+    if PN_labels == 0
+        return;
+    end 
     labels_path = strcat(PN_labels,FN_labels);
     segmentation_configs = get(handles.select_file,'UserData');
     if ~isempty(segmentation_configs);
-        % load the new tags -> too slow!
-%        disp('deleting exing tags...');
-%         for i=1:length(segmentation_configs.SEGMENTS.items)
-%             segmentation_configs.SEGMENTS.items(1,i).tags = {};
-%         end    
+        %First remove existing labels
+        for i = 1:length(segmentation_configs.SEGMENTS.items)
+            segmentation_configs.SEGMENTS.items(1,i).tags = {};
+        end    
+        % then load the new labels
         segmentation_configs = gui_setup_tags(segmentation_configs,labels_path);
         set(handles.select_file, 'UserData', segmentation_configs);
     else
-        return
+        errordlg('No segmentation_configs file loaded.');
+        return;
     end
     
     
@@ -148,6 +156,7 @@ function save_labels_Callback(hObject, eventdata, handles)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function seg_list_Callback(hObject, eventdata, handles)
+    % get the segments
     segmentation_configs = get(handles.select_file,'UserData');
     % get trajectory
     traj = str2num(get(handles.specific_id,'String'));
@@ -244,7 +253,6 @@ function add_tag_Callback(hObject, eventdata, handles)
     end  
  
     
-    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% BUTTON REMOVE TAG %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
@@ -302,7 +310,6 @@ function remove_tag_Callback(hObject, eventdata, handles)
     else
         return;
     end  
-
     
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    

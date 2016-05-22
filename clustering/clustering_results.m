@@ -297,7 +297,7 @@ classdef clustering_results < handle
         % used in the results_clustering_parameters.m 
         function [cover, cov_flag] = coverage(inst,feature_length)
             if isempty(inst.cover_)
-                id = [-1, -1, -1];
+                id = [-1, -1, -1, -1, -1];
                 inst.cover_flag_ = zeros(1, inst.segments.count); 
                 % last _classified_ segment
                 last_idx = 0;
@@ -359,7 +359,7 @@ classdef clustering_results < handle
                 
             tbins = [0, cumsum(bins)];
     
-            id = [-1, -1, -1];
+            id = [-1, -1, -1, -1, -1];
             class_distr_traj = [];
             unk = [];
             for i = 1:inst.segments.count    
@@ -522,7 +522,6 @@ classdef clustering_results < handle
                 map = tag.mapping(classes, inst.classes);
                 nclasses = length(classes);
                 if isempty(class_w)                
-                    %class_w = inst.classes_weights;
                     class_w = arrayfun( @(x) x.weight, classes);
                 end            
             end
@@ -532,7 +531,7 @@ classdef clustering_results < handle
             end
             major_classes = [];
                             
-            id = [-1, -1, -1];
+            id = [-1, -1, -1, -1, -1];
             class_distr_traj = [];
             unk = [];
             iseg = 0;

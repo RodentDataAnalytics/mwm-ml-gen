@@ -1,10 +1,11 @@
 % Produces the Mean and Maximum Length of consecutive segments of each
-% class for the 250 cm / 90% overlap classification with constant weights
-% and after adopting differentiated weights for minor and major classes.
+% class for the x cm / y% overlap classification (x,y specified by the 
+% user) with constant weights and after adopting differentiated weights
+% for minor and major classes.
 
 function results_class_weights(segmentation_configs,classification_configs)
     
-    % load all trajectories and compute feature values if necessary (data is then cached)
+    % load all trajectories
     base_classification = classification_configs.CLASSIFICATION;
     seg_properties = segmentation_configs.SEGMENTATION_PROPERTIES;
 

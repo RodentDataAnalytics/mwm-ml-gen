@@ -1,0 +1,47 @@
+Track file,C:\Users\tiago\neuroscience\rat_navigation\data\ethovision\exp nestle morris_0001\data\track_00034.trk,,,,,,,
+Object,0,,,,,,,
+Samples,24,,,,,,,
+id,60,,,,,,,
+trial,2,,,,,,,
+date,14:31.0,yyyy-MM-dd HH:mm:ss,,,,,,
+Status,Acquired,,,,,,,
+Trial duration,0000:00:00:04.800,dd:HH:mm:ss,,,,,,
+Tracking profile,Tracking profile (1),,,,,,,
+Arena,wm trial,,,,,,,
+Track file,track_00034.trk,,,,,,,
+Object,0,,,,,,,
+Arena profile,wm learning ,,,,,,,
+Start date & time,15:01.1,yyyy-MM-dd HH:mm:ss,,,,,,
+Stop date & time,15:05.9,yyyy-MM-dd HH:mm:ss,,,,,,
+Trial number,1,,,,,,,
+Mobility low,20,,,,,,,
+Mobility high,60,,,,,,,
+Movie file,,,,,,,,
+Maximum voltage x,0,,,,,,,
+Maximum voltage y,0,,,,,,,
+Mobility running av,1,,,,,,,
+Sample no.,Time,X,Y,Area,Changed area,ZONES,Distance moved,Distance to zone [platform [Acquisition Zonedef]]
+1,0,79.61,186.22,400,364,n ext,-,72.53
+2,0.2,74.96,183.18,456,376,north,5.56,67.88
+3,0.4,69.67,178.81,472,424,north,6.86,61.91
+4,0.6,64.49,174.75,416,448,north,6.58,56.48
+5,0.8,61.74,168.78,448,480,north,6.57,49.96
+6,1,59.03,162.95,468,508,north,6.43,43.6
+7,1.2,57.15,155.46,500,560,west,7.73,35.88
+8,1.4,56.02,147.9,540,520,west,7.64,28.32
+9,1.6,54.85,140.42,516,512,west,7.58,20.81
+10,1.8,53.7,131.42,548,552,west,9.07,11.92
+11,2,52.46,122.4,592,588,west,9.1,3.61
+12,2.2,51.86,114.78,600,544,platform,7.64,0
+13,2.4,51.91,110.93,640,480,platform,3.85,0
+14,2.6,51.93,108.62,500,460,platform,2.31,0
+15,2.8,50.42,108.66,408,308,platform,1.51,0
+16,3,49.66,109.47,436,236,platform,1.11,0
+17,3.2,48.89,111.06,572,320,platform,1.77,0
+18,3.4,47.36,111.91,640,292,platform,1.75,0
+19,3.6,46.58,113.54,648,232,platform,1.8,0
+20,3.8,45.8,115.17,680,280,platform,1.81,0
+21,4,44.26,116.08,672,248,platform,1.79,0
+22,4.2,44.25,116.89,644,132,platform,0.8,0
+23,4.4,43.48,116.95,652,120,platform,0.77,0
+24,4.6,44.26,116.08,616,148,platform,1.16,0

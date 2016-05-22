@@ -1,6 +1,6 @@
 function results_confusion_matrix(segmentation_configs,classification_configs,folds)
 % Computes the confusion matrix for the classification of segments.
-% Values are the total number of missclassifications for a N-fold
+% Values are the total number of missclassifications for a 10-fold
 % cross-validation of the clustering algorithm
         
     fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'/'), 'confusion_matrix.mat');
@@ -9,8 +9,30 @@ function results_confusion_matrix(segmentation_configs,classification_configs,fo
     classif = classification_configs.SEMISUPERVISED_CLUSTERING;
     defaults_clusters = classification_configs.DEFAULT_NUMBER_OF_CLUSTERS;
 
+    % check if the folds number is too high
+    a = length(classification_configs.CLASSIFICATION.class_map);
+    if iscell(folds)
+        if isempty(str2num(folds{1,1}))
+            disp('Insert a number to specify the N-fold cross-validation.');
+            return
+        end    
+    elseif ~isnumeric(folds)  
+        if isempty(str2num(folds))
+            disp('Insert a number to specify the N-fold cross-validation.');
+            return
+        end    
+        if a - folds <= 0 || a - folds < a/10
+            disp('Input number too high, insert a lower number.');
+            return
+        end
+    else
+        if a - folds <= 0 || a - folds < a/10
+            disp('Input number too high, insert a lower number.');
+            return
+        end
+    end    
+    
     % perform a N-fold cross-validation
-    % folds = 10;
     res = classif.cluster_cross_validation(defaults_clusters, 'Folds', folds);
 
     % take the "total confusion matrix"    

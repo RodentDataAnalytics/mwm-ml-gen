@@ -7,23 +7,31 @@ function results_strategies_distributions_length(segmentation_configs,classifica
     trials_per_session = segmentation_configs.COMMON_SETTINGS{1,4}{1,1};
     total_trials = sum(trials_per_session);
     segments_classification = classification_configs.CLASSIFICATION;
-    group_1 = varargin{1,1};
-    group_2 = varargin{1,2};
-    
-    if length(varargin) > 2 % run test (activated by the '1')
-        animals_statistics = animals(segmentation_configs,1,group_1,group_2);
-        animals_trajectories_map = animals_statistics{1,1};
-    else
-        %take the two groups specified by the user
-        %(change animals_trajectories_map in 'animals')
-        %for groups names:
-        % strsplit(segmentation_configs.COMMON_SETTINGS{1,10}{1,1},',');
-    end
+    [groups_, animals_ids, animals_trajectories_map] = trajectories_map(segmentation_configs,varargin{:});
     
     % Keep only the trajectories with length > 0
     long_trajectories_map = long_trajectories( segmentation_configs );
     % Strategies distribution
     strat_distr = segments_classification.mapping_ordered(segmentation_configs);
+    
+    %for one group
+    if length(animals_trajectories_map) == 1
+        one_group_strategies(segmentation_configs,total_trials,segments_classification,animals_trajectories_map,long_trajectories_map,strat_distr);
+        return
+    end    
+    
+    % Equalize groups
+    if length(animals_trajectories_map) > 0
+        if size(animals_trajectories_map{1,1},2)~=size(animals_trajectories_map{1,2},2)
+            if size(animals_trajectories_map{1,1},2) > size(animals_trajectories_map{1,2},2)
+                dif = size(animals_trajectories_map{1,1},2) - size(animals_trajectories_map{1,2},2);
+                animals_trajectories_map{1,1} = animals_trajectories_map{1,1}(12,1:end-dif);
+            else    
+                dif = size(animals_trajectories_map{1,2},2) - size(animals_trajectories_map{1,1},2);
+                animals_trajectories_map{1,2} = animals_trajectories_map{1,2}(1:end,1:end-dif);
+            end
+        end
+    end
     
     lim = [90, 60, 13, 25, 25, 13, 25, 18]*25;
     

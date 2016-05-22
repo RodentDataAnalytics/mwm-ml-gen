@@ -11,22 +11,37 @@ function results_latency_speed_length(segmentation_configs,varargin)
     sessions = segmentation_configs.COMMON_SETTINGS{1,2}{1,1}; 
     trials_per_session = segmentation_configs.COMMON_SETTINGS{1,4}{1,1};
     total_trials = sum(trials_per_session);
-    group_1 = varargin{1,1};
-    group_2 = varargin{1,2};
     
-    if length(varargin) > 2 % run test (activated by the '1')
-        animals_statistics = animals(segmentation_configs,1,group_1,group_2);
-        animals_trajectories_map = animals_statistics{1,1};
-    else
-        %take the two groups specified by the user
-        %(change animals_trajectories_map in 'animals')
+    [groups_, animals_ids, animals_trajectories_map] = trajectories_map(segmentation_configs,varargin{:});
+    if isempty(animals_trajectories_map)
+        return
+    end    
+
+    % Equalize groups
+    if length(animals_trajectories_map) > 1
+        if size(animals_trajectories_map{1,1},2)~=size(animals_trajectories_map{1,2},2)
+            if size(animals_trajectories_map{1,1},2) > size(animals_trajectories_map{1,2},2)
+                dif = size(animals_trajectories_map{1,1},2) - size(animals_trajectories_map{1,2},2);
+                animals_trajectories_map{1,1} = animals_trajectories_map{1,1}(1:end,1:end-dif);
+            else    
+                dif = size(animals_trajectories_map{1,2},2) - size(animals_trajectories_map{1,1},2);
+                animals_trajectories_map{1,2} = animals_trajectories_map{1,2}(1:end,1:end-dif);
+            end
+        end
     end
     
     vars = [latency' ; speed' ; length_'/100];
+    
+    %for one group:
+    if length(animals_trajectories_map)==1
+        one_group_metrics(animals_trajectories_map,vars,total_trials,sessions,trials_per_session);
+        return
+    end    
+    
     names = {'latency' , 'speed' , 'length'};
     ylabels = {'latency [s]', 'speed [cm/s]', 'path length [m]'};
     log_y = [0, 0, 0];
-
+    
     for i = 1:size(vars, 1) % for the first trial
         figure;
         values = vars(i, :);
@@ -36,7 +51,7 @@ function results_latency_speed_length(segmentation_configs,varargin)
         pos = [0, 0.4, 1.2, 1.6, 2.4, 2.8];
         for s = 1:sessions
             for g = 1:2            
-                map = animals_trajectories_map{1,g};
+                map = animals_trajectories_map{g};
                 ti = (s - 1)*trials_per_session + 1;
                 tf = s*trials_per_session;
                 tmp = mean(values(map(ti:tf, :)));                 

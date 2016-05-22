@@ -2,12 +2,13 @@ classdef config_segments < handle
 
     properties(GetAccess = 'public', SetAccess = 'protected')
         %% USER INPUT SETTINGS %%
-        % Experiment Settings (Common Settings)
-        COMMON_SETTINGS = {};
-        % Experiment Properties (Common Properties)
-        COMMON_PROPERTIES = {};
-        % Trajectory groups data
+        % Files format and trajectory groups
         TRAJECTORY_GROUPS = [];
+        FORMAT = cell(1,6);
+        % Experiment Settings (Common Settings)
+        COMMON_SETTINGS = cell(1,3);
+        % Experiment Properties (Common Properties)
+        COMMON_PROPERTIES = cell(1,7);
         % Output directory        
         OUTPUT_DIR = [];
         % Segmentation propertires
@@ -25,38 +26,53 @@ classdef config_segments < handle
     methods
         %% CONSTRUCTOR %%
         function inst = config_segments(processed_user_input,varargin)
+            % File format
+            inst.FORMAT{1,1} = processed_user_input{1,2}(1);
+            inst.FORMAT{1,2} = processed_user_input{1,2}(2);
+            inst.FORMAT{1,3} = processed_user_input{1,2}(3);
+            inst.FORMAT{1,4} = processed_user_input{1,2}(4);
+            inst.FORMAT{1,5} = processed_user_input{1,2}(5);
+            inst.FORMAT{1,6} = processed_user_input{1,2}(6);
+            % Read animal groups from a separate csv file
+            if ~isempty(inst.FORMAT{1,2}) && ~isempty(processed_user_input{1,1}{1,1})
+                inst.TRAJECTORY_GROUPS = read_trajectory_groups(processed_user_input{1,1}{1,1});
+            end
             
-            % Trajectory groups
-            inst.TRAJECTORY_GROUPS = read_trajectory_groups(processed_user_input{1,1}{1,1});
-
             % Experiment Settings (Common Settings)
-            inst.COMMON_SETTINGS = {'Sessions',processed_user_input{1,2}(1),...
-                       'TrialsPerSession',processed_user_input{1,2}(2),...
-                       'TrialType',ones(1,sum(processed_user_input{1,2}{1,2})),...
-                       'TrialTypesDescription',processed_user_input{1,2}(3),...
-                       'GroupsDescription',processed_user_input{1,2}(4)};
+            inst.COMMON_SETTINGS = {'Sessions',processed_user_input{1,3}(1),...
+                       'TrialsPerSession',processed_user_input{1,3}(2),...
+                       'TrialType',ones(1,sum(processed_user_input{1,3}{1,2}))};
 
             % Experiment Properties (Common Properties)
-            inst.COMMON_PROPERTIES = {'TRIAL_TIMEOUT ',processed_user_input{1,3}(1),...
-                         'CENTRE_X',processed_user_input{1,3}(2),...
-                         'CENTRE_Y',processed_user_input{1,3}(3),...
-                         'ARENA_R',processed_user_input{1,3}(4),...
-                         'PLATFORM_X',processed_user_input{1,3}(5),...
-                         'PLATFORM_Y',processed_user_input{1,3}(6),...
-                         'PLATFORM_R',processed_user_input{1,3}(7),...
-                         'PLATFORM_PROXIMITY_RADIUS',processed_user_input{1,3}(8),...
-                         'LONGEST_LOOP_EXTENSION',processed_user_input{1,3}(9)};
+            inst.COMMON_PROPERTIES = {'TRIAL_TIMEOUT ',processed_user_input{1,4}(1),...
+                         'CENTRE_X',processed_user_input{1,4}(2),...
+                         'CENTRE_Y',processed_user_input{1,4}(3),...
+                         'ARENA_R',processed_user_input{1,4}(4),...
+                         'PLATFORM_X',processed_user_input{1,4}(5),...
+                         'PLATFORM_Y',processed_user_input{1,4}(6),...
+                         'PLATFORM_R',processed_user_input{1,4}(7)};
                   
             % Output directory
             inst.OUTPUT_DIR = processed_user_input{1,1}{3};
 
             % Load trajectories
             trajectories_path = processed_user_input{1,1}{1,2};
-            inst.TRAJECTORIES = load_data(inst,trajectories_path,varargin{:});
+            [inst.TRAJECTORIES,terminate] = load_data(inst,trajectories_path,varargin{:});
+            % If no trajectories are found return
+            if terminate == 1
+                return;
+            end    
             
+            % Fix trials numbering:
+            [inst, error] = fix_trials_numbering(inst);
+            if error
+                displey('Error, the loaded data were corrupted. All animals should participate on every trial.')
+                return;
+            end
+                      
             % Segmentation
-            segment_length = processed_user_input{1,4}{1};
-            segment_overlap = processed_user_input{1,4}{2};
+            segment_length = processed_user_input{1,5}{1};
+            segment_overlap = processed_user_input{1,5}{2};
             inst.SEGMENTATION_PROPERTIES = [segment_length,segment_overlap];
             [inst.SEGMENTS, inst.PARTITION, inst.CUM_PARTITIONS] = inst.TRAJECTORIES.partition(2, 'trajectory_segmentation_constant_len', segment_length, segment_overlap);
             

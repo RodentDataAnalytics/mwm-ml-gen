@@ -94,8 +94,8 @@ switch setup
         
     case 2
         % Segmentation + Features
-        user_input = {{path_groups,path_data,path_output},{'published_test_data'},{3,str2num('4,4,4')},{90,0,0,100,-50,10,6},{250,0.7}};
-        segmentation_configs_2 = config_segments(user_input,1);
+        user_input = {{path_groups,path_data,path_output},{'id','','trial','Time','X','Y'},{3,str2num('4,4,4')},{90,0,0,100,-50,10,6},{250,0.7}};
+        segmentation_configs_2 = config_segments(user_input,'original_data',path_cal_data);
         % Save the object if it is now existed in cache
         path_seg = check_cached_objects(segmentation_configs_2,1);
         
@@ -111,8 +111,8 @@ switch setup
           
     case 1
         % Segmentation + Features 
-        user_input = {{path_groups,path_data,path_output},{'published_test_data'},{3,str2num('4,4,4')},{90,0,0,100,-50,10,6},{300,0.7}};
-        segmentation_configs_3 = config_segments(user_input,1); 
+        user_input = {{path_groups,path_data,path_output},{'id','','trial','Time','X','Y'},{3,str2num('4,4,4')},{90,0,0,100,-50,10,6},{300,0.7}};
+        segmentation_configs_3 = config_segments(user_input,'original_data',path_cal_data);
         % Save the object if it is now existed in cache
         path_seg = check_cached_objects(segmentation_configs_3,1);
         
@@ -124,6 +124,6 @@ switch setup
         check_cached_objects(classification_configs_3,2);
         
         % Results and figures  
-        RUN_ALL_RESULTS( segmentation_configs_3, classification_configs_3, path_labels, folds, group_1, group_2,'original_results' );
+        RUN_ALL_RESULTS( segmentation_configs_3, classification_configs_3, path_labels, folds, group_1, group_2, 'original_results' );
 end
 

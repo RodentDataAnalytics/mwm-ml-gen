@@ -4,19 +4,18 @@ and the procedures refer to the published paper http://www.nature.com/articles/s
 
 ## The Graphical User Interface (GUI)
 The graphical user interface is split into two separate interfaces: the gui.m and the browse_trajectories.m. The first one is the main
-interface where the user specifies the experimental setup and performs the segmentation and the classification process while the other
-acts as a graphical tool for the labelling of the segments.
+interface where the user specifies the experimental setup and performs the segmentation and the classification processes while the other acts as a graphical tool for labelling the trajectories segments.
 
 ### gui.m
 ![GUI](gui.jpg?raw=true "GUI")
 
-**Paths:**
+**Paths and Files Format:**
 
-• *Animal Groups:* must point to a csv files which contains animals ids and groups (example: data\mwm_peripubertal_stress\trajectory_groups.csv).
+• *Trajectory Raw Data:* requires a folder containing the Ethovision's exported CSV files.  
 
-• *Trajectory Raw Data:* must point to a folder which contains the trajectory data (example: data\mwm_peripubertal_stress\).
+• *Output Folder:* path in which the results will be saved.
 
-• *Output Folder:* the folder in which the results will be saved.
+• *Fields:* specify which fields contains the following information: animal id, animal group, trial number, recorded time, X & Y coordinates. Note: if the animal group is not available inside the CSV file the user can create a custom CSV which will contain each animal id and the group in which it bolongs to. If neither the field nor the csv are specified then it will assumed that all the animals belong to the same group (default group 1).
 
 **Experiment Settings:**
 
@@ -24,9 +23,13 @@ acts as a graphical tool for the labelling of the segments.
 
 • *Trials per Session:* must be given in the following format: num1,num2,...,numN, where N = number of sessions (example: 4,4,4).
 
-• *Trial Types Description:* a name must be given as description.
+**Save Settings:**
 
-• *Groups Description:* each animal group must have a unique description. For N animal groups, desc1,desc2,...descN must be given.
+Saves the above settings into a MAT file.
+
+**Load Settings:**
+
+Loads the above settings from a MAT file.
 
 **Segmentation:**
 
@@ -34,30 +37,42 @@ acts as a graphical tool for the labelling of the segments.
 
 • *Segment Overlap:* overlap of the segments.
 
-**Segmentation:**
-If all the above inputs are given (validation is performed and in case of error appropriate errormessage appears to the user),
-the program loads the trajectory data, computes the specified features (see features) and performs the segmentation process.
-All the results are stored inside a .mat file.
-
-**Save Settings:**
-Saves the above settings into a .mat file.
-
-**Load Settings:**
-Loads the above settings from a .mat file.
+• *Segmentation Button:* If all the above inputs are given (validation is performed and in case of error appropriate error messages appear to the user), the program loads the trajectory data, performs the segmentation process and computes the features of the trajectories and the trajectories' segments. All the results are stored inside a MAT file (segmentation_configs) which is saved in the speficied output path.
 
 **Labelling and Classification:**
 
-• *Labels:* must point to a csv file which contains labelled segments (see browse_trajectories.m, **Save Labels** button). Three of 
-these files are provided inside the data\mwm_peripubertal_stress\ folder and they are:
-(a) segment_labels_250_90.csv (b) segment_labels_250_70.csv (c) segment_labels_300_70.csv.
+• *Labels:* requires a CSV file which contains labelled segments (see browse_trajectories.m, **Save Labels** button). Three of 
+these files are provided inside the .\import\original_data\mwm_peripubertal_stress\ folder, (a) segment_labels_250_90.csv (b) segment_labels_250_70.csv (c) segment_labels_300_70.csv.
 
-• *Segment Configurations:* must point to the .mat file generated from the segmentation process.
+• *Segment Configurations:* requires a MAT file generated from the segmentation process.
 
 • *Number of Clusters:* number of clusters that will be used during the first clustering stage.
+
+• *Classify Button:* If all the above inputs are given (validation is performed and in case of error appropriate error messages appear to the user), the program performs classification of the segments. The classification results are stored inside a MAT file (classification_configs) which is saved in the speficied output path.
+
+**Results:**
+
+• *Published Results:* accepts 1-3 as an input and it is used to generate the original published results (refer to http://www.nature.com/articles/srep14562). In order to generate the results of the original code use the option 3. The generated MAT files and figures are saved inside the generated .\cache folder.
+
+• *Animal Metrics:* requires a segmentation_configs object and visualize the trajectory metrics of the animal groups over all the trials. It can visualize up to two animal groups specified by the user (examples: 2 or 2,3). Note if the data contain no animal groups then the animal group is not required to be specified.
+
+• *Class Performance:* requires a segmentation_configs object and generates three figures indicating the impact of the number of clusters on the clustering performance for a set of N computed segments: Figure1 - Percentage of classification errors. Figure2 - Percentage of segments belonging to clusters that could not be mapped unambiguously to a single class. Figure3 - Percentage of the full swimming paths that are covered by at least one segment of a known class. It may be used in order to find the optimal numbers of clusters for the classification procedure.
+
+• *Strategies:* requires a segmentation_configs and a classification_configs objects in order to compute the average segment lengths for each strategy adopted by one or two groups (specified by the user, same as **Animal Metrics**) of N animals for a set of M trials. The generated plots show the average length in meters that the animals spent in one strategy during each trial.
+
+• *Transitions:* requires a segmentation_configs and a classification_configs objects in order to compute and present the number of transitions between strategies for one or two groups (specified by the user, same as **Animal Metrics**) of N animals.
+
+• *Trans Probabilities:* requires a segmentation_configs and a classification_configs objects in order to compute and present the transition probabilities of strategies within all the trials for one or two groups (specified by the user, same as **Animal Metrics**) of N animals. Rows and columns indicate the starting and ending strategies respectively. Row values are normalised.
+
+• *Confusion Matrix:* requires a segmentation_configs and a classification_configs objects in order to computes the confusion matrix for the classification of segments. Values are the total number of missclassifications for a 10-fold cross-validation of the clustering algorithm.
 
 **Browse Trajectories:**
 
 Loads the browse_trajectories gui. 
+
+**Exit:**
+
+Exits the GUI
 
 ### browse_trajectories.m
 ![BROWSE](browse_trajectories.jpg?raw=true "BROWSE")
@@ -77,17 +92,6 @@ selected from the list of segments and the desired label must be selected from t
 be pressed. In order to remove a label from a segment the same process must be followed but afterwards the button **-** must
 be pressed. Multiple labels can be assigned per segment and these assigned labels are shown on the square box.
 
-The button **Save Labels** is used to save all the labelled segments and generates the csv file required for the classification process.
+The button **Save Labels** is used to save all the labelled segments and generates the CSV file required for the classification process.
 
-The button **Load Labels File** asks for a csv file which contains labelled segments, which is the one generated by the button **Save Labels**.
-
-### Features
-
-A complete list of the available features is shown inside the file *features_list.m*. This file can also be updated with user defined features.
-
-### Labels
-
-A complete list of the available labels is shown inside the file *tags_list.m*. This file can also be updated with user defined labels.
-
-## Old code results
-In order for the old code results to be generated run TESTING_MODE(1). This command will run the whole program using the default settings described on 'Classification 3' of Table 2 of the publication http://www.nature.com/articles/srep14562. By running TESTING_MODE(2) or TESTING_MODE(3) the whole program will run using the 'Classification 2' or the 'Classification 1' settings respectively.
+The button **Load Labels File** asks for a CSV file which contains labelled segments. These files are generated by the button **Save Labels**.

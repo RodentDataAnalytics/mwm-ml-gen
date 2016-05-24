@@ -12,7 +12,7 @@ function features = features_list
     FEATURE_CV_INNER_RADIUS = {'Ri_CV', 'Inner radius variation', 'trajectory_cv_inner_radius',{'CENTRE_X','CENTRE_Y','ARENA_R'}};%5
     FEATURE_PLATFORM_PROXIMITY = {'P_plat', 'Platform proximity', 'trajectory_time_within_radius',{'PLATFORM_X','PLATFORM_Y'},{36,0}};%6
     FEATURE_BOUNDARY_ECCENTRICITY = {'ecc', 'Boundary eccentricity', 'trajectory_eccentricity'};%7
-    FEATURE_LONGEST_LOOP = {'L_max', 'Longest loop', 'trajectory_longest_loop',{'LONGEST_LOOP_EXTENSION'},{4}};%8
+    FEATURE_LONGEST_LOOP = {'L_max', 'Longest loop', 'trajectory_longest_loop',{'LONGEST_LOOP_EXTENSION'},{40,4}};%8
     % Other features
     FEATURE_LATENCY = {'Lat', 'Latency', 'trajectory_latency'};
     FEATURE_LENGTH = {'L', 'Path length', 'trajectory_length',{},{0}};

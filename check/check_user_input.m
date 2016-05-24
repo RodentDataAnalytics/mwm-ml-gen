@@ -58,6 +58,14 @@ function [ test_result ] = check_user_input( user_input, switcher )
                 sanity_table(5) = 1;
             elseif sanity_table(1) == 0 && sanity_table(5) == 1
                 sanity_table(1) = 1; 
+            elseif sanity_table(1) == 0 && sanity_table(1) == 0
+                sanity_table(5) = 1;
+                sanity_table(1) = 1;
+                disp('No animal groups specified, all animals will belong to group 1');
+            else
+                disp('Please provide either Group Field or animal group csv file.');
+                sanity_table(5) = 0;
+                sanity_table(1) = 0;
             end
             % sessions
             if isnumeric(str2num(user_input{1,3}{1})) && ~isempty(user_input{1,3}{1})
@@ -108,6 +116,14 @@ function [ test_result ] = check_user_input( user_input, switcher )
                 sanity_table(5) = 1;
             elseif sanity_table(1) == 0 && sanity_table(5) == 1
                 sanity_table(1) = 1; 
+            elseif sanity_table(1) == 0 && sanity_table(5) == 0
+                sanity_table(5) = 1;
+                sanity_table(1) = 1;
+                disp('No animal groups specified, all animals will belong to group 1');
+            else
+                disp('Please provide either Group Field or animal group csv file.');
+                sanity_table(5) = 0;
+                sanity_table(1) = 0;
             end
             % sessions
             if isnumeric(str2num(user_input{1,3}{1})) && ~isempty(user_input{1,3}{1})

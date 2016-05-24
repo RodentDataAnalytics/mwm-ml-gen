@@ -34,7 +34,7 @@ function results_latency_speed_length(segmentation_configs,varargin)
     
     %for one group:
     if length(animals_trajectories_map)==1
-        one_group_metrics(animals_trajectories_map,vars,total_trials,sessions,trials_per_session);
+        one_group_metrics(segmentation_configs,animals_trajectories_map,vars,total_trials,sessions,trials_per_session);
         return
     end    
     

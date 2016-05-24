@@ -430,7 +430,7 @@ function clustering_performance_Callback(hObject, eventdata, handles)
         return
     end  
     % ask for labels file
-    labels_path = select_files(1);
+    labels_path = select_files(2);
     if isempty(labels_path)
         return
     end  

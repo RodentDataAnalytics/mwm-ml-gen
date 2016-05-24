@@ -17,6 +17,11 @@ function results_transition_counts(segmentation_configs,classification_configs,v
     if groups==-1
         return
     end  
+    
+    if length(groups) == 1
+        one_group_transition_counts(segmentation_configs,classification_configs,groups,total_trials,par,trajectories_,segments_classification);
+        return
+    end    
 
     vals = [];
     vals_grps = [];           

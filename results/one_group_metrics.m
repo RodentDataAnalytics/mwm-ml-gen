@@ -1,4 +1,4 @@
-function one_group_metrics( animals_trajectories_map, vars, total_trials, sessions, trials_per_session )
+function one_group_metrics(segmentation_configs, animals_trajectories_map, vars, total_trials, sessions, trials_per_session )
 %results_latency_speed_length for one group only
 
     names = {'latency' , 'speed' , 'length'};

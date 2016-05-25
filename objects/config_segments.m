@@ -66,7 +66,7 @@ classdef config_segments < handle
             % Fix trials numbering:
             [inst, error] = fix_trials_numbering(inst);
             if error
-                displey('Error, the loaded data were corrupted. All animals should participate on every trial.')
+                disp('Error, the loaded data were corrupted. All animals should participate on every trial.')
                 return;
             end
                       

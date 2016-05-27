@@ -15,13 +15,15 @@ interface where the user specifies the experimental setup and performs the segme
 
 • *Output Folder:* path in which the results will be saved.
 
-• *Fields:* specify which fields contains the following information: animal id, animal group, trial number, recorded time, X & Y coordinates. Note: if the animal group is not available inside the CSV file the user can create a custom CSV which will contain each animal id and the group in which it bolongs to. If neither the field nor the csv are specified then it will assumed that all the animals belong to the same group (default group 1).
+• *Fields:* specify which fields contain the following information: animal id, animal group, trial number, recorded time, X & Y coordinates. Note: if the animal group is not available inside the exported Ethovision CSV files the user can create a custom CSV which will contain each animal id and the group in which it bolongs to. If neither the field nor the CSV are specified then it will be assumed that all the animals belong to the same group (default group 1). Example custom CSV file is provided inside the folder .\import\original_data\mwm_peripubertal_stress\animal_groups.csv.
 
 **Experiment Settings:**
 
 • *Sessions:* number of sessions
 
-• *Trials per Session:* must be given in the following format: num1,num2,...,numN, where N = number of sessions (example: 4,4,4).
+• *Days:* number of days
+
+• *Trials per day:* needs to be given in the following format: num1,num2,...,numN, where N = number of days (example: if number of days equals 3 and number of trials of days 1-2 equal 4 and number of trials of day 3 equal 2 then 4,4,2 should be given).
 
 **Save Settings:**
 
@@ -52,7 +54,7 @@ these files are provided inside the .\import\original_data\mwm_peripubertal_stre
 
 **Results:**
 
-• *Published Results:* accepts 1-3 as an input and it is used to generate the original published results (refer to http://www.nature.com/articles/srep14562). In order to generate the results of the original code use the option 3. The generated MAT files and figures are saved inside the generated .\cache folder.
+• *Demo:* accepts 1-3 as an input and it is used to generate the original published results (refer to http://www.nature.com/articles/srep14562). In order to generate the results of the original code use option 3. The generated MAT files and figures are saved inside the generated .\import\original_data\mwm_peripubertal_stress\cache folder.
 
 • *Animal Metrics:* requires a segmentation_configs object and visualize the trajectory metrics of the animal groups over all the trials. It can visualize up to two animal groups specified by the user (examples: 2 or 2,3). Note if the data contain no animal groups then the animal group is not required to be specified.
 

@@ -1,4 +1,4 @@
-function one_group_metrics(segmentation_configs, animals_trajectories_map, vars, total_trials, sessions, trials_per_session )
+function one_group_metrics(segmentation_configs, animals_trajectories_map, vars, total_trials, days, trials_per_session )
 %results_latency_speed_length for one group only
 
     names = {'latency' , 'speed' , 'length'};
@@ -14,7 +14,7 @@ function one_group_metrics(segmentation_configs, animals_trajectories_map, vars,
         idx = 1;
         pos = zeros(1, total_trials);
         grp = 1;
-        for s = 1:sessions
+        for s = 1:days
             for t = 1:trials_per_session                   
                 pos(idx) = d;
                 d = d + 0.1;

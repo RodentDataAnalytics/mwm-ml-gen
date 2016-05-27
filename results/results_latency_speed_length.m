@@ -8,11 +8,11 @@ function results_latency_speed_length(segmentation_configs,varargin)
     latency = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,9);
     length_ = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,10);
     speed = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,11);
-    sessions = segmentation_configs.COMMON_SETTINGS{1,2}{1,1}; 
-    if isstring(sessions) || ischar(sessions)
-        sessions = str2num((sessions));
-    elseif iscell(sessions)
-        sessions = cell2mat((sessions));
+    days = segmentation_configs.COMMON_SETTINGS{1,8}{1,1}; 
+    if isstring(days) || ischar(days)
+        days = str2num((days));
+    elseif iscell(days)
+        days = cell2mat((days));
     end 
     trials_per_session = segmentation_configs.COMMON_SETTINGS{1,4}{1,1};
     if isstring(trials_per_session) || ischar(trials_per_session)
@@ -44,7 +44,7 @@ function results_latency_speed_length(segmentation_configs,varargin)
     
     %for one group:
     if length(animals_trajectories_map)==1
-        one_group_metrics(segmentation_configs,animals_trajectories_map,vars,total_trials,sessions,trials_per_session);
+        one_group_metrics(segmentation_configs,animals_trajectories_map,vars,total_trials,days,trials_per_session);
         return
     end    
     
@@ -59,7 +59,7 @@ function results_latency_speed_length(segmentation_configs,varargin)
         groups = [];
         xpos = [];
         pos = [0, 0.4, 1.2, 1.6, 2.4, 2.8];
-        for s = 1:sessions
+        for s = 1:days
             for g = 1:2            
                 map = animals_trajectories_map{g};
                 ti = (s - 1)*trials_per_session + 1;
@@ -72,10 +72,10 @@ function results_latency_speed_length(segmentation_configs,varargin)
         end
         boxplot(data, groups, 'positions', pos, 'colors', [0 0 0; .7 .7 .7]);
         xtick = 0.2;
-        xticks = zeros(1,sessions);
-        sess = cell(1,sessions);
+        xticks = zeros(1,days);
+        sess = cell(1,days);
         c = 1;
-        while xtick < 0.2 + (1.2*sessions)
+        while xtick < 0.2 + (1.2*days)
             xticks(1,c) = xtick;
             xtick = xtick + 1.2;
             sess{1,c} = strcat('session ',num2str(c));
@@ -99,7 +99,7 @@ function results_latency_speed_length(segmentation_configs,varargin)
         end
                 
         % check significances
-        for s = 1:sessions
+        for s = 1:days
             hip = ttest2(data(groups == 2*s - 1), data(groups == 2*s));
             if hip
                 h = sigstar( {[pos(2*s - 1), pos(s*2)]}, [0.05]);
@@ -122,7 +122,7 @@ function results_latency_speed_length(segmentation_configs,varargin)
         d = .1;
         idx = 1;
         pos = zeros(1, 2*total_trials);
-        for s = 1:sessions
+        for s = 1:days
             for t = 1:trials_per_session
                 for g = 1:2                    
                     pos(idx) = d;

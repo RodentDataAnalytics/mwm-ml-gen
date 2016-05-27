@@ -71,9 +71,13 @@ function [ test_result ] = check_user_input( user_input, switcher )
             if isnumeric(str2num(user_input{1,3}{1})) && ~isempty(user_input{1,3}{1})
                 sanity_table(10) = 1;
             end 
+            % days
+            if isnumeric(str2num(user_input{1,3}{3})) && ~isempty(user_input{1,3}{3})
+                sanity_table(11) = 1;
+            end
             % trials per session
             substrings = strsplit(user_input{1,3}{2},',');
-            if sanity_table(10)==1 && length(substrings)==str2num(user_input{1,3}{1})
+            if sanity_table(11)==1 && length(substrings)==str2num(user_input{1,3}{3})
                 count = 0;
                 for i = 1:length(substrings)
                     if isnumeric(str2num(substrings{i}))
@@ -81,14 +85,16 @@ function [ test_result ] = check_user_input( user_input, switcher )
                     end
                 end
                 if count==length(substrings)
-                    sanity_table(11) = 1;
+                    sanity_table(12) = 1;
                 end
-            end    
+            end   
             % experiment properties
             i = 1;
-            while i<8 && ~isempty(user_input{1,4}{i}) && isnumeric(str2num(user_input{1,4}{i}))
-                sanity_table(i+11) = 1;
-                i = i+1;
+            while i<8 
+                if ~isempty(user_input{1,4}{i}) && isnumeric(str2num(user_input{1,4}{i}))
+                    sanity_table(i+12) = 1;
+                    i = i+1;
+                end    
             end
             
      case 2 
@@ -129,35 +135,37 @@ function [ test_result ] = check_user_input( user_input, switcher )
             if isnumeric(str2num(user_input{1,3}{1})) && ~isempty(user_input{1,3}{1})
                 sanity_table(10) = 1;
             end 
+            % days
+            if isnumeric(str2num(user_input{1,3}{3})) && ~isempty(user_input{1,3}{3})
+                sanity_table(11) = 1;
+            end
             % trials per session
             substrings = strsplit(user_input{1,3}{2},',');
-            if ~isempty(length(substrings)==str2num(user_input{1,3}{1}))
-                if sanity_table(10)==1 && length(substrings)==str2num(user_input{1,3}{1})
-                    count = 0;
-                    for i = 1:length(substrings)
-                        if isnumeric(str2num(substrings{i}))
-                            count = count+1;
-                        end
+            if sanity_table(11)==1 && length(substrings)==str2num(user_input{1,3}{3})
+                count = 0;
+                for i = 1:length(substrings)
+                    if isnumeric(str2num(substrings{i}))
+                        count = count+1;
                     end
-                    if count==length(substrings)
-                        sanity_table(11) = 1;
-                    end
-                end 
-            end    
+                end
+                if count==length(substrings)
+                    sanity_table(12) = 1;
+                end
+            end   
             % experiment properties
             i = 1;
             while i<8 && ~isempty(user_input{1,4}{i}) && isnumeric(str2num(user_input{1,4}{i}))
-                sanity_table(i+11) = 1;
+                sanity_table(i+12) = 1;
                 i = i+1;
-            end         
+            end       
             % segment length
             if ~isempty(user_input{1,5}{1}) && isnumeric(str2num(user_input{1,5}{1})) 
-                sanity_table(19) = 1;
+                sanity_table(20) = 1;
             end
             % segment overlap   
             if  ~isempty(user_input{1,5}{2}) && isnumeric(str2num(user_input{1,5}{2}))
                 if str2num(user_input{1,5}{2}) <= 1
-                    sanity_table(20) = 1;
+                    sanity_table(21) = 1;
                 end    
             end
 

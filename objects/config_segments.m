@@ -1,6 +1,6 @@
 classdef config_segments < handle
 
-    properties(GetAccess = 'public', SetAccess = 'protected')
+    properties(GetAccess = 'public', SetAccess = 'public')
         %% USER INPUT SETTINGS %%
         % Files format and trajectory groups
         TRAJECTORY_GROUPS = [];
@@ -41,7 +41,8 @@ classdef config_segments < handle
             % Experiment Settings (Common Settings)
             inst.COMMON_SETTINGS = {'Sessions',processed_user_input{1,3}(1),...
                        'TrialsPerSession',processed_user_input{1,3}(2),...
-                       'TrialType',ones(1,sum(processed_user_input{1,3}{1,2}))};
+                       'TrialType',ones(1,sum(processed_user_input{1,3}{1,2})),...
+                       'Days',processed_user_input{1,3}(3)};
 
             % Experiment Properties (Common Properties)
             inst.COMMON_PROPERTIES = {'TRIAL_TIMEOUT ',processed_user_input{1,4}(1),...
@@ -65,9 +66,16 @@ classdef config_segments < handle
             
             % Fix trials numbering:
             [inst, error] = fix_trials_numbering(inst);
-            if error
-                disp('Error, the loaded data were corrupted. All animals should participate on every trial.')
-                return;
+            if length(error) > 1
+                disp('Some animals were excluded because they participate in less or more trials than the ones defined');
+                fprintf('Excluded IDs: ')
+                for i = 1:length(error)
+                    for j = 1:length(error{1,i})
+                        if ~isempty(error{1,i}{1,j})
+                            fprintf('%s ',error{1,i}{1,j});
+                        end    
+                    end
+                end    
             end
                       
             % Segmentation

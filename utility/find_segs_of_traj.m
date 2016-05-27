@@ -7,12 +7,12 @@ function [ indexes ] = find_segs_of_traj( obj, traj_number )
 % segment belongs to this trajectory.
 
     parent = obj.parent.items(1, traj_number);
-    parent_vector = [parent.set ; parent.track ; parent.group ; parent.id ; parent.trial];
+    parent_vector = [parent.session ; parent.track ; parent.group ; parent.id ; parent.trial];
     indexes = {};
     k=1;
     for i = 1:length(obj.items)
         segment = obj.items(1, i);
-        segment_vector = [segment.set ; segment.track ; segment.group ; segment.id ; segment.trial];
+        segment_vector = [segment.session ; segment.track ; segment.group ; segment.id ; segment.trial];
         match = parent_vector == segment_vector;
         if isempty(find(match == 0))
             indexes{k} = i;

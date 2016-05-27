@@ -99,23 +99,18 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+function text_days_Callback(hObject, eventdata, handles)
+function text_days_CreateFcn(hObject, eventdata, handles)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
 function text_tps_Callback(hObject, eventdata, handles)
 function text_tps_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
-function text_data_des_Callback(hObject, eventdata, handles)
-function text_data_des_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-function text_group_des_Callback(hObject, eventdata, handles)
-function text_group_des_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end    
 
 %% EXPERIMENT PROPERTIES %%
 function trial_timeout_Callback(hObject, ~, handles)
@@ -234,7 +229,8 @@ function load_traj_buttom_Callback(hObject, eventdata, handles)
               get(handles.field_x,'String'),...
               get(handles.field_y,'String')};
     experiment_settings = {get(handles.text_sessions,'String'),...
-                           get(handles.text_tps,'String')};
+                           get(handles.text_tps,'String'),...
+                           get(handles.text_days,'String')}; 
     experiment_properties = {get(handles.trial_timeout,'String'),...
                              get(handles.centreX,'String'),...
                              get(handles.centreY,'String'),...
@@ -264,8 +260,9 @@ function load_traj_buttom_Callback(hObject, eventdata, handles)
                   get(handles.field_time,'String'),...
                   get(handles.field_x,'String'),...
                   get(handles.field_y,'String')};
-        experiment_settings = {str2num(get(handles.text_sessions,'String')),...
-                               str2num(get(handles.text_tps,'String'))};
+        experiment_settings = {get(handles.text_sessions,'String'),...
+                               get(handles.text_tps,'String'),...
+                               get(handles.text_days,'String')};
         experiment_properties = {str2num(get(handles.trial_timeout,'String')),...
                                 str2num(get(handles.centreX,'String')),...
                                 str2num(get(handles.centreY,'String')),...
@@ -322,7 +319,8 @@ function button_save_Callback(hObject, eventdata, handles)
               get(handles.field_x,'String'),...
               get(handles.field_y,'String')};
     experiment_settings = {get(handles.text_sessions,'String'),...
-                           get(handles.text_tps,'String')};
+                           get(handles.text_tps,'String'),...
+                           get(handles.text_days,'String')};
     experiment_properties = {get(handles.trial_timeout,'String'),...
                              get(handles.centreX,'String'),...
                              get(handles.centreY,'String'),...
@@ -371,6 +369,7 @@ function button_load_Callback(hObject, eventdata, handles)
             
             set(handles.text_sessions,'String',user_input{1,3}{1});
             set(handles.text_tps,'String',user_input{1,3}{2});
+            set(handles.text_days,'String',user_input{1,3}{3});
 
             set(handles.trial_timeout,'String',user_input{1,4}{1});
             set(handles.centreX,'String',user_input{1,4}{2});
@@ -454,7 +453,7 @@ function strategies_distribution_Callback(hObject, eventdata, handles)
     for i = 1:length(segmentation_configs.TRAJECTORIES.items)
         groups(1,i) = segmentation_configs.TRAJECTORIES.items(1,i).group;
     end
-    if length(groups) > 1
+    if length(unique(groups)) > 1
     % ask which one or two animal groups
         prompt={'Choose one or two animal groups (example: 2 or 1,3)'};
         name = 'Choose groups';
@@ -484,7 +483,7 @@ function transitions_count_Callback(hObject, eventdata, handles)
     for i = 1:length(segmentation_configs.TRAJECTORIES.items)
         groups(1,i) = segmentation_configs.TRAJECTORIES.items(1,i).group;
     end
-    if length(groups) > 1
+    if length(unique(groups)) > 1
     % ask which one or two animal groups
         prompt={'Choose one or two animal groups (example: 2 or 1,3)'};
         name = 'Choose groups';
@@ -514,7 +513,7 @@ function transitions_prob_Callback(hObject, eventdata, handles)
     for i = 1:length(segmentation_configs.TRAJECTORIES.items)
         groups(1,i) = segmentation_configs.TRAJECTORIES.items(1,i).group;
     end
-    if length(groups) > 1
+    if length(unique(groups)) > 1
     % ask which one or two animal groups
         prompt={'Choose one or two animal groups (example: 2 or 1,3)'};
         name = 'Choose groups';
@@ -540,3 +539,7 @@ function confusion_matrix_Callback(hObject, eventdata, handles)
         return
     end
     results_confusion_matrix(segmentation_configs,classification_configs,10);
+
+
+function main_gui_SizeChangedFcn(hObject, eventdata, handles)
+

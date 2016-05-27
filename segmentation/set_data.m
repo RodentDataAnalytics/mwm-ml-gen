@@ -1,10 +1,10 @@
-function [ traj ] = set_data( path, data_files, data_user, properties, day, varargin )
+function [ traj ] = set_data( path, data_files, data_user, properties, session, varargin )
 %SET_DATA converts user's data to their final form for processing
     
+    day = -1; % day if fixed afterwards
     traj = trajectories([]);
     files = dir(fullfile(path, '/*.csv') );
     fprintf('Importing %d trajectories...\n', length(files));
-    day_ = day;
     
     skipped_files = cell(length(files),1);
     s = 1;
@@ -23,8 +23,8 @@ function [ traj ] = set_data( path, data_files, data_user, properties, day, vara
         
         %If group is missing fix it with the user's data
         if isempty(data{1,3}) && ~isempty(data_user);
-            group = find(data{1,2}==data_user{day,1});
-            data{1,3} = data_user{day,1}(group,2);
+            group = find(data{1,2}==data_user{session,1});
+            data{1,3} = data_user{session,1}(group(1),2);
             %In case the animal id is still missing mark the file 
             if isempty(data{1,3})
                 skipped_files{s,1} = fullfile(path, files(i).name);
@@ -74,10 +74,18 @@ function [ traj ] = set_data( path, data_files, data_user, properties, day, vara
         
         %Append trajectory
         if size(data{1,6}, 1) > 0
-            traj = traj.append(trajectory(data{1,6}, i, -1, data{1,3}, data{1,2}, data{1,4}, day, -1, -1, 1, 1));
+            track = i;
+            pts = data{1,6};
+            group = data{1,3};
+            id = data{1,2};
+            trial = data{1,4};
+            segment = -1;
+            off = -1;
+            starti = 1;
+            trial_type = 1;
+            traj_num = i;
+            traj = traj.append(trajectory(pts, session, track, group, id, trial, day, segment, off, starti, trial_type, traj_num));
         end 
-        day = day_;
-    end
-    
+    end    
 end
 

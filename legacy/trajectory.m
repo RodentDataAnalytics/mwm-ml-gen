@@ -3,26 +3,27 @@ classdef trajectory < handle
     properties(GetAccess = 'public', SetAccess = 'public')
         points = [];
         % trajectory/segment identification
-        set = -1;
-        track = -1;
-        group = -1;
-        id = -1;
+        session = -1;
+        day = -1;
         trial = -1;
+        track = -1;
+        id = -1;
+        group = -1;
         trial_type = -1;
         segment = -1;
         offset = -1;        
-        session = -1;
         start_time = -1;
         end_time = -1;
-        start_index = -1;        
+        start_index = -1;     
+        traj_num = -1;
         tags = {};
     end
 
     methods
         % constructor
-        function traj = trajectory(pts, set, track, group, id, trial, session, segment, off, starti, trial_type)
+        function traj = trajectory(pts, session, track, group, id, trial, day, segment, off, starti, trial_type, traj_num)
             traj.points = pts;                       
-            traj.set = set;
+            traj.session = session;
             traj.track = track;
             traj.start_index = starti;
             traj.group = group;
@@ -31,15 +32,16 @@ classdef trajectory < handle
             assert(~isempty(segment));
             traj.segment = segment;
             traj.offset = off;            
-            traj.session = session;                    
+            traj.day = day;                    
             traj.start_time = pts(1, 1);
             traj.end_time = pts(end, 1);
-            traj.trial_type = trial_type;            
+            traj.trial_type = trial_type;      
+            traj.traj_num = traj_num;
         end
         
         % returns the full trajectory (or segment identification)
         function [ ident ] = identification(traj)
-            ident = [traj.set, traj.group, traj.session, traj.trial, traj.id];
+            ident = [traj.traj_num, traj.group, traj.session, traj.trial, traj.id];
         end
         
         function set_trial(inst, new_trial, trial_type)
@@ -57,7 +59,7 @@ classdef trajectory < handle
         
         % returns the data set and track number where the data originated
         function [ ident ] = data_identification(traj)
-            ident = [traj.set, traj.group, traj.session, traj.trial, traj.id];
+            ident = [traj.traj_num, traj.group, traj.session, traj.trial, traj.id];
         end                              
                         
         function [ segment ] = sub_segment(traj, beg, len)
@@ -78,9 +80,8 @@ classdef trajectory < handle
                    % append point to segment
                    pts = [pts; traj.points(i, :)];
                end
-            end
-             
-            segment = trajectory(pts, traj.set, traj.track, traj.group, traj.id, traj.trial, traj.session, 0, traj.offset + beg, traj.start_index + starti - 1, traj.trial_type);   
+            end 
+            segment = trajectory(pts, traj.session, traj.track, traj.group, traj.id, traj.trial, traj.day, 0, traj.offset + beg, traj.start_index + starti - 1, traj.trial_type, traj_num);
         end  
         
          function [ segment ] = sub_segment_time(traj, toff, dt)
@@ -108,7 +109,7 @@ classdef trajectory < handle
                 pts = traj.points(starti:i, :);
             end
             
-            segment = trajectory(pts, traj.set, traj.track, traj.group, traj.id, traj.trial, traj.session, 0, traj.offset + dist, traj.start_index + starti - 1, traj.trial_type);   
+            segment = trajectory(pts, traj.session, traj.track, traj.group, traj.id, traj.trial, traj.day, 0, traj.offset + beg, traj.start_index + starti - 1, traj.trial_type, traj_num);   
          end 
         
          function segs = partition(inst, func, varargin)

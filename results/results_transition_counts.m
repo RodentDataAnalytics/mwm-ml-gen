@@ -6,6 +6,13 @@ function results_transition_counts(segmentation_configs,classification_configs,v
     trajectories_ = segmentation_configs.TRAJECTORIES;
     par = segmentation_configs.PARTITION;
     trials_per_session = segmentation_configs.COMMON_SETTINGS{1,4}{1,1};
+    if isstring(trials_per_session) || ischar(trials_per_session)
+        trials_per_session = sum(str2num((trials_per_session)));
+    elseif iscell(trials_per_session)
+        trials_per_session = sum(cell2mat((trials_per_session)));
+    else
+        trials_per_session = sum(trials_per_session);
+    end 
     total_trials = sum(trials_per_session);
     groups = arrayfun( @(t) t.group, segmentation_configs.TRAJECTORIES.items);
     

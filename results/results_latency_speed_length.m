@@ -9,7 +9,21 @@ function results_latency_speed_length(segmentation_configs,varargin)
     length_ = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,10);
     speed = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,11);
     sessions = segmentation_configs.COMMON_SETTINGS{1,2}{1,1}; 
+    if isstring(sessions) || ischar(sessions)
+        sessions = sum(str2num((sessions)));
+    elseif iscell(sessions)
+        sessions = sum(cell2mat((sessions)));
+    else
+        sessions = sum(sessions);
+    end 
     trials_per_session = segmentation_configs.COMMON_SETTINGS{1,4}{1,1};
+    if isstring(trials_per_session) || ischar(trials_per_session)
+        trials_per_session = sum(str2num((trials_per_session)));
+    elseif iscell(trials_per_session)
+        trials_per_session = sum(cell2mat((trials_per_session)));
+    else
+        trials_per_session = sum(trials_per_session);
+    end 
     total_trials = sum(trials_per_session);
     
     [groups_, animals_ids, animals_trajectories_map] = trajectories_map(segmentation_configs,varargin{:});

@@ -1,8 +1,8 @@
 function [ error ] = data_consistency( inst )
 %DATA_CONSISTENCY checks if the loaded data are correct.
-% a) We should have each animal id (total_number_of_trials) times.
+% a) We should have each animal id sum(total_number_of_trials) times.
 % b) If an animal id was used in multiple groups then we should have this
-%    animal id (number_of_times_used * total_number_of_trials) times.
+%    animal id (number_of_times_used * sum(total_number_of_trials)) times.
 
     error = 0;
     tps = inst.COMMON_SETTINGS{1,4}{1,1};

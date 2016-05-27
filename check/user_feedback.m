@@ -28,21 +28,23 @@ function user_feedback( sanity_table, switcher )
         elseif ~sanity_table(10)
             errordlg('Sessions. Field needs to contain a numerical value','Input Error');
         elseif ~sanity_table(11)
-            errordlg('Trials per Session. The arguments needs to be numbericals and the number of arguments needs to be equal to the number of Sessions','Input Error');
-        % Experiment Properties Errors
+            errordlg('Days. Field needs to contain a numerical value','Input Error');
         elseif ~sanity_table(12)
-            errordlg('Trial timeout. Field needs to contain a numerical value','Input Error');
+            errordlg('Trials per Session. The arguments needs to be numbericals and the number of arguments needs to be equal to the number of Sessions','Input Error');            
+        % Experiment Properties Errors
         elseif ~sanity_table(13)
-            errordlg('Centre X. Field needs to contain a numerical value','Input Error');
+            errordlg('Trial timeout. Field needs to contain a numerical value','Input Error');
         elseif ~sanity_table(14)
-            errordlg('Centre Y. Field needs to contain a numerical value','Input Error');
+            errordlg('Centre X. Field needs to contain a numerical value','Input Error');
         elseif ~sanity_table(15)
-            errordlg('Arena radius. Field needs to contain a numerical value','Input Error');
+            errordlg('Centre Y. Field needs to contain a numerical value','Input Error');
         elseif ~sanity_table(16)
-            errordlg('Platform X. Field needs to contain a numerical value','Input Error');
+            errordlg('Arena radius. Field needs to contain a numerical value','Input Error');
         elseif ~sanity_table(17)
-            errordlg('Platform Y. Field needs to contain a numerical value','Input Error');
+            errordlg('Platform X. Field needs to contain a numerical value','Input Error');
         elseif ~sanity_table(18)
+            errordlg('Platform Y. Field needs to contain a numerical value','Input Error');
+        elseif ~sanity_table(19)
             errordlg('Platform radius. Field needs to contain a numerical value','Input Error');
         end
         
@@ -72,26 +74,28 @@ function user_feedback( sanity_table, switcher )
         elseif ~sanity_table(10)
             errordlg('Sessions. Field needs to contain a numerical value','Input Error');
         elseif ~sanity_table(11)
-            errordlg('Trials per Session. The arguments needs to be numbericals and the number of arguments needs to be equal to the number of Sessions','Input Error');
-        % Experiment Properties Errors
+            errordlg('Days. Field needs to contain a numerical value','Input Error');
         elseif ~sanity_table(12)
-            errordlg('Trial timeout. Field needs to contain a numerical value','Input Error');
+            errordlg('Trials per Session. The arguments needs to be numbericals and the number of arguments needs to be equal to the number of Sessions','Input Error');            
+        % Experiment Properties Errors
         elseif ~sanity_table(13)
-            errordlg('Centre X. Field needs to contain a numerical value','Input Error');
+            errordlg('Trial timeout. Field needs to contain a numerical value','Input Error');
         elseif ~sanity_table(14)
-            errordlg('Centre Y. Field needs to contain a numerical value','Input Error');
+            errordlg('Centre X. Field needs to contain a numerical value','Input Error');
         elseif ~sanity_table(15)
-            errordlg('Arena radius. Field needs to contain a numerical value','Input Error');
+            errordlg('Centre Y. Field needs to contain a numerical value','Input Error');
         elseif ~sanity_table(16)
-            errordlg('Platform X. Field needs to contain a numerical value','Input Error');
+            errordlg('Arena radius. Field needs to contain a numerical value','Input Error');
         elseif ~sanity_table(17)
-            errordlg('Platform Y. Field needs to contain a numerical value','Input Error');
+            errordlg('Platform X. Field needs to contain a numerical value','Input Error');
         elseif ~sanity_table(18)
-            errordlg('Platform radius. Field needs to contain a numerical value','Input Error');         
-        % Segmentation
+            errordlg('Platform Y. Field needs to contain a numerical value','Input Error');
         elseif ~sanity_table(19)
-            errordlg('Segment length. Field needs to contain a numerical value','Input Error');
+            errordlg('Platform radius. Field needs to contain a numerical value','Input Error');     
+        % Segmentation
         elseif ~sanity_table(20)
+            errordlg('Segment length. Field needs to contain a numerical value','Input Error');
+        elseif ~sanity_table(21)
             errordlg('Segment overlap. Field needs to contain a numerical value < = 1','Input Error');
         end
         

@@ -77,7 +77,7 @@ path_cal_data = strcat(path{1,2},'/calibration_data.mat');
 switch setup
     case 3
         % Segmentation + Features
-        user_input = {{path_groups,path_data,path_output},{'id','','trial','Time','X','Y'},{3,str2num('4,4,4')},{90,0,0,100,-50,10,6},{250,0.9}};
+        user_input = {{path_groups,path_data,path_output},{'id','','trial','Time','X','Y'},{3,str2num('4,4,4'),3},{90,0,0,100,-50,10,6},{250,0.9}};
         segmentation_configs_1 = config_segments(user_input,'original_data',path_cal_data);
         % Save the object if it is now existed in cache
         path_seg = check_cached_objects(segmentation_configs_1,1);
@@ -94,7 +94,7 @@ switch setup
         
     case 2
         % Segmentation + Features
-        user_input = {{path_groups,path_data,path_output},{'id','','trial','Time','X','Y'},{3,str2num('4,4,4')},{90,0,0,100,-50,10,6},{250,0.7}};
+        user_input = {{path_groups,path_data,path_output},{'id','','trial','Time','X','Y'},{3,str2num('4,4,4'),3},{90,0,0,100,-50,10,6},{250,0.7}};
         segmentation_configs_2 = config_segments(user_input,'original_data',path_cal_data);
         % Save the object if it is now existed in cache
         path_seg = check_cached_objects(segmentation_configs_2,1);
@@ -111,7 +111,7 @@ switch setup
           
     case 1
         % Segmentation + Features 
-        user_input = {{path_groups,path_data,path_output},{'id','','trial','Time','X','Y'},{3,str2num('4,4,4')},{90,0,0,100,-50,10,6},{300,0.7}};
+        user_input = {{path_groups,path_data,path_output},{'id','','trial','Time','X','Y'},{3,str2num('4,4,4'),3},{90,0,0,100,-50,10,6},{300,0.7}};
         segmentation_configs_3 = config_segments(user_input,'original_data',path_cal_data);
         % Save the object if it is now existed in cache
         path_seg = check_cached_objects(segmentation_configs_3,1);

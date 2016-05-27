@@ -14,7 +14,7 @@ function [ traj, terminate ] = load_data(inst,path,varargin)
     % append the other folders
     i = 2;
     j = k;
-    while i <= inst.COMMON_SETTINGS{1,2}{1,1} && i <= length(f);
+    while i <= inst.COMMON_SETTINGS{1,2}{1,1} && k+i-1 <= length(f);
         if f(k+i-1).isdir ~= 1
             k = k+1;
         else

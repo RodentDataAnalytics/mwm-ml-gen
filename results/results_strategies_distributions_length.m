@@ -6,11 +6,9 @@ function results_strategies_distributions_length(segmentation_configs,classifica
 
     trials_per_session = segmentation_configs.COMMON_SETTINGS{1,4}{1,1};
     if isstring(trials_per_session) || ischar(trials_per_session)
-        trials_per_session = sum(str2num((trials_per_session)));
+        trials_per_session = str2num((trials_per_session));
     elseif iscell(trials_per_session)
-        trials_per_session = sum(cell2mat((trials_per_session)));
-    else
-        trials_per_session = sum(trials_per_session);
+        trials_per_session = cell2mat((trials_per_session));
     end 
     total_trials = sum(trials_per_session);
     segments_classification = classification_configs.CLASSIFICATION;

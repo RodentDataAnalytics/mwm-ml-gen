@@ -1,4 +1,4 @@
-function [ processed_data ] = parse_data(fn, animal_id, animal_group, animal_trial, rec_time, centre_x, centre_y)
+function [ processed_data ] = parse_data(fn, animal_id, animal_group, rec_time, centre_x, centre_y)
 %PARSE_DATA gets the data of interest from file
 
     %Read the csv file
@@ -7,7 +7,6 @@ function [ processed_data ] = parse_data(fn, animal_id, animal_group, animal_tri
     %Initialize
     id = '';
     group = '';
-    trial = '';
     skipped_file = '';
     time = {};
     x = {};
@@ -22,8 +21,6 @@ function [ processed_data ] = parse_data(fn, animal_id, animal_group, animal_tri
             id = sscanf(data{i,2}, '%d');
         elseif isequal(data{i,1},animal_group)
             group = sscanf(data{i,2}, '%d');
-        elseif isequal(data{i,1},animal_trial)  
-            trial = sscanf(data{i,2}, '%d');
         elseif ~isempty(str2num(data{i,1}))   
             %if we are here then we should have the id,group,trial,session
             if isempty(id) || isempty(group) || isempty(trial)
@@ -87,7 +84,7 @@ function [ processed_data ] = parse_data(fn, animal_id, animal_group, animal_tri
         end
     end    
 
-    processed_data = {skipped_file,id,group,trial,damaged_file,pts};
+    processed_data = {skipped_file,id,group,damaged_file,pts};
 
 end
     

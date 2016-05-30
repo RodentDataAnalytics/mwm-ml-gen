@@ -49,7 +49,7 @@ function [ inst, error ] = fix_trials_numbering( inst )
                 for w = 1:length(unique_multi_sessions)
                     ch = find(multi_sessions == unique_multi_sessions(w));
                     if length(ch) ==  number_of_trials
-                        break;
+                        continue;
                     else
                         % save this id to exclude it later
                         excluded_ids{i,a} = number_of_animals(a);
@@ -83,6 +83,7 @@ function [ inst, error ] = fix_trials_numbering( inst )
     ids_groups = zeros(2,length(ids));
     ids_groups(1,:) = ids;
     ids_groups(2,:) = groups;
+    change_id = {};
 
     for i = 1:length(number_of_animals)
         temp = find(ids == number_of_animals(i));
@@ -91,17 +92,60 @@ function [ inst, error ] = fix_trials_numbering( inst )
                 trials(temp(j)) = j;
             end
         % if temp > number_of_trials then this animal id exist in multiple
-        % animal groups.
+        % animal groups or in multiple seessions.
         else
             for j = 1:length(number_of_groups)
                 % find this animal id for only group j
                 temp_2 = find(ids_groups(1,:) == ids(temp(1)) & ids_groups(2,:) == number_of_groups(j));
-                for k = 1:length(temp_2)
-                    trials(temp_2(k)) = k;
-                end
+                if temp_2 == number_of_trials
+                    for k = 1:length(temp_2)
+                        trials(temp_2(k)) = k;
+                    end
+                % if the same group then this animal was used in multiple 
+                % sessions thus enumerate trials from beginning per session
+                % and provide another unique animal id per session.
+                else
+                    change_id = [change_id,{number_of_animals(i),temp_2}];
+                    times_used = length(temp_2)/number_of_trials;
+                    c = 1;
+                    ti = 1;
+                    n_idx = 1;
+                    for t = 1:times_used
+                        while ti <= length(temp_2) && c <= number_of_trials
+                            trials(temp_2(ti)) = c;
+                            ti = ti+1;
+                            c = c+1;
+                        end
+                        c = 1;
+                    end
+                end    
             end
         end
     end
+    
+    % fix ids if necessary
+    if ~isempty(change_id)
+        for i = 1:2:length(change_id)
+            animal = change_id{i};
+            temp_2 = change_id{i+1};
+            times_used = length(temp_2)/number_of_trials;
+            %new_ids(1) would be the current id
+            new_ids = animal;
+            %new_ids(2+) would be the max(id)+1...
+            for n_id = 1:times_used-1
+                new_ids = [new_ids, max(number_of_animals)+n_id];
+            end   
+            start_ = 1;
+            n_idx = 1;
+            for k = 1:times_used
+                end_ = k*number_of_trials;
+                ids(temp_2(start_:end_)) = new_ids(n_idx);
+                n_idx = n_idx + 1;
+                start_ = end_+1; 
+            end    
+            number_of_animals = unique(ids);
+        end    
+    end    
     
     % fix days numbering
     number_of_sessions = unique(sessions);
@@ -118,11 +162,10 @@ function [ inst, error ] = fix_trials_numbering( inst )
         end  
     end
             
-    % Assign fixed trials
+    % Assign fixed values
     for i = 1:length(inst.TRAJECTORIES.items)
         inst.TRAJECTORIES.items(i).trial = trials(i);
         inst.TRAJECTORIES.items(i).day = days(i);
-    end    
-        
+        inst.TRAJECTORIES.items(i).id = ids(i);
+    end          
 end
-

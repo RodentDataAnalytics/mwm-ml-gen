@@ -32,7 +32,6 @@ classdef config_segments < handle
             inst.FORMAT{1,3} = processed_user_input{1,2}(3);
             inst.FORMAT{1,4} = processed_user_input{1,2}(4);
             inst.FORMAT{1,5} = processed_user_input{1,2}(5);
-            inst.FORMAT{1,6} = processed_user_input{1,2}(6);
             % Read animal groups from a separate csv file
             if ~isempty(inst.FORMAT{1,2}) && ~isempty(processed_user_input{1,1}{1,1})
                 inst.TRAJECTORY_GROUPS = read_trajectory_groups(processed_user_input{1,1}{1,1});
@@ -69,12 +68,8 @@ classdef config_segments < handle
             if length(error) > 1
                 disp('Some animals were excluded because they participate in less or more trials than the ones defined');
                 fprintf('Excluded IDs: ')
-                for i = 1:length(error)
-                    for j = 1:length(error{1,i})
-                        if ~isempty(error{1,i}{1,j})
-                            fprintf('%s ',error{1,i}{1,j});
-                        end    
-                    end
+                for i = 1:length(error{1,1})
+                    fprintf('%d ',error{1,1}{1,i});
                 end    
             end
                       

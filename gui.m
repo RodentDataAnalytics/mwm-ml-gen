@@ -68,12 +68,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-function field_trial_Callback(hObject, eventdata, handles)
-function field_trial_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
 function field_time_Callback(hObject, eventdata, handles)
 function field_time_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -224,7 +218,6 @@ function load_traj_buttom_Callback(hObject, eventdata, handles)
              get(handles.path_output,'String')};
     format = {get(handles.field_id,'String'),...
               get(handles.field_group,'String'),...
-              get(handles.field_trial,'String'),...
               get(handles.field_time,'String'),...
               get(handles.field_x,'String'),...
               get(handles.field_y,'String')};
@@ -256,7 +249,6 @@ function load_traj_buttom_Callback(hObject, eventdata, handles)
                  get(handles.path_output,'String')};
         format = {get(handles.field_id,'String'),...
                   get(handles.field_group,'String'),...
-                  get(handles.field_trial,'String'),...
                   get(handles.field_time,'String'),...
                   get(handles.field_x,'String'),...
                   get(handles.field_y,'String')};
@@ -314,7 +306,6 @@ function button_save_Callback(hObject, eventdata, handles)
              get(handles.path_output,'String')};
     format = {get(handles.field_id,'String'),...
               get(handles.field_group,'String'),...
-              get(handles.field_trial,'String'),...
               get(handles.field_time,'String'),...
               get(handles.field_x,'String'),...
               get(handles.field_y,'String')};
@@ -362,10 +353,9 @@ function button_load_Callback(hObject, eventdata, handles)
             
             set(handles.field_id,'String',user_input{1,2}{1});
             set(handles.field_group,'String',user_input{1,2}{2});
-            set(handles.field_trial,'String',user_input{1,2}{3});
-            set(handles.field_time,'String',user_input{1,2}{4});
-            set(handles.field_x,'String',user_input{1,2}{5});
-            set(handles.field_y,'String',user_input{1,2}{6});
+            set(handles.field_time,'String',user_input{1,2}{3});
+            set(handles.field_x,'String',user_input{1,2}{4});
+            set(handles.field_y,'String',user_input{1,2}{5});
             
             set(handles.text_sessions,'String',user_input{1,3}{1});
             set(handles.text_tps,'String',user_input{1,3}{2});
@@ -542,4 +532,3 @@ function confusion_matrix_Callback(hObject, eventdata, handles)
 
 
 function main_gui_SizeChangedFcn(hObject, eventdata, handles)
-

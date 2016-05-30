@@ -7,7 +7,7 @@ The graphical user interface is split into two separate interfaces: the gui.m an
 interface where the user specifies the experimental setup and performs the segmentation and the classification processes while the other acts as a graphical tool for labelling the trajectories segments.
 
 ### gui.m
-![GUI](gui.jpg?raw=true "GUI")
+![GUI](https://github.com/RodentDataAnalytics/mwm-ml-gen/blob/master/pictures/gui.jpg)
 
 **Paths and Files Format:**
 
@@ -77,7 +77,7 @@ Loads the browse_trajectories gui.
 Exits the GUI
 
 ### browse_trajectories.m
-![BROWSE](browse_trajectories.jpg?raw=true "BROWSE")
+![BROWSE](https://github.com/RodentDataAnalytics/mwm-ml-gen/blob/master/pictures/browse_trajectories.jpg)
 
 This file opens the interface which is used for the labelling of specific segments. It can be loaded by typing browse_trajectories or by clicking on the Browse Trajectories button of the gui.m.
 

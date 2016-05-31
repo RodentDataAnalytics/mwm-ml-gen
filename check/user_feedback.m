@@ -17,34 +17,32 @@ function user_feedback( sanity_table, switcher )
         elseif ~sanity_table(5)
             errordlg('Group Field. Field needs to contain the animal group field name as specified in the csv file','Input Error');
         elseif ~sanity_table(6)
-            errordlg('Trial Field. Field needs to contain the animal trial field name as specified in the csv file','Input Error');
-        elseif ~sanity_table(7)
             errordlg('Rec Time Field. Field needs to contain the recorded time field name as specified in the csv file','Input Error');
-        elseif ~sanity_table(8)
+        elseif ~sanity_table(7)
             errordlg('X Field. Field needs to contain the X coordinates field name as specified in the csv file','Input Error');
-        elseif ~sanity_table(9)
+        elseif ~sanity_table(8)
             errordlg('Y Field. Field needs to contain the Y coordinates field name as specified in the csv file','Input Error'); 
         % Experiment Settings Errors
-        elseif ~sanity_table(10)
+        elseif ~sanity_table(9)
             errordlg('Sessions. Field needs to contain a numerical value','Input Error');
-        elseif ~sanity_table(11)
+        elseif ~sanity_table(10)
             errordlg('Days. Field needs to contain a numerical value','Input Error');
-        elseif ~sanity_table(12)
+        elseif ~sanity_table(11)
             errordlg('Trials per Session. The arguments needs to be numbericals and the number of arguments needs to be equal to the number of Sessions','Input Error');            
         % Experiment Properties Errors
-        elseif ~sanity_table(13)
+        elseif ~sanity_table(12)
             errordlg('Trial timeout. Field needs to contain a numerical value','Input Error');
-        elseif ~sanity_table(14)
+        elseif ~sanity_table(13)
             errordlg('Centre X. Field needs to contain a numerical value','Input Error');
-        elseif ~sanity_table(15)
+        elseif ~sanity_table(14)
             errordlg('Centre Y. Field needs to contain a numerical value','Input Error');
-        elseif ~sanity_table(16)
+        elseif ~sanity_table(15)
             errordlg('Arena radius. Field needs to contain a numerical value','Input Error');
-        elseif ~sanity_table(17)
+        elseif ~sanity_table(16)
             errordlg('Platform X. Field needs to contain a numerical value','Input Error');
-        elseif ~sanity_table(18)
+        elseif ~sanity_table(17)
             errordlg('Platform Y. Field needs to contain a numerical value','Input Error');
-        elseif ~sanity_table(19)
+        elseif ~sanity_table(18)
             errordlg('Platform radius. Field needs to contain a numerical value','Input Error');
         end
         
@@ -63,39 +61,37 @@ function user_feedback( sanity_table, switcher )
         elseif ~sanity_table(5)
             errordlg('Group Field. Field needs to contain the animal group field name as specified in the csv file','Input Error');
         elseif ~sanity_table(6)
-            errordlg('Trial Field. Field needs to contain the animal trial field name as specified in the csv file','Input Error');
-        elseif ~sanity_table(7)
             errordlg('Rec Time Field. Field needs to contain the recorded time field name as specified in the csv file','Input Error');
-        elseif ~sanity_table(8)
+        elseif ~sanity_table(7)
             errordlg('X Field. Field needs to contain the X coordinates field name as specified in the csv file','Input Error');
-        elseif ~sanity_table(9)
+        elseif ~sanity_table(8)
             errordlg('Y Field. Field needs to contain the Y coordinates field name as specified in the csv file','Input Error'); 
         % Experiment Settings Errors
-        elseif ~sanity_table(10)
+        elseif ~sanity_table(9)
             errordlg('Sessions. Field needs to contain a numerical value','Input Error');
-        elseif ~sanity_table(11)
+        elseif ~sanity_table(10)
             errordlg('Days. Field needs to contain a numerical value','Input Error');
-        elseif ~sanity_table(12)
+        elseif ~sanity_table(11)
             errordlg('Trials per Session. The arguments needs to be numbericals and the number of arguments needs to be equal to the number of Sessions','Input Error');            
         % Experiment Properties Errors
-        elseif ~sanity_table(13)
+        elseif ~sanity_table(12)
             errordlg('Trial timeout. Field needs to contain a numerical value','Input Error');
-        elseif ~sanity_table(14)
+        elseif ~sanity_table(13)
             errordlg('Centre X. Field needs to contain a numerical value','Input Error');
-        elseif ~sanity_table(15)
+        elseif ~sanity_table(14)
             errordlg('Centre Y. Field needs to contain a numerical value','Input Error');
-        elseif ~sanity_table(16)
+        elseif ~sanity_table(15)
             errordlg('Arena radius. Field needs to contain a numerical value','Input Error');
-        elseif ~sanity_table(17)
+        elseif ~sanity_table(16)
             errordlg('Platform X. Field needs to contain a numerical value','Input Error');
-        elseif ~sanity_table(18)
+        elseif ~sanity_table(17)
             errordlg('Platform Y. Field needs to contain a numerical value','Input Error');
-        elseif ~sanity_table(19)
-            errordlg('Platform radius. Field needs to contain a numerical value','Input Error');     
+        elseif ~sanity_table(18)
+            errordlg('Platform radius. Field needs to contain a numerical value','Input Error');  
         % Segmentation
-        elseif ~sanity_table(20)
+        elseif ~sanity_table(19)
             errordlg('Segment length. Field needs to contain a numerical value','Input Error');
-        elseif ~sanity_table(21)
+        elseif ~sanity_table(20)
             errordlg('Segment overlap. Field needs to contain a numerical value < = 1','Input Error');
         end
         

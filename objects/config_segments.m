@@ -58,15 +58,22 @@ classdef config_segments < handle
             % Load trajectories
             trajectories_path = processed_user_input{1,1}{1,2};
             [inst.TRAJECTORIES,terminate] = load_data(inst,trajectories_path,varargin{:});
-            % If no trajectories are found return
+            % If no trajectories were found, return
             if terminate == 1
+                fprintf('\nNo animal trajectories found in the specified path: %s',processed_user_input{1,1}{1,2});
                 return;
             end    
             
-            % Fix trials numbering:
-            [inst, error] = fix_trials_numbering(inst);
+            % Fix trials and days numbering
+            [inst, error] = fix_data(inst);
             if length(error) > 1
-                disp('Some animals were excluded because they participate in less or more trials than the ones defined');
+                % If all animals were excluded, return
+                if isequal(error{1,1},'all');
+                    disp('All animals were excluded, please check your Experimental Settings')
+                    return
+                end    
+                % Else, display the exluded ids and continue
+                disp('Some animals were excluded because they participated in less or more trials than the ones defined');
                 fprintf('Excluded IDs: ')
                 for i = 1:length(error{1,1})
                     fprintf('%d ',error{1,1}{1,i});

@@ -1,13 +1,12 @@
-function [ inst, error ] = fix_trials_numbering( inst )
-%FIX_TRIALS_NUMBERING fixes the numbering of the trials.
-% e.g. 4trials/day, for animal id x we will have:
+function [ inst, error ] = fix_data( inst )
+%FIX_DATA fixes the numbering of the trials and days and excludes animal
+% participated in less/more trials than the ones specified.
+% e.g. 4trials/day, for animal id x we need to have:
 % day 1: 1,2,3,4. day 2: 5,6,7,8. day 3: 9,10,11,12.
+% else id x is excluded
 
-    % Check data consistency
-%     error = data_consistency(inst);
-%     if error
-%         return;
-%     end
+% The same animal id can exist in multiple sessions but in that case a new
+% animal id will be generated for each session.
 
     % Total number of trials
     tps = inst.COMMON_SETTINGS{1,4}{1,1};
@@ -67,7 +66,7 @@ function [ inst, error ] = fix_trials_numbering( inst )
                 sessions = arrayfun( @(t) t.session, inst.TRAJECTORIES.items);
                 inst.TRAJECTORIES = trajectories(inst.TRAJECTORIES.items(ids ~= excluded_ids{1,k} & sessions == i));
             end
-        end    
+        end   
     end
     
     % Re-initialize
@@ -167,5 +166,10 @@ function [ inst, error ] = fix_trials_numbering( inst )
         inst.TRAJECTORIES.items(i).trial = trials(i);
         inst.TRAJECTORIES.items(i).day = days(i);
         inst.TRAJECTORIES.items(i).id = ids(i);
-    end          
+    end    
+    
+    % If all animals were excluded notify the user
+    if isempty(arrayfun( @(t) t.id, inst.TRAJECTORIES.items));
+        error = {'all'};
+    end    
 end

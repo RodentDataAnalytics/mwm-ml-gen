@@ -405,6 +405,9 @@ function lat_sp_len_Callback(hObject, eventdata, handles)
         defaultans = {''};
         options.Interpreter = 'tex';
         user = inputdlg(prompt,name,[1 30],defaultans,options);
+        if isempty(user)
+            return
+        end    
         results_latency_speed_length(segmentation_configs,user);
     else
     % there is only one group thus take all the animals
@@ -450,6 +453,9 @@ function strategies_distribution_Callback(hObject, eventdata, handles)
         defaultans = {''};
         options.Interpreter = 'tex';
         user = inputdlg(prompt,name,[1 30],defaultans,options);
+        if isempty(user)
+            return
+        end 
         results_strategies_distributions_length(segmentation_configs,classification_configs,user);
     else
     % There is only one group thus take all the animals
@@ -480,6 +486,9 @@ function transitions_count_Callback(hObject, eventdata, handles)
         defaultans = {''};
         options.Interpreter = 'tex';
         user = inputdlg(prompt,name,[1 30],defaultans,options);
+        if isempty(user)
+            return
+        end 
         results_transition_counts(segmentation_configs,classification_configs,user);
     else
     % There is only one group thus take all the animals
@@ -510,6 +519,9 @@ function transitions_prob_Callback(hObject, eventdata, handles)
         defaultans = {''};
         options.Interpreter = 'tex';
         user = inputdlg(prompt,name,[1 30],defaultans,options);
+        if isempty(user)
+            return
+        end 
         results_strategies_transition_prob(segmentation_configs,classification_configs,user);
     else
     % There is only one group thus take all the animals

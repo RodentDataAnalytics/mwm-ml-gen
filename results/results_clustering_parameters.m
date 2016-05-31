@@ -92,6 +92,7 @@ function results_clustering_parameters(segmentation_configs,labels_path)
  
     % classification errors (cross-validation)    
     figure(77);
+    title('Classification errors');
     ci_fac = 1.96/sqrt(length(nc));
     errorbar( nc, arrayfun( @(x) 100*x.mean_perrors, res1bare),  arrayfun( @(x) 100*x.sd_perrors*ci_fac, res1bare), 'k-', 'LineWidth', 1.5);                       
     hold on;
@@ -106,6 +107,7 @@ function results_clustering_parameters(segmentation_configs,labels_path)
 
     % percentage of unknown segments
     figure(78);
+    title('Percentage of unknown segments');
     errorbar( nc, arrayfun( @(x) 100*x.mean_punknown, res1),  arrayfun( @(x) 100*x.sd_punknown*ci_fac, res1), 'k-', 'LineWidth', 1.5);                       
     hold on;
     errorbar( nc, arrayfun( @(x) 100*x.mean_punknown, res2),  arrayfun( @(x) 100*x.sd_punknown*ci_fac, res2), 'k:', 'LineWidth', 1.5);                           
@@ -120,6 +122,7 @@ function results_clustering_parameters(segmentation_configs,labels_path)
     
     % final number of clusters
     figure(79);
+    title('Final number of clusters');
     errorbar( nc, arrayfun( @(i) res1(i).mean_nclusters - nc(i), 1:length(res1)),  arrayfun( @(x) x.sd_nclusters*ci_fac, res1), 'k-', 'LineWidth', 1.5);                       
     hold on;
     errorbar( nc, arrayfun( @(i) res2(i).mean_nclusters - nc(i), 1:length(res2)),  arrayfun( @(x) x.sd_nclusters*ci_fac, res2), 'k:', 'LineWidth', 1.5);                           
@@ -135,6 +138,7 @@ function results_clustering_parameters(segmentation_configs,labels_path)
     % percentage of the full swimming paths that are covered by at least
     % one segment of a known class
     figure(80);
+    title('Full trajectories coverage');
     ci_fac = 1.96/sqrt(length(nc));
     plot( nc, covering*100,  'k-', 'LineWidth', 1.5);                       
     xlabel('N_{clus}', 'FontSize', 10);

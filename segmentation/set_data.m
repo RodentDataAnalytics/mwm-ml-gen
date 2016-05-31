@@ -1,34 +1,35 @@
 function [ traj ] = set_data( path, data_files, data_user, properties, session, varargin )
 %SET_DATA converts user's data to their final form for processing
     
-    day = -1; % day if fixed afterwards
+    day = -1;
     traj = trajectories([]);
     files = dir(fullfile(path, '/*.csv') );
     fprintf('Importing %d trajectories...\n', length(files));
-    
-    skipped_files = cell(length(files),1);
-    s = 1;
+
     for i = 1:length(files)
         data = parse_data(fullfile(path, files(i).name),...
                         data_files{1,1}{1,1}, data_files{1,2}{1,1}, data_files{1,3}{1,1},...
                         data_files{1,4}{1,1}, data_files{1,5}{1,1});
         
         %Check if we have the time,x,y -> if we don't the file is marked
-        %Also check if we have id,trial -> if we don't the file is marked
+        %Also check if we have id -> if we don't the file is dropped
         if data{1,4}==1 || isempty(data{1,2}) || isempty(data{1,5});
-            skipped_files{s,1} = fullfile(path, files(i).name);
-            s = s+1;
+            fprintf('Skipped: %s\n',fullfile(path, files(i).name));
             continue;
         end
         
         %If group is missing fix it with the user's data
         if isempty(data{1,3}) && ~isempty(data_user);
             group = find(data{1,2}==data_user{session,1});
+            %In case the animal id does not exist in the file 
+            if isempty(group)
+                fprintf('Skipped: %s\n',fullfile(path, files(i).name));
+                continue
+            end    
             data{1,3} = data_user{session,1}(group(1),2);
             %In case the animal id is still missing mark the file 
             if isempty(data{1,3})
-                skipped_files{s,1} = fullfile(path, files(i).name);
-                s = s+1;
+                fprintf('Skipped: %s\n',fullfile(path, files(i).name));
                 continue;
             end 
         %If group is missing and no user's data are provided assume

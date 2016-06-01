@@ -19,13 +19,15 @@ function results_strategies_transition_prob(segmentation_configs,classification_
     
     % Select group(s) specified by the user
     trajectories_groups = arrayfun( @(t) t.group, segmentation_configs.TRAJECTORIES.items);
-    if length(groups) == 1
-        trajectories_ = segmentation_configs.TRAJECTORIES.items(trajectories_groups == groups);
-    else    
-        trajectories_ = segmentation_configs.TRAJECTORIES.items(trajectories_groups == groups(1) | trajectories_groups == groups(2));
-    end    
-    
-    trajectories_groups = arrayfun( @(t) t.group, trajectories_);
+%     if length(groups) == 1
+%         trajectories_ = segmentation_configs.TRAJECTORIES.items(trajectories_groups == groups);
+%         count = length(trajectories_);
+%     else    
+%         trajectories_ = segmentation_configs.TRAJECTORIES.items(trajectories_groups == groups(1) | trajectories_groups == groups(2));
+%         count = length(trajectories_);
+%     end    
+%     
+%     trajectories_groups = arrayfun( @(t) t.group, trajectories_);
     % Keep only the trajectories with length > 0
     long_trajectories_map = long_trajectories( segmentation_configs );
     % Strategies distribution
@@ -52,25 +54,38 @@ function results_strategies_transition_prob(segmentation_configs,classification_
             continue;
         end       
         nseg = nseg + 1;
-
+ 
         new_class = strat_distr(long_trajectories_map(traj_idx), nseg);
-        if prev_class == -1
-            prev_class = new_class;
-        elseif prev_class ~= new_class
-            % we have a transition
-            if new_class > 0 && prev_class > 0 && length(groups) ~= 1
-                if trajectories_groups(traj_idx) == groups(1)                    
-                    trans_prob1(prev_class, new_class) = trans_prob1(prev_class, new_class) + 1; 
-                else
-                    trans_prob2(prev_class, new_class) = trans_prob2(prev_class, new_class) + 1; 
-                end
-            else
+        
+        % for two groups
+        if length(groups) ~= 1
+            if prev_class == -1
+                prev_class = new_class;
+            elseif prev_class ~= new_class    
+                % we have a transition
                 if new_class > 0 && prev_class > 0
-                     trans_prob1(prev_class, new_class) = trans_prob1(prev_class, new_class) + 1; 
-                end     
-            end
-            new_class = prev_class;
-        end                                
+                    if trajectories_groups(traj_idx) == groups(1)                    
+                        trans_prob1(prev_class, new_class) = trans_prob1(prev_class, new_class) + 1; 
+                    else
+                        trans_prob2(prev_class, new_class) = trans_prob2(prev_class, new_class) + 1; 
+                    end  
+                end
+                new_class = prev_class;
+            end  
+        % for one group
+        else
+            if prev_class == -1
+                prev_class = new_class;
+            elseif prev_class ~= new_class
+                % we have a transition
+                if new_class > 0 && prev_class > 0
+                    if trajectories_groups(traj_idx) == groups(1)                    
+                        trans_prob1(prev_class, new_class) = trans_prob1(prev_class, new_class) + 1; 
+                    end
+                end    
+                new_class = prev_class;
+            end  
+        end 
     end
     % normalize matrices
     if length(groups) ~= 1

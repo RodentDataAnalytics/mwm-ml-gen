@@ -13,7 +13,9 @@ function results_strategies_distributions_length(segmentation_configs,classifica
     total_trials = sum(trials_per_session);
     segments_classification = classification_configs.CLASSIFICATION;
     [groups_, animals_ids, animals_trajectories_map] = trajectories_map(segmentation_configs,varargin{:});
-    
+    if groups_ == -1
+        return
+    end    
     % Keep only the trajectories with length > 0
     long_trajectories_map = long_trajectories( segmentation_configs );
     % Strategies distribution

@@ -1,5 +1,6 @@
 function [ return_data ] = select_files( option )
-%SELECT_FILES 
+%SELECT_FILES asks the user to specify the file's path and return if it is
+%correct.
 
     return_data = {};
     

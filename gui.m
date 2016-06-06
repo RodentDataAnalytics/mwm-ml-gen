@@ -168,6 +168,12 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+function seg_path_Callback(hObject, eventdata, handles)
+function seg_path_CreateFcn(hObject, eventdata, handles)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
 %% LABELLING AND CLASSIFICATION %%
 function path_labels_Callback(hObject, eventdata, handles)
 function path_labels_CreateFcn(hObject, eventdata, handles)
@@ -181,12 +187,11 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-function seg_path_Callback(hObject, eventdata, handles)
-function seg_path_CreateFcn(hObject, eventdata, handles)
+function class_path_Callback(hObject, eventdata, handles)
+function class_path_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% CODE FOR ALL THE PATH TEXTS %%
@@ -208,8 +213,10 @@ function trajectories_data_path_Callback(hObject, eventdata, handles)
 function segment_path_Callback(hObject, eventdata, handles)
     [FN_seg,PN_seg] = uigetfile({'*.mat','MAT-file (*.mat)'},'Select MAT file containing segmentation data');
     set(handles.seg_path,'String',strcat(PN_seg,FN_seg));
+function b_class_path_Callback(hObject, eventdata, handles)      
+    [FN_class,PN_class] = uigetfile({'*.mat','MAT-file (*.mat)'},'Select MAT file containing classification data');
+    set(handles.class_path,'String',strcat(PN_class,FN_class))
 
-    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% CODE FOR BUTTONS %%
 function load_traj_buttom_Callback(hObject, eventdata, handles)
@@ -261,7 +268,9 @@ function load_traj_buttom_Callback(hObject, eventdata, handles)
                                 str2num(get(handles.arena_radius,'String')),...
                                 str2num(get(handles.platX,'String')),...
                                 str2num(get(handles.platY,'String')),...
-                                str2num(get(handles.plat_radius,'String'))};
+                                str2num(get(handles.plat_radius,'String')),...
+                                get(handles.flip_x, 'Value'),...
+                                get(handles.flip_y, 'Value')};
         segmentation_properties = {str2num(get(handles.seg_length,'String')),...
                                    str2num(get(handles.seg_overlap,'String'))};                     
         user_input = {};
@@ -273,7 +282,7 @@ function load_traj_buttom_Callback(hObject, eventdata, handles)
                      
         % compute segments and features
         segmentation_configs = config_segments(user_input);
-        if isempty(segmentation_configs.TRAJECTORIES.items)
+        if isempty(segmentation_configs.TRAJECTORIES)
             return;
         end    
         % check if object is already cached and if not save it
@@ -298,6 +307,7 @@ function classify_button_Callback(hObject, eventdata, handles)
         classification_configs = config_classification(user_input);
         % check if object is already cached and if not save it
         rpath = check_cached_objects(classification_configs,2);
+        set(handles.class_path,'String',rpath);
     end   
     
 function button_save_Callback(hObject, eventdata, handles)  
@@ -330,6 +340,8 @@ function button_save_Callback(hObject, eventdata, handles)
     if test_result == 0 % if error
         return
     else % save to file, proposed data name is: user_input_year-month-day-hour-minute
+        user_input{1,4}{1,8} = get(handles.flip_x, 'Value');
+        user_input{1,4}{1,9} = get(handles.flip_y, 'Value');
         time = fix(clock);
         formatOut = 'yyyy-mmm-dd-HH-MM';
         time = datestr((time),formatOut);
@@ -368,6 +380,8 @@ function button_load_Callback(hObject, eventdata, handles)
             set(handles.platX,'String',user_input{1,4}{5});
             set(handles.platY,'String',user_input{1,4}{6});
             set(handles.plat_radius,'String',user_input{1,4}{7});
+            set(handles.flip_x,'Value',user_input{1,4}{8});
+            set(handles.flip_y,'Value',user_input{1,4}{9});
         end
     else
         errordlg('The file specified is not containing the appropriate data format.','File error');
@@ -387,10 +401,15 @@ function res_test_Callback(hObject, eventdata, handles)
     published_results('execute');
 
 function lat_sp_len_Callback(hObject, eventdata, handles)
-    % ask for segmentation_config file
-    segmentation_configs = select_files(1);
-    if isempty(segmentation_configs)
-        return
+    % see if we have the path for the segmentation_config file
+    rpath = get(handles.seg_path,'String');
+    [error, segmentation_configs] = select_files_default(1,rpath);
+    if error
+        % if not, ask for segmentation_config file
+        segmentation_configs = select_files(1);
+        if isempty(segmentation_configs)
+            return
+        end 
     end    
     % find available animal groups
     groups = zeros(1,length(segmentation_configs.TRAJECTORIES.items));
@@ -416,31 +435,51 @@ function lat_sp_len_Callback(hObject, eventdata, handles)
 
 
 function clustering_performance_Callback(hObject, eventdata, handles)
-    % ask for segmentation_config file
-    segmentation_configs = select_files(1);
-    if isempty(segmentation_configs)
-        return
-    end  
-    % ask for labels file
-    labels_path = select_files(2);
-    if isempty(labels_path)
-        return
-    end  
+    % see if we have the path for the segmentation_config file
+    rpath = get(handles.seg_path,'String');
+    [error, segmentation_configs] = select_files_default(1,rpath);
+    if error
+        % if not, ask for segmentation_config file
+        segmentation_configs = select_files(1);
+        if isempty(segmentation_configs)
+            return
+        end 
+    end    
+    % see if we have the path for the labels file
+    labels_path = get(handles.path_labels,'String');
+    [error, ~] = select_files_default(2,labels_path);
+    if error
+        % if not, ask for labels file
+        labels_path = select_files(2);
+        if isempty(labels_path)
+            return
+        end 
+    end 
     % run the result
     results_clustering_parameters(segmentation_configs,labels_path);
     
 
 function strategies_distribution_Callback(hObject, eventdata, handles)
-    % ask for segmentation_config file
-    segmentation_configs = select_files(1);
-    if isempty(segmentation_configs)
-        return
+    % see if we have the path for the segmentation_config file
+    rpath = get(handles.seg_path,'String');
+    [error, segmentation_configs] = select_files_default(1,rpath);
+    if error
+        % if not, ask for segmentation_config file
+        segmentation_configs = select_files(1);
+        if isempty(segmentation_configs)
+            return
+        end 
     end  
-    % ask for classification_config file
-    classification_configs = select_files(3);
-    if isempty(classification_configs)
-        return
-    end  
+    % see if we have the path for the segmentation_config file
+    rpath = get(handles.class_path,'String');
+    [error, classification_configs] = select_files_default(3,rpath);
+    if error
+        % if not, ask for classification_config file
+        classification_configs = select_files(3);
+        if isempty(classification_configs)
+            return
+        end  
+    end    
     % find available animal groups
     groups = zeros(1,length(segmentation_configs.TRAJECTORIES.items));
     for i = 1:length(segmentation_configs.TRAJECTORIES.items)
@@ -464,16 +503,26 @@ function strategies_distribution_Callback(hObject, eventdata, handles)
     
     
 function transitions_count_Callback(hObject, eventdata, handles)
-    % ask for segmentation_config file
-    segmentation_configs = select_files(1);
-    if isempty(segmentation_configs)
-        return
+    % see if we have the path for the segmentation_config file
+    rpath = get(handles.seg_path,'String');
+    [error, segmentation_configs] = select_files_default(1,rpath);
+    if error
+        % if not, ask for segmentation_config file
+        segmentation_configs = select_files(1);
+        if isempty(segmentation_configs)
+            return
+        end 
     end  
-    % ask for classification_config file
-    classification_configs = select_files(3);
-    if isempty(classification_configs)
-        return
-    end  
+    % see if we have the path for the segmentation_config file
+    rpath = get(handles.class_path,'String');
+    [error, classification_configs] = select_files_default(3,rpath);
+    if error
+        % if not, ask for classification_config file
+        classification_configs = select_files(3);
+        if isempty(classification_configs)
+            return
+        end  
+    end    
     % find available animal groups
     groups = zeros(1,length(segmentation_configs.TRAJECTORIES.items));
     for i = 1:length(segmentation_configs.TRAJECTORIES.items)
@@ -497,16 +546,26 @@ function transitions_count_Callback(hObject, eventdata, handles)
     
 
 function transitions_prob_Callback(hObject, eventdata, handles)
-    % ask for segmentation_config file
-    segmentation_configs = select_files(1);
-    if isempty(segmentation_configs)
-        return
+    % see if we have the path for the segmentation_config file
+    rpath = get(handles.seg_path,'String');
+    [error, segmentation_configs] = select_files_default(1,rpath);
+    if error
+        % if not, ask for segmentation_config file
+        segmentation_configs = select_files(1);
+        if isempty(segmentation_configs)
+            return
+        end 
     end  
-    % ask for classification_config file
-    classification_configs = select_files(3);
-    if isempty(classification_configs)
-        return
-    end  
+    % see if we have the path for the segmentation_config file
+    rpath = get(handles.class_path,'String');
+    [error, classification_configs] = select_files_default(3,rpath);
+    if error
+        % if not, ask for classification_config file
+        classification_configs = select_files(3);
+        if isempty(classification_configs)
+            return
+        end  
+    end     
     % find available animal groups
     groups = zeros(1,length(segmentation_configs.TRAJECTORIES.items));
     for i = 1:length(segmentation_configs.TRAJECTORIES.items)
@@ -530,17 +589,44 @@ function transitions_prob_Callback(hObject, eventdata, handles)
 
     
 function confusion_matrix_Callback(hObject, eventdata, handles)
-    % ask for segmentation_config file
-    segmentation_configs = select_files(1);
-    if isempty(segmentation_configs)
-        return
+    % see if we have the path for the segmentation_config file
+    rpath = get(handles.seg_path,'String');
+    [error, segmentation_configs] = select_files_default(1,rpath);
+    if error
+        % if not, ask for segmentation_config file
+        segmentation_configs = select_files(1);
+        if isempty(segmentation_configs)
+            return
+        end 
     end  
-    % ask for classification_config file
-    classification_configs = select_files(3);
-    if isempty(classification_configs)
-        return
-    end
+    % see if we have the path for the segmentation_config file
+    rpath = get(handles.class_path,'String');
+    [error, classification_configs] = select_files_default(3,rpath);
+    if error
+        % if not, ask for classification_config file
+        classification_configs = select_files(3);
+        if isempty(classification_configs)
+            return
+        end  
+    end    
     results_confusion_matrix(segmentation_configs,classification_configs,10);
 
+% Display Arena
+function flip_x_Callback(hObject, eventdata, handles)
+function flip_y_Callback(hObject, eventdata, handles)
+function view_arena_Callback(hObject, eventdata, handles)
+        CENTRE_X = str2num(get(handles.centreX,'String'));
+        CENTRE_Y = str2num(get(handles.centreY,'String'));
+        ARENA_RADIUS = str2num(get(handles.arena_radius,'String'));
+        PLATFORM_X = str2num(get(handles.platX,'String'));
+        PLATFORM_Y = str2num(get(handles.platY,'String'));
+        PLATFORM_RADIUS = str2num(get(handles.plat_radius,'String'));
+        flipX = get(handles.flip_x, 'Value');
+        flipY = get(handles.flip_y, 'Value');
+        if isempty(CENTRE_X) || isempty(CENTRE_Y) || isempty(ARENA_RADIUS) || isempty(PLATFORM_X) || isempty(PLATFORM_Y) || isempty(PLATFORM_RADIUS)
+            errordlg('Centre [X,Y], Arena Radius, Platform [X,Y] and Plateform Radius fields need to contain numerical values.','Input Error');
+            return
+        end
+        draw_arena(CENTRE_X,CENTRE_Y,ARENA_RADIUS,PLATFORM_X,PLATFORM_Y,PLATFORM_RADIUS,flipX,flipY);
 
 function main_gui_SizeChangedFcn(hObject, eventdata, handles)

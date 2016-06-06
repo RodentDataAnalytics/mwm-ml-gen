@@ -50,26 +50,49 @@ classdef config_segments < handle
                          'ARENA_R',processed_user_input{1,4}(4),...
                          'PLATFORM_X',processed_user_input{1,4}(5),...
                          'PLATFORM_Y',processed_user_input{1,4}(6),...
-                         'PLATFORM_R',processed_user_input{1,4}(7)};
+                         'PLATFORM_R',processed_user_input{1,4}(7),...
+                         'FLIP_X',processed_user_input{1,4}(8),...
+                         'FLIP_Y',processed_user_input{1,4}(9)};
                   
             % Output directory
             inst.OUTPUT_DIR = processed_user_input{1,1}{3};
 
             % Load trajectories
             trajectories_path = processed_user_input{1,1}{1,2};
-            [inst.TRAJECTORIES,terminate] = load_data(inst,trajectories_path,varargin{:});
+            [trajectories,terminate] = load_data(inst,trajectories_path,varargin{:});
             % If no trajectories were found, return
             if terminate == 1
-                fprintf('\nNo animal trajectories found in the specified path: %s',processed_user_input{1,1}{1,2});
+                fprintf('\nNo animal trajectories found in the specified path: %s\n',processed_user_input{1,1}{1,2});
                 return;
+            else
+                inst.TRAJECTORIES = trajectories;
             end    
+            
+            % Update centre and platform location
+            new_plat_x = processed_user_input{1,4}{1,5} - processed_user_input{1,4}{1,2};
+            new_plat_y = processed_user_input{1,4}{1,6} - processed_user_input{1,4}{1,3};
+            if processed_user_input{1,4}{1,8}
+                new_plat_x = -new_plat_x;
+            end
+            if processed_user_input{1,4}{1,9}
+                new_plat_y = -new_plat_y;
+            end    
+            inst.COMMON_PROPERTIES = {'TRIAL_TIMEOUT ',processed_user_input{1,4}(1),...
+             'CENTRE_X',{0},...
+             'CENTRE_Y',{0},...
+             'ARENA_R',processed_user_input{1,4}(4),...
+             'PLATFORM_X',{new_plat_x},...
+             'PLATFORM_Y',{new_plat_y},...
+             'PLATFORM_R',processed_user_input{1,4}(7),...
+             'FLIP_X',processed_user_input{1,4}(8),...
+             'FLIP_Y',processed_user_input{1,4}(9)};
             
             % Fix trials and days numbering
             [inst, error] = fix_data(inst);
-            if length(error) > 1
+            if length(error) > 0
                 % If all animals were excluded, return
                 if isequal(error{1,1},'all');
-                    disp('All animals were excluded, please check your Experimental Settings')
+                    disp('All animals were excluded, please check your Experiment Settings')
                     return
                 end    
                 % Else, display the exluded ids and continue

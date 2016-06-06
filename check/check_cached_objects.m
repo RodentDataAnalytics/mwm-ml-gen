@@ -14,7 +14,7 @@ function path = check_cached_objects( obj, choice )
             if exist('segmentation_configs','var') == 1
                 if isequal(segmentation_configs,obj)
                     flag = 1;
-                    path = strcat(path,'/',files(i).name);
+                    path = strcat(path,'/',files(i).name,'.mat');
                     break;
                 end
             end    
@@ -22,7 +22,7 @@ function path = check_cached_objects( obj, choice )
             if exist('classification_configs','var') == 1
                 if isequal(classification_configs,obj)
                     flag = 1;
-                    path = strcat(path,'/',files(i).name);
+                    path = strcat(path,'/',files(i).name,'.mat');
                     break;
                 end
             end    
@@ -38,14 +38,14 @@ function path = check_cached_objects( obj, choice )
             time = datestr((time),formatOut);
             segmentation_configs = obj;
             save(strcat(path,'/','segmentation_configs_',time),'segmentation_configs');
-            path = strcat(path,'/','segmentation_configs_',time);
+            path = strcat(path,'/','segmentation_configs_',time,'.mat');
         case 2 % config_classification file
             time = fix(clock);
             formatOut = 'yyyy-mm-dd-HH-MM';
             time = datestr((time),formatOut);
             classification_configs = obj;
             save(strcat(path,'/','classification_configs_',time),'classification_configs');
-            path = strcat(path,'/','segmentation_configs_',time);
+            path = strcat(path,'/','segmentation_configs_',time,'.mat');
         end
     end 
 end

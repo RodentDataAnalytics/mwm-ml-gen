@@ -83,10 +83,7 @@ function [ processed_data ] = parse_data(fn, animal_id, animal_group, rec_time, 
             end
         end
     end    
-
-    processed_data = {skipped_file,id,group,damaged_file,pts};
-
-end
     
-
+    processed_data = {skipped_file,id,group,damaged_file,pts};
+end
 

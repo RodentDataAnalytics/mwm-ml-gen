@@ -97,6 +97,7 @@ function select_file_Callback(hObject, eventdata, handles)
         end
     end
     % plot the arena
+    cla
     plot_arena(segmentation_configs);   
     % plot the first trajectory
     plot_trajectory(segmentation_configs.TRAJECTORIES.items(1,1));    
@@ -194,6 +195,9 @@ function save_labels_Callback(hObject, eventdata, handles)
 function seg_list_Callback(hObject, eventdata, handles)
     % get the segments
     temp = get(handles.select_file,'UserData');
+    if isempty(temp)
+        return
+    end    
     segmentation_configs = temp{1,1};
     % get the labels
     [tmp_data,data_indexes] = open_temp_file(temp{1,2});

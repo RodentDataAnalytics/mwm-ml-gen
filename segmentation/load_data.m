@@ -36,11 +36,11 @@ function [ traj, terminate ] = load_data(inst,path,varargin)
     % If no trajectories were loaded exit
     if exist('traj')
         if isempty(traj.items)
-            disp('No trajectories found in the specified path');
+            traj = [];
             terminate = 1;
         end    
-    elseif ~exist('traj')    
-        disp('No trajectories found in the specified path');
+    elseif ~exist('traj') 
+        traj = [];
         terminate = 1;  
     end    
 end

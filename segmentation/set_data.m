@@ -38,30 +38,53 @@ function [ traj ] = set_data( path, data_files, data_user, properties, session, 
             data{1,3} = 1;
         end 
         
-        % If the published data are required
-        if ~isempty(varargin)
+        if ~isempty(varargin) % If the published data are required
             if isequal(varargin{1,1},'original_data')
                 temp = sscanf(files(i).name,'day%d_%d');
                 day = temp(1);
                 load(varargin{1,2}); % loads 'calibration_data'
-                dx = -100;
-                dy = -100;
                 pts = data{1,5};
                 set = strfind(path,'set');
                 set = set(end); % take last element
                 index = sscanf(path(set+3),'%d'); % take the set number
                 pts = calibrate_trajectory(pts,calibration_data{index});
-                pts(:, 2) = pts(:, 2) + dx;
-                pts(:, 3) = pts(:, 3) + dy;
+                pts(:,2) = pts(:,2) - properties{1,4}{1,1};
+                pts(:,3) = pts(:,3) - properties{1,6}{1,1};
                 data{1,5} = pts;
+                % Fix platform position
+                temp_plat_x = properties{1,10}{1,1} - properties{1,4}{1,1};
+                temp_plat_y = properties{1,12}{1,1} - properties{1,6}{1,1}; 
             end    
-        end    
+        else    
+            % Move centre to 0,0
+            pts = data{1,5};
+            pts(:,2) = pts(:,2) - properties{1,4}{1,1};
+            pts(:,3) = pts(:,3) - properties{1,6}{1,1};  
+            % Flip if needed
+            if properties{1,16}{1,1}
+                pts(:,2) = -pts(:,2);
+            end    
+            if properties{1,18}{1,1} 
+                pts(:,3) = -pts(:,3);
+            end    
+            data{1,5} = pts;  
+            % Fix platform position
+            temp_plat_x = properties{1,10}{1,1} - properties{1,4}{1,1};
+            temp_plat_y = properties{1,12}{1,1} - properties{1,6}{1,1}; 
+            % Flip if required
+            if properties{1,16}{1,1}
+                temp_plat_x = -temp_plat_x;
+            end    
+            if properties{1,18}{1,1} 
+                temp_plat_y = -temp_plat_y;
+            end             
+        end
         
         %Chop points at the end on top of the platform            
         npts = size(data{1,5}, 1);
         cuti = npts;
         for k = 0:(size(data{1,5}, 1) - 1)
-            if sqrt((data{1,5}(npts - k, 2) - properties{1,10}{1})^2 + (data{1,5}(npts - k, 3) - properties{1,12}{1})^2) > 1.5*properties{1,14}{1};
+            if sqrt((data{1,5}(npts - k, 2) - temp_plat_x)^2 + (data{1,5}(npts - k, 3) - temp_plat_y)^2) > 1.5*properties{1,14}{1};
                 break;
             end
             cuti = npts - k - 1;

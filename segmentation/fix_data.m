@@ -10,7 +10,7 @@ function [ inst, error ] = fix_data( inst )
 
     % Total number of trials
     tps = inst.COMMON_SETTINGS{1,4}{1,1};
-    if isstring(tps) || ischar(tps)
+    if ischar(tps)
         number_of_trials = sum(str2num((tps)));
     elseif iscell(tps)
         number_of_trials = sum(cell2mat((tps)));
@@ -20,7 +20,7 @@ function [ inst, error ] = fix_data( inst )
     
     % Days
     number_of_days = inst.COMMON_SETTINGS{1,8}{1,1};
-    if isstring(number_of_days) || ischar(number_of_days)
+    if ischar(number_of_days)
         number_of_days = str2num((number_of_days));
     elseif iscell(number_of_days)
         number_of_days = cell2mat((number_of_days));

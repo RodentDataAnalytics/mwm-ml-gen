@@ -45,7 +45,7 @@ function path = check_cached_objects( obj, choice )
             time = datestr((time),formatOut);
             classification_configs = obj;
             save(strcat(path,'/','classification_configs_',time),'classification_configs');
-            path = strcat(path,'/','segmentation_configs_',time,'.mat');
+            path = strcat(path,'/','classification_configs_',time,'.mat');
         end
     end 
 end

@@ -9,13 +9,13 @@ function results_latency_speed_length(segmentation_configs,varargin)
     length_ = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,10);
     speed = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,11);
     days = segmentation_configs.COMMON_SETTINGS{1,8}{1,1}; 
-    if isstring(days) || ischar(days)
+    if ischar(days)
         days = str2num((days));
     elseif iscell(days)
         days = cell2mat((days));
     end 
     trials_per_session = segmentation_configs.COMMON_SETTINGS{1,4}{1,1};
-    if isstring(trials_per_session) || ischar(trials_per_session)
+    if ischar(trials_per_session)
         trials_per_session = str2num((trials_per_session));
     elseif iscell(trials_per_session)
         trials_per_session = cell2mat((trials_per_session));

@@ -328,7 +328,9 @@ function button_save_Callback(hObject, eventdata, handles)
                              get(handles.arena_radius,'String'),...
                              get(handles.platX,'String'),...
                              get(handles.platY,'String'),...
-                             get(handles.plat_radius,'String')};                    
+                             get(handles.plat_radius,'String'),...  
+                             get(handles.flip_x,'Value'),...
+                             get(handles.flip_y,'Value')};
     user_input = {};
     user_input{1,1} = paths;
     user_input{1,2} = format;
@@ -340,8 +342,6 @@ function button_save_Callback(hObject, eventdata, handles)
     if test_result == 0 % if error
         return
     else % save to file, proposed data name is: user_input_year-month-day-hour-minute
-        user_input{1,4}{1,8} = get(handles.flip_x, 'Value');
-        user_input{1,4}{1,9} = get(handles.flip_y, 'Value');
         time = fix(clock);
         formatOut = 'yyyy-mmm-dd-HH-MM';
         time = datestr((time),formatOut);

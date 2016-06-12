@@ -115,6 +115,9 @@ function [ test_result ] = check_user_input( user_input, switcher )
                     sanity_table(i+11) = 0;
                 end    
             end
+            % checkboxes
+            sanity_table(19) = 1;
+            sanity_table(20) = 1;
             
      case 2 
         %% Paths & Format - Experiment Settings - Experiment Properties %%     

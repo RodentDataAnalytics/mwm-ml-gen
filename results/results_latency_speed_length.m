@@ -28,15 +28,20 @@ function results_latency_speed_length(segmentation_configs,varargin)
     end    
 
     % Equalize groups
-    if length(animals_trajectories_map) > 1
+    if size(animals_trajectories_map,2) > 1
         if size(animals_trajectories_map{1,1},2)~=size(animals_trajectories_map{1,2},2)
-            if size(animals_trajectories_map{1,1},2) > size(animals_trajectories_map{1,2},2)
-                dif = size(animals_trajectories_map{1,1},2) - size(animals_trajectories_map{1,2},2);
-                animals_trajectories_map{1,1} = animals_trajectories_map{1,1}(1:end,1:end-dif);
-            else    
-                dif = size(animals_trajectories_map{1,2},2) - size(animals_trajectories_map{1,1},2);
-                animals_trajectories_map{1,2} = animals_trajectories_map{1,2}(1:end,1:end-dif);
-            end
+            % set current GUI visibility to off
+            temp = findall(gcf);
+            set(temp,'Visible','off');
+            % run the other GUI
+            features = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,9:11);
+            [animals_ids, animals_trajectories_map] = equalize_groups(groups_, animals_ids, animals_trajectories_map, features);
+            % resume main GUI visibility
+            set(temp,'Visible','on');
+            % if Cancel or X was clicked, return
+            if size(animals_trajectories_map{1,1},2)~=size(animals_trajectories_map{1,2},2)
+                return
+            end   
         end
     end
     

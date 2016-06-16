@@ -20,6 +20,11 @@ function [ groups ] = validate_groups( groups, varargin )
     end    
     if iscell(varargin) % e.g. {1,2}
         groups_ = strsplit(varargin{1,1}{1,1},',');
+        if length(groups_) > 2
+            groups = -1;
+            disp('Please specify 2 animal groups');
+            return
+        end    
         if length(groups_) ~= 2 % one group only
             g1 = str2num(groups_{1,1});
             %check if group is a number

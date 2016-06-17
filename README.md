@@ -1,6 +1,6 @@
 # mwm-ml-gen
 
-**mwm-ml-gen** (mwm-ml-generalised) is a complete set of tools for analysis and classification of rodent trajectories inside the Morris Water Maze. 
+**mwm-ml-gen** (Morris Water Maze - Machine Learning - Generalized) is a complete set of tools for analysis and classification of rodent trajectories inside the Morris Water Maze. 
 
 For more information about 'how to use' this software visit our [wiki](https://github.com/RodentDataAnalytics/mwm-ml-gen/wiki).
 

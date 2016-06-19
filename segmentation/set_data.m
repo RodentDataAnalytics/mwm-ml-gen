@@ -37,7 +37,7 @@ function [ traj ] = set_data( path, data_files, data_user, properties, session, 
             if isequal(varargin{1,1},'original_data')
                 temp = sscanf(files(i).name,'day%d_%d');
                 day = temp(1);
-                load('/Users/avouros/Documents/MATLAB/mwm-ml-gen-master/import/original_data/calibration_data.mat'); % loads 'calibration_data'
+                load(varargin{1,2}); % loads 'calibration_data'
                 pts = data{1,4};
                 set = strfind(path,'set');
                 set = set(end); % take last element

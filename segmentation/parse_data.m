@@ -1,4 +1,4 @@
-function [ processed_data ] = parse_data(fn, animal_id, animal_group, rec_time, centre_x, centre_y)
+function [ processed_data ] = parse_data(fn, animal_id, rec_time, centre_x, centre_y)
 %PARSE_DATA gets the data of interest from file
 
     %Read the csv file
@@ -6,7 +6,6 @@ function [ processed_data ] = parse_data(fn, animal_id, animal_group, rec_time, 
 
     %Initialize
     id = '';
-    group = '';
     skipped_file = '';
     time = {};
     x = {};
@@ -14,16 +13,14 @@ function [ processed_data ] = parse_data(fn, animal_id, animal_group, rec_time, 
     damaged_file = 0;
     pts = [];
 
-    %First find id,group,trial,session
+    %First find id
     i = 1;
     while i <= size(data,1)
         if isequal(data{i,1},animal_id)
             id = sscanf(data{i,2}, '%d');
-        elseif isequal(data{i,1},animal_group)
-            group = sscanf(data{i,2}, '%d');
         elseif ~isempty(str2num(data{i,1}))   
-            %if we are here then we should have the id,group,trial,session
-            if isempty(id) || isempty(group) || isempty(trial)
+            %if we are here then we should have the id
+            if isempty(id)
                 %indicate which file was skipped
                 skipped_file = fn;
             end
@@ -84,6 +81,6 @@ function [ processed_data ] = parse_data(fn, animal_id, animal_group, rec_time, 
         end
     end    
     
-    processed_data = {skipped_file,id,group,damaged_file,pts};
+    processed_data = {skipped_file,id,damaged_file,pts};
 end
 

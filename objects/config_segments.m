@@ -26,15 +26,25 @@ classdef config_segments < handle
     methods
         %% CONSTRUCTOR %%
         function inst = config_segments(processed_user_input,varargin)
+            
             % File format
             inst.FORMAT{1,1} = processed_user_input{1,2}(1);
             inst.FORMAT{1,2} = processed_user_input{1,2}(2);
             inst.FORMAT{1,3} = processed_user_input{1,2}(3);
             inst.FORMAT{1,4} = processed_user_input{1,2}(4);
-            inst.FORMAT{1,5} = processed_user_input{1,2}(5);
-            % Read animal groups from a separate csv file
-            if ~isempty(inst.FORMAT{1,2}) && ~isempty(processed_user_input{1,1}{1,1})
-                inst.TRAJECTORY_GROUPS = read_trajectory_groups(processed_user_input{1,1}{1,1});
+            
+            % Animal groups
+            if ~isempty(processed_user_input{1,1}{1,3})
+                % if Demo
+                try
+                    [~,~,ext] = fileparts(processed_user_input{1,1}{3}); 
+                    if isequal(ext,'.csv') || isequal(ext,'.CSV')
+                        inst.TRAJECTORY_GROUPS = read_trajectory_groups(processed_user_input{1,1}{3});
+                    end
+                % if user data   
+                catch    
+                    inst.TRAJECTORY_GROUPS = processed_user_input{1,1}{3};
+                end    
             end
             
             % Experiment Settings (Common Settings)
@@ -55,10 +65,10 @@ classdef config_segments < handle
                          'FLIP_Y',processed_user_input{1,4}(9)};
                   
             % Output directory
-            inst.OUTPUT_DIR = processed_user_input{1,1}{3};
+            inst.OUTPUT_DIR = processed_user_input{1,1}{2};
 
             % Load trajectories
-            trajectories_path = processed_user_input{1,1}{1,2};
+            trajectories_path = processed_user_input{1,1}{1};
             [trajectories,terminate] = load_data(inst,trajectories_path,varargin{:});
             % If no trajectories were found, return
             if terminate == 1

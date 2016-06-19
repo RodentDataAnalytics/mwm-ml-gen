@@ -38,6 +38,14 @@ function results_transition_counts(segmentation_configs,classification_configs,v
     ids = {};
     nanimals = -1;
     
+    [~, ~, animals_trajectories_map] = trajectories_map(segmentation_configs,varargin{:});
+    if length(animals_trajectories_map) > 0
+        if size(animals_trajectories_map{1,1},2) > size(animals_trajectories_map{1,2},2)
+            temp = groups(1);
+            groups = [groups(2), temp];
+        end
+    end   
+    
     trans = segments_classification.transition_counts_trial(segmentation_configs,classification_configs);
     
     all_trials = arrayfun( @(t) t.trial, trajectories_.items);                   

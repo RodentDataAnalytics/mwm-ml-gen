@@ -53,5 +53,9 @@ function [ trajectory_groups ] = read_trajectory_groups( fn )
         k=k+1;
     end      
     
+    % Remove NaN values
+    for i = 1:length(trajectory_groups)
+        trajectory_groups{i,1}(isnan( trajectory_groups{i,1}(:,1)),:)=[];
+    end    
 end
 

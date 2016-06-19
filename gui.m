@@ -37,12 +37,6 @@ function varargout = gui_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 %% PATHS SECTION %%
-function path_groups_Callback(hObject, eventdata, handles)
-function path_groups_CreateFcn(hObject, eventdata, handles)
-    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-        set(hObject,'BackgroundColor','white');   
-    end
-    
 function path_data_Callback(hObject, eventdata, handles)
 function path_data_CreateFcn(hObject, eventdata, handles)
     if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -58,12 +52,6 @@ function path_output_CreateFcn(hObject, eventdata, handles)
 %% FILE FORMAT %%
 function field_id_Callback(hObject, eventdata, handles)
 function field_id_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-function field_group_Callback(hObject, eventdata, handles)
-function field_group_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -195,9 +183,6 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% CODE FOR ALL THE PATH TEXTS %%
-function b_path_groups_Callback(hObject, eventdata, handles)
-    [FN_group,PN_group] = uigetfile({'*.csv','CSV-file (*.csv)'},'Select CSV file containing animal groups');
-    set(handles.path_groups,'String',strcat(PN_group,FN_group));
 function b_path_data_Callback(hObject, eventdata, handles)
     FN_data = uigetdir(matlabroot,'Select data folder');
     set(handles.path_data,'String',FN_data);
@@ -220,11 +205,9 @@ function b_class_path_Callback(hObject, eventdata, handles)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% CODE FOR BUTTONS %%
 function load_traj_buttom_Callback(hObject, eventdata, handles)
-    paths = {get(handles.path_groups,'String'),...
-             get(handles.path_data,'String'),...
+    paths = {get(handles.path_data,'String'),...
              get(handles.path_output,'String')};
     format = {get(handles.field_id,'String'),...
-              get(handles.field_group,'String'),...
               get(handles.field_time,'String'),...
               get(handles.field_x,'String'),...
               get(handles.field_y,'String')};
@@ -250,12 +233,34 @@ function load_traj_buttom_Callback(hObject, eventdata, handles)
     test_result = check_user_input(user_input,2);  
     if test_result == 0 % if error
         return
-    else % else update the type of variables (some will become integers)
-        paths = {get(handles.path_groups,'String'),...
-                 get(handles.path_data,'String'),...
-                 get(handles.path_output,'String')};
+    else
+        % Ask if the user wish to create animal groups
+        choice = questdlg('Would you like to assign animals to groups?', ...
+            'Assign Animals to Groups','Yes','No','No');
+        switch choice
+            case 'Yes'
+                % set current GUI visibility to off
+                temp = findall(gcf);
+                set(temp,'Visible','off');                
+                [groups_path] = animal_groups(paths, get(handles.field_id,'String'), str2num(get(handles.text_sessions,'String')));    
+                % resume main GUI visibility
+                set(temp,'Visible','on');                
+                if isempty(groups_path)
+                    return;
+                end    
+            case 'No'
+                groups_path = {};
+                disp('No animal groups specified. All animals will belong to group 1');
+            otherwise
+                groups_path = {};
+                disp('No animal groups specified. All animals will belong to group 1');                
+        end
+        
+        % Update the type of variables (some will become integers)
+        paths = {get(handles.path_data,'String'),...
+                 get(handles.path_output,'String'),...
+                 groups_path};
         format = {get(handles.field_id,'String'),...
-                  get(handles.field_group,'String'),...
                   get(handles.field_time,'String'),...
                   get(handles.field_x,'String'),...
                   get(handles.field_y,'String')};
@@ -279,7 +284,7 @@ function load_traj_buttom_Callback(hObject, eventdata, handles)
         user_input{1,3} = experiment_settings;
         user_input{1,4} = experiment_properties;
         user_input{1,5} = segmentation_properties;
-                     
+                           
         % compute segments and features
         segmentation_configs = config_segments(user_input);
         if isempty(segmentation_configs.TRAJECTORIES)
@@ -311,11 +316,9 @@ function classify_button_Callback(hObject, eventdata, handles)
     end   
     
 function button_save_Callback(hObject, eventdata, handles)  
-    paths = {get(handles.path_groups,'String'),...
-             get(handles.path_data,'String'),...
+    paths = {get(handles.path_data,'String'),...
              get(handles.path_output,'String')};
     format = {get(handles.field_id,'String'),...
-              get(handles.field_group,'String'),...
               get(handles.field_time,'String'),...
               get(handles.field_x,'String'),...
               get(handles.field_y,'String')};
@@ -359,15 +362,13 @@ function button_load_Callback(hObject, eventdata, handles)
             errordlg('Cannot load file specified, it may be corrupted','File error');
             return
         else
-            set(handles.path_groups,'String',user_input{1,1}{1});
-            set(handles.path_data,'String',user_input{1,1}{2});
-            set(handles.path_output,'String',user_input{1,1}{3});
+            set(handles.path_data,'String',user_input{1,1}{1});
+            set(handles.path_output,'String',user_input{1,1}{2});
             
             set(handles.field_id,'String',user_input{1,2}{1});
-            set(handles.field_group,'String',user_input{1,2}{2});
-            set(handles.field_time,'String',user_input{1,2}{3});
-            set(handles.field_x,'String',user_input{1,2}{4});
-            set(handles.field_y,'String',user_input{1,2}{5});
+            set(handles.field_time,'String',user_input{1,2}{2});
+            set(handles.field_x,'String',user_input{1,2}{3});
+            set(handles.field_y,'String',user_input{1,2}{4});
             
             set(handles.text_sessions,'String',user_input{1,3}{1});
             set(handles.text_tps,'String',user_input{1,3}{2});

@@ -132,11 +132,15 @@ function results_strategies_distributions_length(segmentation_configs,classifica
         box off;  
         set(gcf,'papersize',[8,8], 'paperposition',[0,0,8,8]);
 
-        export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('segment_length_strategy_%d', c));
-    
-        p = friedman(mfried, nanimals);
-        str = sprintf('Class: %s\tp_frdm: %g', segments_classification.classes{1,c}{1,2}, p);            
-        disp(str);        
+        %export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('segment_length_strategy_%d', c));
+        
+        try
+            p = friedman(mfried, nanimals);
+            str = sprintf('Class: %s\tp_frdm: %g', segments_classification.classes{1,c}{1,2}, p);            
+            disp(str);        
+        catch
+            disp('Error on Friedman test. Friedman test is skipped');
+        end    
     end     
 end
 

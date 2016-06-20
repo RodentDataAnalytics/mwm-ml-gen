@@ -7,6 +7,10 @@ function [ groups ] = validate_groups( groups, varargin )
 
     % Original data:
     if length(varargin) > 2
+        if length(varargin) == 2
+            groups = [1,2];
+            return;
+        end    
         if isequal(varargin{1,3},'original_results');
             groups = [1,2];
             return;

@@ -147,7 +147,7 @@ function results_latency_speed_length(segmentation_configs,varargin)
         set(gcf, 'Color', 'w');
         box off;        
         set(gcf,'papersize',[8,8], 'paperposition',[0,0,8,8]);
-        %export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('animals_%s', names{i}));
+        export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('animals_%s', names{i}));
         
         % run friedman test            
         try

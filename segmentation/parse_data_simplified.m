@@ -36,12 +36,13 @@ function [ ids ] = parse_data_simplified( path, id_field, sessions )
                     end
                     i = i+1;
                 end  
-				if isempty(id)
-					errordlg('Animal ID not found. Check the provided ID Field','Parse ID Error');
-					return
-				end	
                 % store the animal ids
-                ids_temp = [ids_temp, id];
+                try
+                	ids_temp = [ids_temp, id];
+                catch
+                	errordlg('Animal ID not found. Check the provided ID Field','Parse ID Error');
+                	return	
+                end	
             end
             % store the unique animal ids per session
             ids{session} = unique(ids_temp);

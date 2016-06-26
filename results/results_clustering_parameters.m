@@ -1,4 +1,4 @@
-function results_clustering_parameters(segmentation_configs,labels_path)
+function [varargout] = results_clustering_parameters(segmentation_configs,labels_path,varargin)
 % Generates three figures indicating the impact of the number of clusters 
 % on the clustering performance for a set of N computed segments:
 % 1. Percentage of classification errors.
@@ -7,7 +7,19 @@ function results_clustering_parameters(segmentation_configs,labels_path)
 % 3. Percentage of the full swimming paths that are covered by at least 
 %    one segment of a known class.
 % The calculated data from the clustering proceedures are also saved.
+  
+    % Iterations
+    min_num = 1;
+    max_num = 10;
+    step = 1;
+    % Updated code
+    if ~isempty(varargin)
+        min_num = varargin{1};
+        max_num = varargin{2};
+        step = varargin{3};
+    end    
 
+    % Required info from segmentation object
     segments = segmentation_configs.SEGMENTS;
     features = segmentation_configs.FEATURES_VALUES_SEGMENTS(:,1:8);
     feature_length = segmentation_configs.FEATURES_VALUES_SEGMENTS(:,10);
@@ -23,25 +35,32 @@ function results_clustering_parameters(segmentation_configs,labels_path)
     nc = [];
     test_set = [];      
     covering = [];  
-        
-    for i = 1:10
-        n = 20 + i*10;
-        nc = [nc, n];
+    
+    for i = min_num:step:max_num
+        % original code
+        if min_num == 1 && max_num == 10 && step == 1
+            n = 20 + i*10;
+            nc = [nc, n];
+        % updated code    
+        else    
+            n = i;
+            nc = [nc, n];
+        end    
                
         % get classifier object
         classif = semisupervised_clustering(segments,features,LABELLING_MAP,CLASSIFICATION_TAGS,0);
                 
         if isempty(test_set)
             if ptest > 0          
-                fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('test_set.mat', n));
-                %if exist(fn ,'file')
-                %    load(fn);
-                %else                
+                fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('test_set%d.mat', n));
+                if exist(fn ,'file')
+                    load(fn);
+                else                
                     test_set = zeros(1, classif.nlabels);
                     idx = 1:classif.nlabels;
                     test_set(idx(randsample(length(idx), floor(length(idx)*ptest)))) = 1;
                     save(fn, 'test_set');
-                %end
+                end
             else
                 test_set = [];
             end
@@ -50,12 +69,14 @@ function results_clustering_parameters(segmentation_configs,labels_path)
         % i) two-phase clustering (default)        
         % see if we already have the data
         fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('clustering_n%d.mat', n));
-        %if exist(fn ,'file')
-        %    load(fn);
-        %else            
+        if exist(fn ,'file')
+            fprintf('\nData for %d number of clusters (two-phase clustering) found. Loading data...\n', n);
+            load(fn);
+        else            
+            fprintf('\nData for %d number of clusters (two-phase clustering) not found. Computing...\n', n);
             [res, res1st] = classif.cluster_cross_validation(n, 'Folds', 10, 'TestSet', test_set);
             save(fn, 'res', 'res1st');
-        %end 
+        end 
         res.compress;
         res1st.compress;
         
@@ -66,12 +87,14 @@ function results_clustering_parameters(segmentation_configs,labels_path)
         % see if we already have the data
         classif.two_stage = 1;        
         fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('clustering_all_constr_%d.mat', n));
-        %if exist(fn ,'file')
-        %    load(fn);
-        %else            
+        if exist(fn ,'file')
+            fprintf('\nData for %d number of clusters (clustering using all the constraints) found. Loading data...\n', n);
+            load(fn);
+        else            
+            fprintf('\nData for %d number of clusters (clustering using all the constraints) not found. Computing...\n', n);
             res = classif.cluster(n);
             save(fn, 'res');
-        %end        
+        end        
         res3 = [res3, res];
         covering = [covering, res.coverage(feature_length)];      
     end
@@ -89,63 +112,20 @@ function results_clustering_parameters(segmentation_configs,labels_path)
     for i = 1:length(res2)
         res2bare = [res2bare, res2(i).remap_clusters('DiscardMixed', 0)];
     end
- 
-    % classification errors (cross-validation)    
-    figure(77);
-    title('Classification errors');
-    ci_fac = 1.96/sqrt(length(nc));
-    errorbar( nc, arrayfun( @(x) 100*x.mean_perrors, res1bare),  arrayfun( @(x) 100*x.sd_perrors*ci_fac, res1bare), 'k-', 'LineWidth', 1.5);                       
-    hold on;
-    errorbar( nc, arrayfun( @(x) 100*x.mean_perrors, res2bare),  arrayfun( @(x) 100*x.sd_perrors*ci_fac, res2bare), 'k:', 'LineWidth', 1.5);                           
-    xlabel('N_{clus}', 'FontSize', 10);
-    ylabel('% errors', 'FontSize', 10);            
-    set(gcf, 'Color', 'w');
-    set(gca, 'FontSize', 10, 'LineWidth', 1.5);
-    h1 = gca;
-    box off;
-    export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), 'clusters_dep_err');
-
-    % percentage of unknown segments
-    figure(78);
-    title('Percentage of unknown segments');
-    errorbar( nc, arrayfun( @(x) 100*x.mean_punknown, res1),  arrayfun( @(x) 100*x.sd_punknown*ci_fac, res1), 'k-', 'LineWidth', 1.5);                       
-    hold on;
-    errorbar( nc, arrayfun( @(x) 100*x.mean_punknown, res2),  arrayfun( @(x) 100*x.sd_punknown*ci_fac, res2), 'k:', 'LineWidth', 1.5);                           
-    plot(nc, arrayfun( @(x) 100*x.punknown, res3), 'k*');   
-    xlabel('N_{clus}', 'FontSize', 10);
-    ylabel('% undefined', 'FontSize', 10);            
-    set(gcf, 'Color', 'w');
-    set(gca, 'FontSize', 10, 'LineWidth', 1.5);
-    h2 = gca;
-    box off;
-    export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), 'clusters_dep_undef');
+     
+    if length(varargin) > 3 
+        % Generate the graphs
+        results_clustering_parameters_graphs(segmentation_configs.OUTPUT_DIR,nc,res1bare,res2bare,res1,res2,res3,covering);
     
-    % final number of clusters
-    figure(79);
-    title('Final number of clusters');
-    errorbar( nc, arrayfun( @(i) res1(i).mean_nclusters - nc(i), 1:length(res1)),  arrayfun( @(x) x.sd_nclusters*ci_fac, res1), 'k-', 'LineWidth', 1.5);                       
-    hold on;
-    errorbar( nc, arrayfun( @(i) res2(i).mean_nclusters - nc(i), 1:length(res2)),  arrayfun( @(x) x.sd_nclusters*ci_fac, res2), 'k:', 'LineWidth', 1.5);                           
-    set(gca, 'Xtick', [50, 100, 150, 200]);  
-    xlabel('N_{clus}', 'FontSize', 10);
-    ylabel('\DeltaN_{clus}', 'FontSize', 10);            
-    set(gcf, 'Color', 'w');
-    set(gca, 'FontSize', 10, 'LineWidth', 1.5);
-    h3 = gca;
-    box off;
-    export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), 'clusters_dep_deltan');
-
-    % percentage of the full swimming paths that are covered by at least
-    % one segment of a known class
-    figure(80);
-    title('Full trajectories coverage');
-    ci_fac = 1.96/sqrt(length(nc));
-    plot( nc, covering*100,  'k-', 'LineWidth', 1.5);                       
-    xlabel('N_{clus}', 'FontSize', 10);
-    ylabel('% coverage', 'FontSize', 10);            
-    set(gcf, 'Color', 'w');
-    set(gca, 'FontSize', 10, 'LineWidth', 1.5, 'YLim', [80, 100]);
-    h1 = gca;
-    box off;
-    export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), 'clusters_dep_coverage');
+    else
+        % Returns the values
+        varargout{1} = nc;
+        varargout{2} = res1bare;
+        varargout{3} = res2bare;
+        varargout{4} = res1;
+        varargout{5} = res2;
+        varargout{6} = res3;
+        varargout{7} = covering;
+    end    
+    
 end

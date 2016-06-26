@@ -52,22 +52,22 @@ function [ test_result ] = check_user_input( user_input, switcher )
             try
                 c = str2num(user_input{1,3}{1});
                 if ~isempty(c)
-                    if c ~= 0
+                    if c ~= 0 && isinteger(c)
                         sanity_table(7) = 1;
                     end    
                 end    
-            catch ME   
+            catch   
                 sanity_table(7) = 0;
             end    
             % days
             try
                 c = str2num(user_input{1,3}{3});
                 if ~isempty(c)
-                    if c ~= 0
+                    if c ~= 0 && isinteger(c)
                         sanity_table(9) = 1;
                     end    
                 end    
-            catch ME   
+            catch  
                 sanity_table(9) = 0;
             end             
             % trials per session
@@ -77,7 +77,7 @@ function [ test_result ] = check_user_input( user_input, switcher )
                     count = 0;
                     for i = 1:length(substrings)
                         if isnumeric(str2num(substrings{i}))
-                            if str2num(substrings{i}) ~= 0
+                            if str2num(substrings{i}) ~= 0 && isinteger(str2num(substrings{i}))
                                 count = count+1;
                             end    
                         end
@@ -86,7 +86,7 @@ function [ test_result ] = check_user_input( user_input, switcher )
                         sanity_table(8) = 1;
                     end
                 end  
-            catch ME   
+            catch  
                sanity_table(8) = 0;
             end   
             % experiment properties
@@ -105,7 +105,22 @@ function [ test_result ] = check_user_input( user_input, switcher )
             % checkboxes
             sanity_table(17) = 1;
             sanity_table(18) = 1;
-            
+            % see if the trajectory path has the 'sessions' number of
+            % folders
+            if sanity_table(1) == 1 && sanity_table(7) == 1
+                ses = str2num(user_input{1,3}{1});
+                c = 0;
+                f = dir(fullfile(path));
+                for k = 3:length(f)
+                    if f(k).isdir == 1
+                        c = c + 1;
+                    end
+                end 
+                if ~isequal(c,ses)
+                    sanity_table(1) = 0;
+                end    
+            end   
+
      case 2 
         %% Paths & Format - Experiment Settings - Experiment Properties %%     
             % data folder
@@ -126,22 +141,22 @@ function [ test_result ] = check_user_input( user_input, switcher )
             try
                 c = str2num(user_input{1,3}{1});
                 if ~isempty(c)
-                    if c ~= 0
+                    if c ~= 0 && isinteger(c)
                         sanity_table(7) = 1;
                     end    
                 end    
-            catch ME   
+            catch  
                 sanity_table(7) = 0;
             end    
             % days
             try
                 c = str2num(user_input{1,3}{3});
                 if ~isempty(c)
-                    if c ~= 0
+                    if c ~= 0 && isinteger(c)
                         sanity_table(9) = 1;
                     end    
                 end    
-            catch ME   
+            catch  
                 sanity_table(9) = 0;
             end             
             % trials per session
@@ -151,7 +166,7 @@ function [ test_result ] = check_user_input( user_input, switcher )
                     count = 0;
                     for i = 1:length(substrings)
                         if isnumeric(str2num(substrings{i}))
-                            if str2num(substrings{i}) ~= 0
+                            if str2num(substrings{i}) ~= 0 && isinteger(str2num(substrings{i}))
                                 count = count+1;
                             end    
                         end
@@ -160,7 +175,7 @@ function [ test_result ] = check_user_input( user_input, switcher )
                         sanity_table(8) = 1;
                     end
                 end  
-            catch ME   
+            catch   
                sanity_table(8) = 0;
             end   
             % experiment properties
@@ -172,20 +187,35 @@ function [ test_result ] = check_user_input( user_input, switcher )
                         sanity_table(i+9) = 1;
                     end 
                     i = i+1;
-                catch ME
+                catch
                     sanity_table(i+9) = 0;
                 end    
             end
             % checkboxes
             sanity_table(17) = 1;
-            sanity_table(18) = 1;       
+            sanity_table(18) = 1;    
+            % see if the trajectory path has the 'sessions' number of
+            % folders
+            if sanity_table(1) == 1 && sanity_table(7) == 1
+                ses = str2num(user_input{1,3}{1});
+                c = 0;
+                f = dir(fullfile(path));
+                for k = 3:length(f)
+                    if f(k).isdir == 1
+                        c = c + 1;
+                    end
+                end 
+                if ~isequal(c,ses)
+                    sanity_table(1) = 0;
+                end    
+            end             
             % segment length
             try
                 c = str2num(user_input{1,5}{1});
                 if ~isempty(c)
                     sanity_table(19) = 1;
                 end    
-            catch ME   
+            catch   
                 sanity_table(19) = 0;
             end                    
             % segment overlap   
@@ -196,9 +226,10 @@ function [ test_result ] = check_user_input( user_input, switcher )
                         sanity_table(20) = 1;
                     end    
                 end    
-            catch ME   
+            catch   
                 sanity_table(20) = 0;
-            end              
+            end           
+            
      case 3
         %% Labelling and Classification %%    
             % labels
@@ -213,11 +244,11 @@ function [ test_result ] = check_user_input( user_input, switcher )
             try
                 c = str2num(user_input{1,2}{1});
                 if ~isempty(c)
-                    if c ~= 0
+                    if c ~= 0 && isinteger(c)
                         sanity_table(3) = 1;   
                     end    
                 end    
-            catch ME   
+            catch  
                 sanity_table(3) = 0;
             end               
     end 

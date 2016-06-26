@@ -6,7 +6,7 @@ function user_feedback( sanity_table, switcher )
         %% General Settings 
         % Path Errors
         if ~sanity_table(1)
-            errordlg('Folder not found. Specify a correct folder path for Trajectory Data','Path error');
+            errordlg('Specify a correct folder path for Trajectory Data. The specified folder should also contain as many subfolders as the defined number of sessions','Path error');
         elseif ~sanity_table(2)
             errordlg('Folder not found. Specify a correct Output Folder path','Path error');
         % Files Format Errors
@@ -46,7 +46,7 @@ function user_feedback( sanity_table, switcher )
         %% General Settings 
         % Path Errors
         if ~sanity_table(1)
-            errordlg('Folder not found. Specify a correct folder path for Trajectory Data','Path error');
+            errordlg('Specify a correct folder path for Trajectory Data. The specified folder should also contain as many subfolders as the defined number of sessions','Path error');
         elseif ~sanity_table(2)
             errordlg('Folder not found. Specify a correct Output Folder path','Path error');
         % Files Format Errors
@@ -92,7 +92,7 @@ function user_feedback( sanity_table, switcher )
         if ~sanity_table(1)
             errordlg('File path for labelling data not found.','Input Error');
         elseif ~sanity_table(2)
-            errordlg('File path for segment configurations not found.','Input Error');
+            errordlg('File path for segmentation configurations not found.','Input Error');
         elseif ~sanity_table(3)
             errordlg('Number of clusters. Field needs to contain a numerical value','Input Error');
         end

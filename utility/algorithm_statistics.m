@@ -1,0 +1,85 @@
+function [ varargout ] = algorithm_statistics(option,varargin)
+%ALGORITHM_STATISTICS computes various statistics about the algorithm
+%performance
+
+% OPTION 1: Optimal number of clusters.
+%Consider only the two stage clustering to find optimal value(s).
+
+
+
+%     ci_fac = 1.96/sqrt(length(nc));
+%     % CLASSIFICATION ERRORS (cross-validation) 
+%     per_errors1 = arrayfun( @(x) 100*x.mean_perrors, res1bare);
+%     per_errors_ebars1 = arrayfun( @(x) 100*x.sd_perrors*ci_fac, res1bare);
+%     per_errors2 = arrayfun( @(x) 100*x.mean_perrors, res2bare);
+%     per_errors_ebars2 = arrayfun( @(x) 100*x.sd_perrors*ci_fac, res2bare);
+
+%     % PERCENTAGE OF UNKNOWN SEGMENTS
+%     per_undefined1 = arrayfun( @(x) 100*x.mean_punknown, res1);
+%     per_undefined_ebars1 = arrayfun( @(x) 100*x.sd_punknown*ci_fac, res1);
+%     per_undefined2 = arrayfun( @(x) 100*x.mean_punknown, res2);
+%     per_undefined_ebars2 = arrayfun( @(x) 100*x.sd_punknown*ci_fac, res2);
+%     % COVERAGE
+%     coverage = covering*100;
+
+%     % FINAL NUMBER OF CLUSTERS
+%     per_clus1 = arrayfun( @(i) res1(i).mean_nclusters - nc(i), 1:length(res1));
+%     per_clus_ebars1 = arrayfun( @(x) x.sd_nclusters*ci_fac, res1);
+%     per_clus2 = arrayfun( @(i) res2(i).mean_nclusters - nc(i), 1:length(res2));
+%     per_clus_ebars2 = arrayfun( @(x) x.sd_nclusters*ci_fac, res2);     
+
+    switch option
+        case 1  
+        %% %errors, %undefined, %coverage
+            nc       = varargin{1};
+            res1bare = varargin{2};
+            res2bare = varargin{3};
+            res1     = varargin{4};
+            res2     = varargin{5};
+            res3     = varargin{6};
+            covering = varargin{7};
+            ci_fac = 1.96/sqrt(length(nc));
+            per_errors1 = arrayfun( @(x) 100*x.mean_perrors, res1bare);
+            per_errors_ebars1 = arrayfun( @(x) 100*x.sd_perrors*ci_fac, res1bare);
+            per_undefined1 = arrayfun( @(x) 100*x.mean_punknown, res1);
+            per_clus_ebars1 = arrayfun( @(x) x.sd_nclusters*ci_fac, res1);
+            coverage = covering*100;
+            
+            % find mean
+            mean_per_errors1 = mean(per_errors1);
+            mean_per_undefined1 = mean(per_undefined1);
+            mean_coverage = mean(coverage);
+            mean_per_errors_ebars1 = mean(per_errors_ebars1);
+            mean_per_clus_ebars1 = mean(per_clus_ebars1);
+            
+            % find common elements
+            a = find(per_errors1 < mean_per_errors1);
+            b = find(per_undefined1 < mean_per_undefined1);
+            c = find(coverage > mean_coverage);
+            d = find(per_errors_ebars1 < mean_per_errors_ebars1);
+            e = find(per_clus_ebars1 < mean_per_clus_ebars1);
+            common1 = intersect(intersect(a,b),c);
+            common2 = intersect(d,e);
+            common_all = intersect(common1,common2);
+            %take error bars into consideration
+            if ~isempty(common_all) 
+                nc = nc(common_all);
+                per_errors1 = per_errors1(common_all);
+                per_undefined1 = per_undefined1(common_all);
+                coverage = coverage(common_all);
+            %do not take error bars into consideration    
+            elseif ~isempty(common1)
+                nc = nc(common1);
+                per_errors1 = per_errors1(common1);
+                per_undefined1 = per_undefined1(common1);
+                coverage = coverage(common1);
+            %else: no proposition send all the results back    
+            end
+            % return
+            varargout{1} = nc;
+            varargout{2} = per_errors1;
+            varargout{3} = per_undefined1;
+            varargout{4} = coverage; 
+    end         
+end
+

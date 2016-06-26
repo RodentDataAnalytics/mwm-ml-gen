@@ -197,9 +197,25 @@ function trajectories_data_path_Callback(hObject, eventdata, handles)
     set(handles.traj_path,'String',strcat(PN_traj,FN_traj));
 function segment_path_Callback(hObject, eventdata, handles)
     [FN_seg,PN_seg] = uigetfile({'*.mat','MAT-file (*.mat)'},'Select MAT file containing segmentation data');
+    error = check_object_output_dir(1, FN_seg, PN_seg);
+    if error == 1
+        errordlg('File path for segmentation configurations not found.','Input Error');
+        return
+    elseif error == 2
+        errordlg('Wrong MAT file was selected.','Input Error');
+        return
+    end    
     set(handles.seg_path,'String',strcat(PN_seg,FN_seg));
 function b_class_path_Callback(hObject, eventdata, handles)      
     [FN_class,PN_class] = uigetfile({'*.mat','MAT-file (*.mat)'},'Select MAT file containing classification data');
+    error = check_object_output_dir(2, FN_class);
+    if error == 1
+        errordlg('File path for classification configurations not found.','Input Error');
+        return
+    elseif error == 2
+        errordlg('Wrong MAT file was selected.','Input Error');
+        return
+    end    
     set(handles.class_path,'String',strcat(PN_class,FN_class))
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -456,8 +472,18 @@ function clustering_performance_Callback(hObject, eventdata, handles)
             return
         end 
     end 
+    % set current GUI visibility to off
+    temp = findall(gcf);
+    set(temp,'Visible','off');                
     % run the result
-    results_clustering_parameters(segmentation_configs,labels_path);
+    num_of_clusters = number_of_clusters(segmentation_configs, labels_path);
+    % resume main GUI visibility
+    set(temp,'Visible','on');
+    if num_of_clusters == 0
+        return
+    end    
+    set(handles.flip_y,'String',num_of_clusters);
+    %results_clustering_parameters(segmentation_configs,labels_path);
     
 
 function strategies_distribution_Callback(hObject, eventdata, handles)

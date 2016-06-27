@@ -20,11 +20,11 @@ function user_feedback( sanity_table, switcher )
             errordlg('Y Field. Field needs to contain the Y coordinates field name as specified in the csv file','Input Error'); 
         % Experiment Settings Errors
         elseif ~sanity_table(7)
-            errordlg('Sessions. Field needs to contain a numerical value','Input Error');
+            errordlg('Sessions. Field needs to contain an integer','Input Error');
         elseif ~sanity_table(9)
-            errordlg('Days. Field needs to contain a numerical value','Input Error');
+            errordlg('Days. Field needs to contain an integer','Input Error');
         elseif ~sanity_table(8)
-            errordlg('Trials per Day. The arguments needs to be numbericals and the number of arguments needs to be equal to the number of Days','Input Error');            
+            errordlg('Trials per Day. The arguments needs to be integers and the number of arguments needs to be equal to the number of Days','Input Error');            
         % Experiment Properties Errors
         elseif ~sanity_table(10)
             errordlg('Trial timeout. Field needs to contain a numerical value','Input Error');
@@ -60,11 +60,11 @@ function user_feedback( sanity_table, switcher )
             errordlg('Y Field. Field needs to contain the Y coordinates field name as specified in the csv file','Input Error'); 
         % Experiment Settings Errors
         elseif ~sanity_table(7)
-            errordlg('Sessions. Field needs to contain a numerical value','Input Error');
+            errordlg('Sessions. Field needs to contain an integer','Input Error');
         elseif ~sanity_table(9)
-            errordlg('Days. Field needs to contain a numerical value','Input Error');
+            errordlg('Days. Field needs to contain an integer','Input Error');
         elseif ~sanity_table(8)
-            errordlg('Trials per Day. The arguments needs to be numbericals and the number of arguments needs to be equal to the number of Days','Input Error');            
+            errordlg('Trials per Day. The arguments needs to integers and the number of arguments needs to be equal to the number of Days','Input Error');            
         % Experiment Properties Errors
         elseif ~sanity_table(10)
             errordlg('Trial timeout. Field needs to contain a numerical value','Input Error');
@@ -82,7 +82,7 @@ function user_feedback( sanity_table, switcher )
             errordlg('Platform radius. Field needs to contain a numerical value','Input Error');
         % Segmentation
         elseif ~sanity_table(19)
-            errordlg('Segment length. Field needs to contain a numerical value','Input Error');
+            errordlg('Segment length. Field needs to contain a numerical, non-zero value','Input Error');
         elseif ~sanity_table(20)
             errordlg('Segment overlap. Field needs to contain a numerical value < = 1','Input Error');
         end

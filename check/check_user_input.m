@@ -52,10 +52,12 @@ function [ test_result ] = check_user_input( user_input, switcher )
             try
                 c = str2num(user_input{1,3}{1});
                 if ~isempty(c)
-                    if c ~= 0 && isinteger(c)
-                        sanity_table(7) = 1;
+                    if mod(c,1)==0 %check if it is integer
+                        if c ~= 0
+                            sanity_table(7) = 1;
+                        end    
                     end    
-                end    
+                end        
             catch   
                 sanity_table(7) = 0;
             end    
@@ -63,8 +65,10 @@ function [ test_result ] = check_user_input( user_input, switcher )
             try
                 c = str2num(user_input{1,3}{3});
                 if ~isempty(c)
-                    if c ~= 0 && isinteger(c)
-                        sanity_table(9) = 1;
+                    if mod(c,1)==0 %check if it is integer
+                        if c ~= 0
+                            sanity_table(9) = 1;
+                        end    
                     end    
                 end    
             catch  
@@ -76,11 +80,12 @@ function [ test_result ] = check_user_input( user_input, switcher )
                 if sanity_table(9)==1 && length(substrings)==str2num(user_input{1,3}{3})
                     count = 0;
                     for i = 1:length(substrings)
-                        if isnumeric(str2num(substrings{i}))
-                            if str2num(substrings{i}) ~= 0 && isinteger(str2num(substrings{i}))
+                        c = str2num(substrings{1,i});
+                        if mod(c,1)==0 %check if it is integer
+                            if c ~= 0
                                 count = count+1;
                             end    
-                        end
+                        end    
                     end
                     if count==length(substrings)
                         sanity_table(8) = 1;
@@ -110,7 +115,7 @@ function [ test_result ] = check_user_input( user_input, switcher )
             if sanity_table(1) == 1 && sanity_table(7) == 1
                 ses = str2num(user_input{1,3}{1});
                 c = 0;
-                f = dir(fullfile(path));
+                f = dir(fullfile(user_input{1,1}{1}));
                 for k = 3:length(f)
                     if f(k).isdir == 1
                         c = c + 1;
@@ -141,8 +146,10 @@ function [ test_result ] = check_user_input( user_input, switcher )
             try
                 c = str2num(user_input{1,3}{1});
                 if ~isempty(c)
-                    if c ~= 0 && isinteger(c)
-                        sanity_table(7) = 1;
+                    if mod(c,1)==0 %check if it is integer
+                        if c ~= 0
+                            sanity_table(7) = 1;
+                        end    
                     end    
                 end    
             catch  
@@ -152,8 +159,10 @@ function [ test_result ] = check_user_input( user_input, switcher )
             try
                 c = str2num(user_input{1,3}{3});
                 if ~isempty(c)
-                    if c ~= 0 && isinteger(c)
-                        sanity_table(9) = 1;
+                    if mod(c,1)==0 %check if it is integer
+                        if c ~= 0
+                            sanity_table(9) = 1;
+                        end    
                     end    
                 end    
             catch  
@@ -165,16 +174,17 @@ function [ test_result ] = check_user_input( user_input, switcher )
                 if sanity_table(9)==1 && length(substrings)==str2num(user_input{1,3}{3})
                     count = 0;
                     for i = 1:length(substrings)
-                        if isnumeric(str2num(substrings{i}))
-                            if str2num(substrings{i}) ~= 0 && isinteger(str2num(substrings{i}))
+                        c = str2num(substrings{1,i});
+                        if mod(c,1)==0 %check if it is integer
+                            if c ~= 0
                                 count = count+1;
                             end    
-                        end
+                        end    
                     end
                     if count==length(substrings)
                         sanity_table(8) = 1;
                     end
-                end  
+                end 
             catch   
                sanity_table(8) = 0;
             end   
@@ -199,7 +209,7 @@ function [ test_result ] = check_user_input( user_input, switcher )
             if sanity_table(1) == 1 && sanity_table(7) == 1
                 ses = str2num(user_input{1,3}{1});
                 c = 0;
-                f = dir(fullfile(path));
+                f = dir(fullfile(user_input{1,1}{1}));
                 for k = 3:length(f)
                     if f(k).isdir == 1
                         c = c + 1;
@@ -213,7 +223,9 @@ function [ test_result ] = check_user_input( user_input, switcher )
             try
                 c = str2num(user_input{1,5}{1});
                 if ~isempty(c)
-                    sanity_table(19) = 1;
+                    if c ~= 0
+                        sanity_table(19) = 1;
+                    end    
                 end    
             catch   
                 sanity_table(19) = 0;

@@ -256,8 +256,10 @@ function [ test_result ] = check_user_input( user_input, switcher )
             try
                 c = str2num(user_input{1,2}{1});
                 if ~isempty(c)
-                    if c ~= 0 && isinteger(c)
-                        sanity_table(3) = 1;   
+                    if mod(c,1)==0 %check if it is integer
+                        if c >=10
+                            sanity_table(3) = 1;  
+                        end    
                     end    
                 end    
             catch  

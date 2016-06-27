@@ -94,7 +94,7 @@ function user_feedback( sanity_table, switcher )
         elseif ~sanity_table(2)
             errordlg('File path for segmentation configurations not found.','Input Error');
         elseif ~sanity_table(3)
-            errordlg('Number of clusters. Field needs to contain a numerical value','Input Error');
+            errordlg('Number of clusters. Field needs to contain an integer equal or bigger than 10','Input Error');
         end
           
     end

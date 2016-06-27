@@ -314,12 +314,32 @@ function load_traj_buttom_Callback(hObject, eventdata, handles)
     end   
     
 function classify_button_Callback(hObject, eventdata, handles) 
+    % see if we have the path for the segmentation_config file
+    rpath = get(handles.seg_path,'String');
+    [error, segmentation_configs] = select_files_default(1,rpath);
+    if error
+        % if not, ask for segmentation_config file
+        segmentation_configs = select_files(1);
+        if isempty(segmentation_configs)
+            return
+        end 
+    end     
+    % see if we have the path for the labels file
+    labels_path = get(handles.path_labels,'String');
+    [error, ~] = select_files_default(2,labels_path);
+    if error
+        % if not, ask for labels file
+        labels_path = select_files(2);
+        if isempty(labels_path)
+            return
+        end 
+    end 
     paths = {get(handles.path_labels,'String'),...
              get(handles.seg_path,'String')};
     values = {get(handles.num_clusters,'String')};     
     user_input = {};
     user_input{1,1} = paths;
-    user_input{1,2} = values;
+    user_input{1,2} = values;    
     % Check if the information given by the user are correct
     test_result = check_user_input(user_input,3);  
     if test_result == 0 % if error

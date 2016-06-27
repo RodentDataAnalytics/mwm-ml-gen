@@ -25,7 +25,7 @@ function [ return_data ] = select_files( option )
                     return
                 end
             end 
-            return_data = segmentation_configs;
+            return_data = {segmentation_configs,[PN_group,FN_group]};
             
         case 2 % labels data
             error = 1;
@@ -63,7 +63,7 @@ function [ return_data ] = select_files( option )
                     return
                 end
             end 
-            return_data = classification_configs;
+            return_data = {classification_configs,[PN_group,FN_group]};
             
         case 4 % folds
             prompt={'Choose number of folds'};

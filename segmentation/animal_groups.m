@@ -284,6 +284,9 @@ function [ groups_data ] = animal_groups( paths, id_field, sessions )
         formatOut = 'yyyy-mmm-dd-HH-MM';
         time = datestr((time),formatOut);
         [file,path] = uiputfile('*.csv','Save animal groups',strcat('groups_',time));
+        if path==0
+            return
+        end    
         fid = fopen(strcat(path,file),'w');
         fclose(fid);      
         % save to the new csv file the tmp_data

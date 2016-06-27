@@ -484,7 +484,7 @@ function clustering_performance_Callback(hObject, eventdata, handles)
     if num_of_clusters == 0
         return
     end    
-    set(handles.flip_y,'String',num_of_clusters);
+    set(handles.num_clusters,'String',num_of_clusters);
     %results_clustering_parameters(segmentation_configs,labels_path);
     
 

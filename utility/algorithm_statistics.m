@@ -53,9 +53,9 @@ function [ varargout ] = algorithm_statistics(option,varargin)
             mean_per_clus_ebars1 = mean(per_clus_ebars1);
             
             % find common elements
-            a = find(per_errors1 < mean_per_errors1);
-            b = find(per_undefined1 < mean_per_undefined1);
-            c = find(coverage > mean_coverage);
+            a = find(per_errors1 < mean_per_errors1 & per_errors1 < 10);
+            b = find(per_undefined1 < mean_per_undefined1 & per_undefined1 < 40);
+            c = find(coverage > mean_coverage & coverage > 60);
             d = find(per_errors_ebars1 < mean_per_errors_ebars1);
             e = find(per_clus_ebars1 < mean_per_clus_ebars1);
             common1 = intersect(intersect(a,b),c);
@@ -73,7 +73,9 @@ function [ varargout ] = algorithm_statistics(option,varargin)
                 per_errors1 = per_errors1(common1);
                 per_undefined1 = per_undefined1(common1);
                 coverage = coverage(common1);
-            %else: no proposition send all the results back    
+            %no proposition send all the results back     
+            else   
+                disp('Could not find optimal number of clusters. The labelling quantity and quality needs to be checked');
             end
             % return
             varargout{1} = nc;

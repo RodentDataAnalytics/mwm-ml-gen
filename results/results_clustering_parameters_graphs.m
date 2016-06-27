@@ -37,11 +37,11 @@ function results_clustering_parameters_graphs(output_dir,nc,res1bare,res2bare,re
     figure(80);
     title('Full trajectories coverage');
     ci_fac = 1.96/sqrt(length(nc));
-    plot( nc, covering*100,  'k-', 'LineWidth', 1.5);                       
+    plot( nc, covering.*100,  'k-', 'LineWidth', 1.5);                       
     xlabel('N_{clus}', 'FontSize', 10);
     ylabel('% coverage', 'FontSize', 10);            
     set(gcf, 'Color', 'w');
-    set(gca, 'FontSize', 10, 'LineWidth', 1.5, 'YLim', [80, 100]);
+    set(gca, 'FontSize', 10, 'LineWidth', 1.5);
     h1 = gca;
     box off;
     export_figure(1, gcf, strcat(output_dir,'/'), 'clusters_dep_coverage');    

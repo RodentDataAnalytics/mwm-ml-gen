@@ -214,7 +214,7 @@ function [ num_of_clusters ] = number_of_clusters(segmentation_configs, labels_p
         max_num  = str2num(get(h.text_max,'string'));
         step = str2num(get(h.text_step,'string'));
         % run clustering
-        [nc,res1bare,res2bare,res1,res2,res3,covering]  = results_clustering_parameters(segmentation_configs,labels_path,min_num,max_num,inc_dec);
+        [nc,res1bare,res2bare,res1,res2,res3,covering]  = results_clustering_parameters(segmentation_configs,labels_path,0,min_num,max_num,inc_dec);
         [nc,per_errors1,per_undefined1,coverage] = algorithm_statistics(1,nc,res1bare,res2bare,res1,res2,res3,covering);                         
         % UPDATE THE TABLE
         data_old = get(t,'Data');
@@ -257,7 +257,7 @@ function [ num_of_clusters ] = number_of_clusters(segmentation_configs, labels_p
         max_num  = str2num(get(h.text_max,'string'));  
         step = str2num(get(h.text_step,'string'));
         try
-            results_clustering_parameters(segmentation_configs,labels_path,min_num,max_num,inc_dec,1);
+            results_clustering_parameters(segmentation_configs,labels_path,1,min_num,max_num,inc_dec,1);
             return
         catch
             errordlg('Graphs cannot be generated.','Error');

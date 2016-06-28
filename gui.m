@@ -185,27 +185,27 @@ end
 %% CODE FOR ALL THE PATH TEXTS %%
 function b_path_data_Callback(hObject, eventdata, handles)
     FN_data = uigetdir(matlabroot,'Select data folder');
-    if FN_data==0
-        return
-    end    
-    set(handles.path_data,'String',FN_data);
+    if isnumeric(FN_data)
+       return
+    end       
+    set(handles.path_data,'String',FN_data);  
 function b_path_output_Callback(hObject, eventdata, handles)
     FN_output = uigetdir(matlabroot,'Select output folder');
-    if FN_output==0
-        return
-    end  
-    set(handles.path_output,'String',FN_output);
+    if isnumeric(FN_output)
+       return
+    end     
+    set(handles.path_output,'String',FN_output);   
 function b_path_labels_Callback(hObject, eventdata, handles)
     [FN_labels,PN_labels] = uigetfile({'*.csv','CSV-file (*.csv)'},'Select CSV file containing segment labels');
-    if FN_labels==0 && PN_labels==0
-        return
-    end    
+    if isnumeric(FN_labels) && isnumeric(PN_labels)
+       return
+    end     
     set(handles.path_labels,'String',strcat(PN_labels,FN_labels));
 function segment_path_Callback(hObject, eventdata, handles)
     [FN_seg,PN_seg] = uigetfile({'*.mat','MAT-file (*.mat)'},'Select MAT file containing segmentation data');
-    if FN_seg==0 && PN_seg==0
-        return
-    end     
+    if isnumeric(FN_seg) && isnumeric(PN_seg)
+       return 
+    end   
     error = check_object_output_dir(1, FN_seg, PN_seg);
     if error == 1
         errordlg('File path for segmentation configurations not found.','Input Error');
@@ -214,12 +214,12 @@ function segment_path_Callback(hObject, eventdata, handles)
         errordlg('Wrong MAT file was selected.','Input Error');
         return
     end    
-    set(handles.seg_path,'String',strcat(PN_seg,FN_seg));
+    set(handles.seg_path,'String',strcat(PN_seg,FN_seg));  
 function b_class_path_Callback(hObject, eventdata, handles)      
     [FN_class,PN_class] = uigetfile({'*.mat','MAT-file (*.mat)'},'Select MAT file containing classification data');
-    if FN_class==0 && PN_class==0
+    if isnumeric(FN_class) && isnumeric(PN_class)
         return
-    end       
+    end   
     error = check_object_output_dir(2, FN_class);
     if error == 1
         errordlg('File path for classification configurations not found.','Input Error');
@@ -229,7 +229,7 @@ function b_class_path_Callback(hObject, eventdata, handles)
         return
     end    
     set(handles.class_path,'String',strcat(PN_class,FN_class))
-
+    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% CODE FOR BUTTONS %%
 function load_traj_buttom_Callback(hObject, eventdata, handles)

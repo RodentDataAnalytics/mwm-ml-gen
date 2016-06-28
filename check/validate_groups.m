@@ -15,7 +15,13 @@ function [ groups ] = validate_groups( groups, varargin )
             groups = [1,2];
             return;
         end
-    end    
+    end 
+    if length(varargin) == 2
+        if isequal(varargin{1},1) && isequal(varargin{2},2)
+            groups = [1,2];
+            return;
+        end
+    end
     
     % Other data 
     if length(groups) == 1 %Only one animal group

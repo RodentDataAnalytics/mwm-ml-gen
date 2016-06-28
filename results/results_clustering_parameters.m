@@ -1,4 +1,4 @@
-function [varargout] = results_clustering_parameters(segmentation_configs,labels_path,varargin)
+function [varargout] = results_clustering_parameters(segmentation_configs,labels_path,graph,varargin)
 % Generates three figures indicating the impact of the number of clusters 
 % on the clustering performance for a set of N computed segments:
 % 1. Percentage of classification errors.
@@ -7,6 +7,15 @@ function [varargout] = results_clustering_parameters(segmentation_configs,labels
 % 3. Percentage of the full swimming paths that are covered by at least 
 %    one segment of a known class.
 % The calculated data from the clustering proceedures are also saved.
+
+% PARAMETERS:
+% Segmentation object
+% Path of the labels CSV file
+% 0/1: don't generate/generate graphs
+
+% Optional: min number of clusters
+%           max number of clusters
+%           increment
   
     % Iterations
     min_num = 1;
@@ -26,7 +35,16 @@ function [varargout] = results_clustering_parameters(segmentation_configs,labels
 
     % Tag trajectories/segments if data are available
     [~, LABELLING_MAP, ~, CLASSIFICATION_TAGS] = setup_tags(segments,labels_path);
-
+    
+    % generate unique id
+    segs = num2str(size(features,1));
+    a = [];
+    for i = 1:10
+        temp = num2str(size(find([LABELLING_MAP{:}]==i-2),2));
+        a = [a, temp];
+    end 
+    a = [segs,a];
+    
     % run multiple clusterings with different target number of clusters
     ptest = 0;
     res1 = [];
@@ -68,7 +86,7 @@ function [varargout] = results_clustering_parameters(segmentation_configs,labels
         
         % i) two-phase clustering (default)        
         % see if we already have the data
-        fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('clustering_n%d.mat', n));
+        fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('clustering_%d_%s.mat', n,a));
         if exist(fn ,'file')
             fprintf('\nData for %d number of clusters (two-phase clustering) found. Loading data...\n', n);
             load(fn);
@@ -86,7 +104,7 @@ function [varargout] = results_clustering_parameters(segmentation_configs,labels
         % ii) clustering using all the constraints
         % see if we already have the data
         classif.two_stage = 1;        
-        fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('clustering_all_constr_%d.mat', n));
+        fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('clustering_all_%d_%s.mat', n,a));
         if exist(fn ,'file')
             fprintf('\nData for %d number of clusters (clustering using all the constraints) found. Loading data...\n', n);
             load(fn);
@@ -99,9 +117,6 @@ function [varargout] = results_clustering_parameters(segmentation_configs,labels
         covering = [covering, res.coverage(feature_length)];      
     end
     
-    % export data
-    save(fullfile(strcat(segmentation_configs.OUTPUT_DIR,'/'), 'clustering_parameters.mat'), 'res1', 'res2', 'res3');
-    
     % remap the classes as to not invalidate mixed clusters
     % because we want to compare the clustering errors
     res1bare = [];
@@ -113,7 +128,7 @@ function [varargout] = results_clustering_parameters(segmentation_configs,labels
         res2bare = [res2bare, res2(i).remap_clusters('DiscardMixed', 0)];
     end
      
-    if length(varargin) > 3 
+    if graph 
         % Generate the graphs
         results_clustering_parameters_graphs(segmentation_configs.OUTPUT_DIR,nc,res1bare,res2bare,res1,res2,res3,covering);
     

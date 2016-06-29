@@ -3,7 +3,15 @@ function [ traj ] = set_data( path, data_files, data_user, properties, session, 
     
     day = -1;
     traj = trajectories([]);
-    files = dir(fullfile(path, '/*.csv') );
+    
+    ext = {'/*.csv','/*.CSV','/*.xlsx','/*.XLSX'};
+    for i = 1:length(ext)
+        files = dir(fullfile(path, ext{i}) );
+        if ~isempty(files)
+        	break
+        end    
+    end    
+    
     fprintf('Importing %d trajectories...\n', length(files));
 
     for i = 1:length(files)

@@ -1,9 +1,14 @@
 function [ processed_data ] = parse_data(fn, animal_id, rec_time, centre_x, centre_y)
 %PARSE_DATA gets the data of interest from file
 
-    %Read the csv file
-    [data, header_idx] = read_ethovision(fn,rec_time, centre_x, centre_y);
-
+    %Read the csv or xlsx file
+    [~, ~, ext] = fileparts(fn);
+    if isequal(ext,'.CSV') || isequal(ext,'.csv')
+        [data, header_idx] = read_ethovision(fn, rec_time, centre_x, centre_y);
+    elseif isequal(ext,'.XLSX') || isequal(ext,'.xlsx')
+        [data, header_idx] = read_ethovision_xlsx(fn, rec_time, centre_x, centre_y);
+    end
+    
     %Initialize
     id = '';
     skipped_file = '';
@@ -12,13 +17,24 @@ function [ processed_data ] = parse_data(fn, animal_id, rec_time, centre_x, cent
     y = {};
     damaged_file = 0;
     pts = [];
+    flag = '';
 
     %First find id
     i = 1;
     while i <= size(data,1)
         if isequal(data{i,1},animal_id)
-            id = sscanf(data{i,2}, '%d');
-        elseif ~isempty(str2num(data{i,1}))   
+            if isnumeric(data{i,2})
+                id = data{i,2};
+            else    
+                id = sscanf(data{i,2}, '%d');
+            end    
+        end
+        try 
+            flag = str2num(data{i,1});
+        catch
+            flag = data{i,1};
+        end
+        if ~isempty(flag)
             %if we are here then we should have the id
             if isempty(id)
                 %indicate which file was skipped
@@ -71,9 +87,21 @@ function [ processed_data ] = parse_data(fn, animal_id, rec_time, centre_x, cent
     else
         for i = 1:length(time)
             % extract time, X and Y coordinates
-            T = sscanf(time{i, 1}, '%f');
-            X = sscanf(x{i, 1}, '%f');
-            Y = sscanf(y{i, 1}, '%f');
+            if isnumeric(time{i, 1})
+                T = time{i, 1};
+            else    
+                T = sscanf(time{i, 1}, '%f');
+            end 
+            if isnumeric(x{i, 1})
+                X = x{i, 1};
+            else    
+                X = sscanf(x{i, 1}, '%f');
+            end    
+            if isnumeric(y{i, 1})
+                Y = y{i, 1};
+            else    
+                Y = sscanf(y{i, 1}, '%f');
+            end    
             % discard missing samples
             if ~isempty(T) && ~isempty(X) && ~isempty(Y)
                 pts = [pts; T X Y];

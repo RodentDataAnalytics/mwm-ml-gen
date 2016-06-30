@@ -339,10 +339,10 @@ function [ groups_data ] = animal_groups( paths, id_field, sessions )
         k = 2;
         for i = 1:num_cols/2
             for j = 1:size(animal_ids{i},2)
-                if isempty(Table{j+1,k})
+                if isempty(Table{j,k})
                     empty_g = 1;
                 end    
-                user_groups = [user_groups str2num(Table{j+1,k})];
+                user_groups = [user_groups str2num(Table{j,k})];
             end
             k = k+2;
         end  
@@ -370,8 +370,8 @@ function [ groups_data ] = animal_groups( paths, id_field, sessions )
                     k = 2;
                     for i = 1:num_cols/2
                         for j = 1:size(animal_ids{i},2)
-                            if isempty(Table{j+1,k})
-                                Table{j+1,k} = generated;
+                            if isempty(Table{j,k})
+                                Table{j,k} = generated;
                             end    
                         end
                         k = k+2;

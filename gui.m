@@ -273,6 +273,9 @@ function load_traj_buttom_Callback(hObject, eventdata, handles)
         switch choice
             case 'Yes'              
                 [groups_path] = animal_groups(paths, get(handles.field_id,'String'), str2num(get(handles.text_sessions,'String')));       
+                if isempty(groups_path)
+                    return;
+                end 
             case 'No'
                 groups_path = {};
                 disp('No animal groups specified. All animals will belong to group 1');
@@ -314,17 +317,11 @@ function load_traj_buttom_Callback(hObject, eventdata, handles)
         segmentation_configs = config_segments(user_input);
         if isempty(segmentation_configs.TRAJECTORIES)
             % resume main GUI visibility
-            set(temp,'Visible','on');                
-            if isempty(groups_path)
-                return;
-            end           
+            set(temp,'Visible','on');                          
             return;
         end    
         % resume main GUI visibility
         set(temp,'Visible','on');                
-        if isempty(groups_path)
-            return;
-        end 
         % check if object is already cached and if not save it
         rpath = check_cached_objects(segmentation_configs,1);
         set(handles.seg_path,'String',rpath);
@@ -457,7 +454,10 @@ function browse_trajectories_Callback(hObject, eventdata, handles)
 %% CODE FOR RESULTS BUTTONS %%
 
 function res_test_Callback(hObject, eventdata, handles)
+    temp = findall(gcf);
+    set(temp,'Visible','off');
     published_results('execute');
+    set(temp,'Visible','on');
 
 function lat_sp_len_Callback(hObject, eventdata, handles)
     % see if we have the path for the segmentation_config file

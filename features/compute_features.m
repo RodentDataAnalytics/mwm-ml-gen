@@ -10,14 +10,19 @@ function [ featval_all ] = compute_features(obj,features,variables)
     else 
         div = 1000;
     end
-
+    
+    h = waitbar(0,'Computing features...','Name','Computing Features');
+    
     featval_all = zeros(length(obj), length(features));  
     for idx = 1:length(features)
         featval = zeros(length(obj),1);
         fprintf('\nComputing ''%s'' feature values for %d trajectories/segments...', features{idx}{1,2}, length(obj));
         q = floor(length(obj) / div);
         fprintf('0.0% '); 
-
+        
+        str = ['Feature ',num2str(idx),'/',num2str(length(features)),': ',sprintf('%s',features{idx}{1,2})];
+        waitbar(0,h,str);
+         
         for i = 1:length(obj)
             switch length(features{idx})
                 case 3 % no COMMON_PROPERTIES and Extra Values 
@@ -68,6 +73,7 @@ function [ featval_all ] = compute_features(obj,features,variables)
             end
 
             % show the progress
+            waitbar(i/length(obj));
             if mod(i, q) == 0
                 val = 100.*i/length(obj);
                 if val < 10.
@@ -80,5 +86,6 @@ function [ featval_all ] = compute_features(obj,features,variables)
         fprintf('\b\b\b\b\bDone.\n');
         featval_all(:, idx) = featval(:, idx);
     end
+    delete(h);
 end
 

@@ -18,6 +18,8 @@ function [ ids ] = parse_data_simplified( path, id_field, sessions )
                     break
                 end    
             end         
+            str = ['Parsing Animal IDs from folder: ',sscanf(f(k).name,'%s')];
+            h = waitbar(0,str,'Name','Parsing animal IDs');
             for j = 1:length(files)
                 [~, ~, ext] = fileparts(fullfile(new_path,'/',files(j).name));
                 if isequal(ext,'.CSV') || isequal(ext,'.csv')
@@ -49,7 +51,11 @@ function [ ids ] = parse_data_simplified( path, id_field, sessions )
                     [~, ~, data] = xlsread(fullfile(new_path,'/',files(j).name));
                     while i <= size(data,1)
                         if isequal(data{i,1},id_field)
-                            id = data{i,2};
+                            if isnumeric(data{i,2})
+                                id = data{i,2};
+                            else
+                                id = str2num(data{i,2});
+                            end    
                             break;
                         end
                         i = i+1;
@@ -61,9 +67,12 @@ function [ ids ] = parse_data_simplified( path, id_field, sessions )
                 	ids_temp = [ids_temp, id];
                 catch
                 	errordlg('Animal ID not found. Check the provided ID Field','Parse ID Error');
+                    close(h);
                 	return	
                 end	
+                waitbar(j/length(files));
             end
+            close(h);
             % store the unique animal ids per session
             ids{session} = unique(ids_temp);
             ids_temp = [];

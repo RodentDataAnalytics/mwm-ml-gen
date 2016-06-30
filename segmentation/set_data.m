@@ -13,6 +13,8 @@ function [ traj ] = set_data( path, data_files, data_user, properties, session, 
     end    
     
     fprintf('Importing %d trajectories...\n', length(files));
+    str = ['Importing ',num2str(length(files)),' trajectories'];
+    h = waitbar(0,str,'Name','Importing trajectories');
 
     for i = 1:length(files)
         data = parse_data(fullfile(path, files(i).name),...
@@ -112,6 +114,8 @@ function [ traj ] = set_data( path, data_files, data_user, properties, session, 
             traj_num = i;
             traj = traj.append(trajectory(pts, session, track, group, id, trial, day, segment, off, starti, trial_type, traj_num));
         end 
-    end    
+        waitbar(i/length(files));
+    end  
+    close(h);
 end
 

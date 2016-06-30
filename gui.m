@@ -266,18 +266,13 @@ function load_traj_buttom_Callback(hObject, eventdata, handles)
     else
         % Ask if the user wish to create animal groups
         choice = questdlg('Would you like to assign animals to groups?', ...
-            'Assign Animals to Groups','Yes','No','No');
+            'Assign Animals to Groups','Yes','No','No');       
+        % set current GUI visibility to off
+        temp = findall(gcf);
+        set(temp,'Visible','off');  
         switch choice
-            case 'Yes'
-                % set current GUI visibility to off
-                temp = findall(gcf);
-                set(temp,'Visible','off');                
-                [groups_path] = animal_groups(paths, get(handles.field_id,'String'), str2num(get(handles.text_sessions,'String')));    
-                % resume main GUI visibility
-                set(temp,'Visible','on');                
-                if isempty(groups_path)
-                    return;
-                end    
+            case 'Yes'              
+                [groups_path] = animal_groups(paths, get(handles.field_id,'String'), str2num(get(handles.text_sessions,'String')));       
             case 'No'
                 groups_path = {};
                 disp('No animal groups specified. All animals will belong to group 1');
@@ -318,8 +313,18 @@ function load_traj_buttom_Callback(hObject, eventdata, handles)
         % compute segments and features
         segmentation_configs = config_segments(user_input);
         if isempty(segmentation_configs.TRAJECTORIES)
+            % resume main GUI visibility
+            set(temp,'Visible','on');                
+            if isempty(groups_path)
+                return;
+            end           
             return;
         end    
+        % resume main GUI visibility
+        set(temp,'Visible','on');                
+        if isempty(groups_path)
+            return;
+        end 
         % check if object is already cached and if not save it
         rpath = check_cached_objects(segmentation_configs,1);
         set(handles.seg_path,'String',rpath);

@@ -146,7 +146,7 @@ function [ groups_data ] = animal_groups( paths, id_field, sessions )
             Table = data{1};
             fclose(fid);   
             % take the appropriate id column based on the session
-            temp_data = Table(2:end,idx+idx-3:idx+idx-2);     
+            temp_data = Table(2:end,idx+idx-3);     
             % remove empty cells
             temp_data = temp_data(~cellfun('isempty',temp_data)); 
             set(h.listbox_1,'value',1);
@@ -173,7 +173,7 @@ function [ groups_data ] = animal_groups( paths, id_field, sessions )
             Table = data{1};
             fclose(fid);   
             % take the appropriate id column based on the session
-            temp_data = Table(2:end,idx+idx+1:idx+idx+2);     
+            temp_data = Table(2:end,idx+idx+1);     
             % remove empty cells
             temp_data = temp_data(~cellfun('isempty',temp_data)); 
             set(h.listbox_1,'value',1);
@@ -339,10 +339,10 @@ function [ groups_data ] = animal_groups( paths, id_field, sessions )
         k = 2;
         for i = 1:num_cols/2
             for j = 1:size(animal_ids{i},2)
-                if isempty(Table{j,k})
+                if isempty(Table{j+1,k})
                     empty_g = 1;
                 end    
-                user_groups = [user_groups str2num(Table{j,k})];
+                user_groups = [user_groups str2num(Table{j+1,k})];
             end
             k = k+2;
         end  
@@ -370,8 +370,8 @@ function [ groups_data ] = animal_groups( paths, id_field, sessions )
                     k = 2;
                     for i = 1:num_cols/2
                         for j = 1:size(animal_ids{i},2)
-                            if isempty(Table{j,k})
-                                Table{j,k} = generated;
+                            if isempty(Table{j+1,k})
+                                Table{j+1,k} = generated;
                             end    
                         end
                         k = k+2;
@@ -405,4 +405,3 @@ function [ groups_data ] = animal_groups( paths, id_field, sessions )
         end        
     end
 end
-

@@ -701,16 +701,18 @@ classdef clustering_results < handle
             end
         end
         
-        function [out] = combine(inst, other_results, varargin)
+        function [out] = combine(inst, other_results, feat_len_1, feat_len, varargin)
             % current segment in the original set
                % trajectory
-            addpath(fullfile(fileparts(mfilename('fullpath')), '/extern'));
             [tolerance] = process_options(varargin, ...
                 'SegmentTolerance', 20);
          
-            mapping = inst.segments.match_segments(other_results.segments, 'Tolerance', tolerance);
-            tag_mapping = tag.mapping(inst.classes, other_results.classes);
-            
+            mapping = inst.segments.match_segments(other_results.segments, feat_len_1, feat_len, 'Tolerance', tolerance);
+            %tag_mapping = tag.mapping(inst.classes, other_results.classes);
+            tag_mapping = zeros(1,length(inst.classes));
+            for i = 1:length(tag_mapping)
+                tag_mapping(i) = inst.classes{1,1}{1,3};
+            end    
             new_map = inst.class_map;
             for k = 1:inst.segments.count          
                 if mapping(k) > 0

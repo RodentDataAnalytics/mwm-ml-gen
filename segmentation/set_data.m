@@ -4,11 +4,11 @@ function [ traj ] = set_data( path, data_files, data_user, properties, session, 
     day = -1;
     traj = trajectories([]);
     
-    ext = {'/*.csv','/*.CSV','/*.xlsx','/*.XLSX'};
+    ext = {'/*.csv','/*.CSV','/*.xlsx','/*.XLSX','/*.txt','/*.TXT'};
     for i = 1:length(ext)
-        files = dir(fullfile(path, ext{i}) );
+        files = dir(fullfile(path, ext{i}));
         if ~isempty(files)
-        	break
+        	break;
         end    
     end    
     
@@ -34,7 +34,7 @@ function [ traj ] = set_data( path, data_files, data_user, properties, session, 
             %In case the animal id does not exist in the file 
             if isempty(group)
                 fprintf('Skipped: %s\n',fullfile(path, files(i).name));
-                continue
+                continue;
             end    
             group = data_user{session,1}(group(1),2);
         %If no user's data are provided assume that all animals belong  
@@ -43,7 +43,8 @@ function [ traj ] = set_data( path, data_files, data_user, properties, session, 
             group = 1;
         end 
         
-        if ~isempty(varargin) % If the published data are required
+        if ~isempty(varargin) % SPECIAL CASES
+            % If the published data are required
             if isequal(varargin{1,1},'original_data')
                 temp = sscanf(files(i).name,'day%d_%d');
                 day = temp(1);
@@ -52,14 +53,23 @@ function [ traj ] = set_data( path, data_files, data_user, properties, session, 
                 set = strfind(path,'set');
                 set = set(end); % take last element
                 index = sscanf(path(set+3),'%d'); % take the set number
-                pts = calibrate_trajectory(pts,calibration_data{index});
-                pts(:,2) = pts(:,2) - properties{1,4}{1,1};
-                pts(:,3) = pts(:,3) - properties{1,6}{1,1};
-                data{1,4} = pts;
-                % Fix platform position
-                temp_plat_x = properties{1,10}{1,1} - properties{1,4}{1,1};
-                temp_plat_y = properties{1,12}{1,1} - properties{1,6}{1,1}; 
+                pts = calibrate_trajectory(pts,calibration_data{index},1); 
+            % If calibrated data are required
+            elseif length(varargin) == 3
+                cal_data = varargin{1,2};
+                pts = data{1,4};    
+                for z = 1:2:length(cal_data)
+                    if isequal(cal_data{1,z},varargin{1,1}) 
+                       pts = calibrate_trajectory(pts,cal_data{1,z+1},varargin{1,3});
+                    end
+                end 
             end    
+            pts(:,2) = pts(:,2) - properties{1,4}{1,1};
+            pts(:,3) = pts(:,3) - properties{1,6}{1,1};
+            data{1,4} = pts;
+            % Fix platform position
+            temp_plat_x = properties{1,10}{1,1} - properties{1,4}{1,1};
+            temp_plat_y = properties{1,12}{1,1} - properties{1,6}{1,1};
         else    
             % Move centre to 0,0
             pts = data{1,4};
@@ -78,11 +88,11 @@ function [ traj ] = set_data( path, data_files, data_user, properties, session, 
             temp_plat_y = properties{1,12}{1,1} - properties{1,6}{1,1}; 
             % Flip if required
             if properties{1,16}{1,1}
-                temp_plat_x = -temp_plat_x;
-            end    
-            if properties{1,18}{1,1} 
-                temp_plat_y = -temp_plat_y;
-            end             
+                 temp_plat_x = -temp_plat_x;
+             end    
+             if properties{1,18}{1,1} 
+                 temp_plat_y = -temp_plat_y;
+             end             
         end
         
         %Chop points at the end on top of the platform            
@@ -103,7 +113,12 @@ function [ traj ] = set_data( path, data_files, data_user, properties, session, 
         
         %Append trajectory
         if size(data{1,4}, 1) > 0
-            track = i;
+            track = strsplit(files(i).name,'_');
+            try
+                track = str2num(track{1,end-1});
+            catch
+                track = i;
+            end    
             pts = data{1,4};
             id = data{1,2};
             trial = -1;

@@ -71,6 +71,11 @@ function [ featval_all ] = compute_features(obj,features,variables)
                 otherwise % error
                     error('Error computing feature %d',idx);
             end
+            
+            % NaN values = 0
+            if isnan(featval(i, idx))
+                featval(i, idx) = 0;
+            end    
 
             % show the progress
             waitbar(i/length(obj));

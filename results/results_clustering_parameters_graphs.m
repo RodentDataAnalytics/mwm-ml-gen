@@ -2,49 +2,52 @@ function results_clustering_parameters_graphs(output_dir,nc,res1bare,res2bare,re
 %RESULTS_CLUSTERING_PARAMETERS_GRAPHS generates and exports the
 % results_clustering_parameters graphs
 
+    % get the configurations from the configs file
+    [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
+
     % classification errors (cross-validation)    
     figure(77);
     title('Classification errors');
     ci_fac = 1.96/sqrt(length(nc));
-    errorbar( nc, arrayfun( @(x) 100*x.mean_perrors, res1bare),  arrayfun( @(x) 100*x.sd_perrors*ci_fac, res1bare), 'k-', 'LineWidth', 1.5);                       
+    errorbar( nc, arrayfun( @(x) 100*x.mean_perrors, res1bare),  arrayfun( @(x) 100*x.sd_perrors*ci_fac, res1bare), 'k-', 'LineWidth', LineWidth);                       
     hold on;
-    errorbar( nc, arrayfun( @(x) 100*x.mean_perrors, res2bare),  arrayfun( @(x) 100*x.sd_perrors*ci_fac, res2bare), 'k:', 'LineWidth', 1.5);                           
-    xlabel('N_{clus}', 'FontSize', 10);
-    ylabel('% errors', 'FontSize', 10);            
+    errorbar( nc, arrayfun( @(x) 100*x.mean_perrors, res2bare),  arrayfun( @(x) 100*x.sd_perrors*ci_fac, res2bare), 'k:', 'LineWidth', LineWidth);                           
+    xlabel('N_{clus}', 'FontSize', FontSize, 'FontName', FontName);
+    ylabel('% errors', 'FontSize', FontSize, 'FontName', FontName);            
     set(gcf, 'Color', 'w');
-    set(gca, 'FontSize', 10, 'LineWidth', 1.5);
+    set(gca, 'FontSize', FontSize, 'LineWidth', LineWidth, 'FontName', FontName);
     h1 = gca;
     box off;
-    export_figure(1, gcf, strcat(output_dir,'/'), 'clusters_dep_err');
-
+    export_figure(gcf, strcat(output_dir,'/'), 'clusters_dep_err', Export, ExportStyle);
+    
     % percentage of unknown segments
     figure(78);
     title('Percentage of unknown segments');
-    errorbar( nc, arrayfun( @(x) 100*x.mean_punknown, res1),  arrayfun( @(x) 100*x.sd_punknown*ci_fac, res1), 'k-', 'LineWidth', 1.5);                       
+    errorbar( nc, arrayfun( @(x) 100*x.mean_punknown, res1),  arrayfun( @(x) 100*x.sd_punknown*ci_fac, res1), 'k-', 'LineWidth', LineWidth);                       
     hold on;
-    errorbar( nc, arrayfun( @(x) 100*x.mean_punknown, res2),  arrayfun( @(x) 100*x.sd_punknown*ci_fac, res2), 'k:', 'LineWidth', 1.5);                           
+    errorbar( nc, arrayfun( @(x) 100*x.mean_punknown, res2),  arrayfun( @(x) 100*x.sd_punknown*ci_fac, res2), 'k:', 'LineWidth', LineWidth);                           
     plot(nc, arrayfun( @(x) 100*x.punknown, res3), 'k*');   
-    xlabel('N_{clus}', 'FontSize', 10);
-    ylabel('% undefined', 'FontSize', 10);            
+    xlabel('N_{clus}', 'FontSize', FontSize, 'FontName', FontName);
+    ylabel('% undefined', 'FontSize', FontSize, 'FontName', FontName);            
     set(gcf, 'Color', 'w');
-    set(gca, 'FontSize', 10, 'LineWidth', 1.5);
+    set(gca, 'FontSize', FontSize, 'LineWidth', LineWidth, 'FontName', FontName);
     h2 = gca;
     box off;
-    export_figure(1, gcf, strcat(output_dir,'/'), 'clusters_dep_undef');
+    export_figure(gcf, strcat(output_dir,'/'), 'clusters_dep_undef', Export, ExportStyle);
    
     % percentage of the full swimming paths that are covered by at least
     % one segment of a known class
     figure(80);
     title('Full trajectories coverage');
     ci_fac = 1.96/sqrt(length(nc));
-    plot( nc, covering.*100,  'k-', 'LineWidth', 1.5);                       
-    xlabel('N_{clus}', 'FontSize', 10);
-    ylabel('% coverage', 'FontSize', 10);            
+    plot( nc, covering.*100,  'k-', 'LineWidth', LineWidth);                       
+    xlabel('N_{clus}', 'FontSize', FontSize, 'FontName', FontName);
+    ylabel('% coverage', 'FontSize', FontSize, 'FontName', FontName);        
     set(gcf, 'Color', 'w');
-    set(gca, 'FontSize', 10, 'LineWidth', 1.5);
+    set(gca, 'FontSize', FontSize, 'LineWidth', LineWidth, 'FontName', FontName);
     h1 = gca;
     box off;
-    export_figure(1, gcf, strcat(output_dir,'/'), 'clusters_dep_coverage');    
+    export_figure(gcf, strcat(output_dir,'/'), 'clusters_dep_coverage', Export, ExportStyle);    
 
     % final number of clusters
     %figure(79);

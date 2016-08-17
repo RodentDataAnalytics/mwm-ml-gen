@@ -105,6 +105,7 @@ function [ test_result ] = check_user_input( user_input, switcher )
                     i = i+1;
                 catch ME
                     sanity_table(i+9) = 0;
+                    i = i+1;
                 end    
             end
             % checkboxes
@@ -264,8 +265,36 @@ function [ test_result ] = check_user_input( user_input, switcher )
                 end    
             catch  
                 sanity_table(3) = 0;
-            end               
-    end 
+            end
+            
+     case 4
+        %% Plugin: calibration %% 
+            % path    
+            if exist(user_input{1,1}{1}, 'dir') == 7
+                sanity_table(1) = 1;
+            end             
+            % file format
+            for i = 1:3
+                if ~isempty(user_input{1,2}{i})
+                    sanity_table(i+1) = 1;
+                end
+            end   
+            % experiment properties
+            i = 1;
+            while i<4
+                try
+                    c = str2num(user_input{1,2}{i+3});
+                    if ~isempty(c)
+                        sanity_table(i+4) = 1;
+                    end 
+                    i = i+1;
+                catch ME
+                    sanity_table(i+4) = 0;
+                    i = i+1;
+                end    
+            end            
+                 
+    end
 
     %% Outcome %%
     check_user_feedback(sanity_table,switcher);

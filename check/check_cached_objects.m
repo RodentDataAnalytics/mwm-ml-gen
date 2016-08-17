@@ -1,4 +1,4 @@
-function path = check_cached_objects( obj, choice )
+function path = check_cached_objects( obj, choice, varargin )
 %CHECK_CACHED_OBJECTS finds if the new object exists in the cache (output)
 %folder. If not it saves it.
 
@@ -25,7 +25,9 @@ function path = check_cached_objects( obj, choice )
                     path = strcat(path,'/',files(i).name);
                     break;
                 end
-            end    
+            end 
+        case 3 % a lot of config_segments files
+            continue;
         end
     end
     
@@ -46,7 +48,11 @@ function path = check_cached_objects( obj, choice )
             classification_configs = obj;
             save(strcat(path,'/','classification_configs_',time),'classification_configs');
             path = strcat(path,'/','classification_configs_',time,'.mat');
-        end
+        case 3 % a lot of config_segments files
+            segmentation_configs = obj;
+            save(strcat(path,'/','segmentation_configs_',num2str(varargin{1,1})),'segmentation_configs');
+            path = strcat(path,'/','segmentation_configs_',num2str(varargin{1,1}),'.mat');    
+        end    
     end 
 end
 

@@ -1,4 +1,4 @@
-function [ data, count ] = read_ethovision_xlsx(fn, rec_time, centre_x, centre_y);
+function [ data, count ] = read_ethovision_xlsx(fn, rec_time, centre_x, centre_y)
 %READ_ETHOVISION_XLSX same as read_ethovision.m but for .xlsx files
 
     [~, ~, data] = xlsread(fn);

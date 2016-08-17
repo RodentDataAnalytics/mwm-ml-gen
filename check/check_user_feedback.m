@@ -96,6 +96,22 @@ function user_feedback( sanity_table, switcher )
         elseif ~sanity_table(3)
             errordlg('Number of clusters. Field needs to contain an integer equal or bigger than 10','Input Error');
         end
-          
+        
+     case 4
+        % Path Errors
+        if ~sanity_table(1)
+            errordlg('Specify a correct folder path for Trajectory Data. The specified folder should also contain as many subfolders as the available sessions');
+        elseif ~sanity_table(2)
+            errordlg('Rec Time Field. Field needs to contain the recorded time field name as specified in the csv file','Input Error');
+        elseif ~sanity_table(3)
+            errordlg('X Field. Field needs to contain the X coordinates field name as specified in the csv file','Input Error');
+        elseif ~sanity_table(4)
+            errordlg('Y Field. Field needs to contain the Y coordinates field name as specified in the csv file','Input Error');          
+        elseif ~sanity_table(5)
+            errordlg('Arena radius. Field needs to contain a numerical value','Input Error');
+        elseif ~sanity_table(6)
+            errordlg('X Centre. Field needs to contain a numerical value','Input Error');
+        elseif ~sanity_table(7)
+            errordlg('Y Centre. Field needs to contain a numerical value','Input Error');
     end
 end

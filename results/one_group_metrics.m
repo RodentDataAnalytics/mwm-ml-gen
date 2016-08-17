@@ -3,7 +3,8 @@ function one_group_metrics(segmentation_configs, animals_trajectories_map, vars,
 
     names = {'latency' , 'speed' , 'length'};
     ylabels = {'latency [s]', 'speed [cm/s]', 'path length [m]'};
-    fontsize = 10;
+    % get the configurations from the configs file
+    [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
     
     for i = 1:size(vars, 1)
         figure
@@ -33,26 +34,26 @@ function one_group_metrics(segmentation_configs, animals_trajectories_map, vars,
         end
                                                    
         boxplot(data, groups, 'positions', pos, 'colors', [0 0 0]);
-        set(gca, 'LineWidth', 1.5, 'FontSize', fontsize);
+        set(gca, 'LineWidth', LineWidth, 'FontSize', FontSize, 'FontName', FontName);
         
         lbls = {};
         lbls = arrayfun( @(i) sprintf('%d', i), 1:total_trials, 'UniformOutput', 0);     
         
-        set(gca, 'XLim', [0, max(pos) + 0.1], 'XTickLabel', lbls, 'FontSize', fontsize);                 
+        set(gca, 'XLim', [0, max(pos) + 0.1], 'XTickLabel', lbls, 'Ylim', [0 max(data)+20], 'LineWidth', LineWidth, 'FontSize', FontSize, 'FontName', FontName);                 
         set (gca, 'Yscale', 'linear');        
 
-        ylabel(ylabels{i}, 'FontSize', fontsize);
-        xlabel('trial', 'FontSize', fontsize);
+        ylabel(ylabels{i}, 'FontSize', FontSize, 'FontName', FontName);
+        xlabel('trial', 'FontSize', FontSize, 'FontName', FontName);
 
         h = findobj(gca,'Tag','Box');
         for j=1:2:length(h)
              patch(get(h(j),'XData'), get(h(j), 'YData'), [0 0 0]);
         end
-        set([h], 'LineWidth', 0.8);
+        set([h], 'LineWidth', LineWidth);
    
         h = findobj(gca, 'Tag', 'Median');
         for j=1:2:length(h)
-             line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.9 .9 .9], 'LineWidth', 2);
+             line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.9 .9 .9], 'LineWidth', LineWidth);
         end
         
         h = findobj(gca, 'Tag', 'Outliers');
@@ -63,7 +64,7 @@ function one_group_metrics(segmentation_configs, animals_trajectories_map, vars,
         set(gcf, 'Color', 'w');
         box off;        
         set(gcf,'papersize',[8,8], 'paperposition',[0,0,8,8]);
-        export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('animals_%s', names{i}));           
+        export_figure(gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('animals_%s', names{i}), Export, ExportStyle);           
     end        
 end
 

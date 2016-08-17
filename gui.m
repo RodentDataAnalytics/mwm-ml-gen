@@ -220,7 +220,7 @@ function b_class_path_Callback(hObject, eventdata, handles)
     if isnumeric(FN_class) && isnumeric(PN_class)
         return
     end   
-    error = check_object_output_dir(2, FN_class);
+    error = check_object_output_dir(2, FN_class, PN_class);
     if error == 1
         errordlg('File path for classification configurations not found.','Input Error');
         return
@@ -268,12 +268,21 @@ function load_traj_buttom_Callback(hObject, eventdata, handles)
         choice = questdlg('Would you like to assign animals to groups?', ...
             'Assign Animals to Groups','Yes','No','No');       
         % set current GUI visibility to off
-        temp = findall(gcf);
-        set(temp,'Visible','off');  
+        %temp = findall(gcf);
+        temp = findobj('Type','figure');
+        for i = 1:length(temp)
+            name = get(temp(i),'Name');
+            if isequal(name,'mwm-ml-gen')
+                set(temp(i),'Visible','off'); 
+                idx = i;
+                break;
+            end
+        end    
         switch choice
             case 'Yes'              
                 [groups_path] = animal_groups(paths, get(handles.field_id,'String'), str2num(get(handles.text_sessions,'String')));       
                 if isempty(groups_path)
+                    set(temp(idx),'Visible','on'); 
                     return;
                 end 
             case 'No'
@@ -317,11 +326,11 @@ function load_traj_buttom_Callback(hObject, eventdata, handles)
         segmentation_configs = config_segments(user_input);
         if isempty(segmentation_configs.TRAJECTORIES)
             % resume main GUI visibility
-            set(temp,'Visible','on');                          
+            set(temp(idx),'Visible','on');                         
             return;
         end    
         % resume main GUI visibility
-        set(temp,'Visible','on');                
+        set(temp(idx),'Visible','on');                
         % check if object is already cached and if not save it
         rpath = check_cached_objects(segmentation_configs,1);
         set(handles.seg_path,'String',rpath);
@@ -443,9 +452,6 @@ function button_load_Callback(hObject, eventdata, handles)
         errordlg('The file specified is not containing the appropriate data format.','File error');
     end
     
-function button_cancel_Callback(hObject, eventdata, handles)
-    close(gui);
-
 function browse_trajectories_Callback(hObject, eventdata, handles)
     run browse_trajectories;
   
@@ -454,21 +460,40 @@ function browse_trajectories_Callback(hObject, eventdata, handles)
 %% CODE FOR RESULTS BUTTONS %%
 
 function res_test_Callback(hObject, eventdata, handles)
-    temp = findall(gcf);
-    set(temp,'Visible','off');
+    temp = findobj('Type','figure');
+    for i = 1:length(temp)
+        name = get(temp(i),'Name');
+        if isequal(name,'mwm-ml-gen')
+            set(temp(i),'Visible','off'); 
+            idx = i;
+            break;
+        end
+    end  
     published_results('execute');
-    set(temp,'Visible','on');
+    set(temp(idx),'Visible','on');
 
 function lat_sp_len_Callback(hObject, eventdata, handles)
+    temp = findobj('Type','figure');
+    for i = 1:length(temp)
+        name = get(temp(i),'Name');
+        if isequal(name,'mwm-ml-gen')
+            set(temp(i),'Visible','off'); 
+            idx = i;
+            break;
+        end
+    end  
     % see if we have the path for the segmentation_config file
     rpath = get(handles.seg_path,'String');
     [error, segmentation_configs] = select_files_default(1,rpath);
     if error
         % if not, ask for segmentation_config file
-        segmentation_configs = select_files(1);
-        if isempty(segmentation_configs)
+        res = select_files(1);
+        if isempty(res)
+            set(temp(idx),'Visible','on');
             return
         end 
+        segmentation_configs = res{1};
+        set(handles.seg_path,'String',res{2});
     end    
     % find available animal groups
     groups = zeros(1,length(segmentation_configs.TRAJECTORIES.items));
@@ -484,12 +509,15 @@ function lat_sp_len_Callback(hObject, eventdata, handles)
         options.Interpreter = 'tex';
         user = inputdlg(prompt,name,[1 30],defaultans,options);
         if isempty(user)
+            set(temp(idx),'Visible','on');
             return
         end    
         results_latency_speed_length(segmentation_configs,user);
+        set(temp(idx),'Visible','on');
     else
     % there is only one group thus take all the animals
         results_latency_speed_length(segmentation_configs);
+        set(temp(idx),'Visible','on');
     end  
 
 
@@ -500,10 +528,10 @@ function clustering_performance_Callback(hObject, eventdata, handles)
     if error
         % if not, ask for segmentation_config file
         res = select_files(1);
-        segmentation_configs = res{1};
-        if isempty(segmentation_configs)
+        if isempty(res)
             return
         end 
+        segmentation_configs = res{1};
         set(handles.seg_path,'String',res{2});
     end    
     % see if we have the path for the labels file
@@ -518,12 +546,19 @@ function clustering_performance_Callback(hObject, eventdata, handles)
         set(handles.path_labels,'String',labels_path);
     end 
     % set current GUI visibility to off
-    temp = findall(gcf);
-    set(temp,'Visible','off');                
+    temp = findobj('Type','figure');
+    for i = 1:length(temp)
+        name = get(temp(i),'Name');
+        if isequal(name,'mwm-ml-gen')
+            set(temp(i),'Visible','off'); 
+            idx = i;
+            break;
+        end
+    end                  
     % run the result
     num_of_clusters = number_of_clusters(segmentation_configs, labels_path);
     % resume main GUI visibility
-    set(temp,'Visible','on');
+    set(temp(idx),'Visible','on');
     if num_of_clusters == 0
         return
     end    
@@ -532,25 +567,40 @@ function clustering_performance_Callback(hObject, eventdata, handles)
     
 
 function strategies_distribution_Callback(hObject, eventdata, handles)
+    temp = findobj('Type','figure');
+    for i = 1:length(temp)
+        name = get(temp(i),'Name');
+        if isequal(name,'mwm-ml-gen')
+            set(temp(i),'Visible','off'); 
+            idx = i;
+            break;
+        end
+    end  
     % see if we have the path for the segmentation_config file
     rpath = get(handles.seg_path,'String');
     [error, segmentation_configs] = select_files_default(1,rpath);
     if error
         % if not, ask for segmentation_config file
-        segmentation_configs = select_files(1);
-        if isempty(segmentation_configs)
+        res = select_files(1);
+        if isempty(res)
+            set(temp(idx),'Visible','on');
             return
         end 
+        segmentation_configs = res{1};
+        set(handles.seg_path,'String',res{2});
     end  
-    % see if we have the path for the segmentation_config file
+    % see if we have the path for the classification_config file
     rpath = get(handles.class_path,'String');
     [error, classification_configs] = select_files_default(3,rpath);
     if error
         % if not, ask for classification_config file
-        classification_configs = select_files(3);
-        if isempty(classification_configs)
+        res = select_files(3);
+        if isempty(res)
+            set(temp(idx),'Visible','on');
             return
         end  
+        classification_configs = res{1};
+        set(handles.class_path,'String',res{2});
     end    
     % find available animal groups
     groups = zeros(1,length(segmentation_configs.TRAJECTORIES.items));
@@ -565,35 +615,53 @@ function strategies_distribution_Callback(hObject, eventdata, handles)
         options.Interpreter = 'tex';
         user = inputdlg(prompt,name,[1 30],defaultans,options);
         if isempty(user)
+            set(temp(idx),'Visible','on');
             return
         end 
         results_strategies_distributions_length(segmentation_configs,classification_configs,user);
+        set(temp(idx),'Visible','on');
     else
     % There is only one group thus take all the animals
         results_strategies_distributions_length(segmentation_configs,classification_configs);
+        set(temp(idx),'Visible','on');
     end  
     
     
 function transitions_count_Callback(hObject, eventdata, handles)
+    temp = findobj('Type','figure');
+    for i = 1:length(temp)
+        name = get(temp(i),'Name');
+        if isequal(name,'mwm-ml-gen')
+            set(temp(i),'Visible','off'); 
+            idx = i;
+            break;
+        end
+    end  
     % see if we have the path for the segmentation_config file
     rpath = get(handles.seg_path,'String');
     [error, segmentation_configs] = select_files_default(1,rpath);
     if error
         % if not, ask for segmentation_config file
-        segmentation_configs = select_files(1);
-        if isempty(segmentation_configs)
+        res = select_files(1);
+        if isempty(res)
+            set(temp(idx),'Visible','on');
             return
         end 
+        segmentation_configs = res{1};
+        set(handles.seg_path,'String',res{2});
     end  
-    % see if we have the path for the segmentation_config file
+    % see if we have the path for the classification_config file
     rpath = get(handles.class_path,'String');
     [error, classification_configs] = select_files_default(3,rpath);
     if error
         % if not, ask for classification_config file
-        classification_configs = select_files(3);
-        if isempty(classification_configs)
+        res = select_files(3);
+        if isempty(res)
+            set(temp(idx),'Visible','on');
             return
         end  
+        classification_configs = res{1};
+        set(handles.class_path,'String',res{2});
     end    
     % find available animal groups
     groups = zeros(1,length(segmentation_configs.TRAJECTORIES.items));
@@ -608,35 +676,53 @@ function transitions_count_Callback(hObject, eventdata, handles)
         options.Interpreter = 'tex';
         user = inputdlg(prompt,name,[1 30],defaultans,options);
         if isempty(user)
+            set(temp(idx),'Visible','on');
             return
         end 
         results_transition_counts(segmentation_configs,classification_configs,user);
+        set(temp(idx),'Visible','on');
     else
     % There is only one group thus take all the animals
         results_transition_counts(segmentation_configs,classification_configs);
+        set(temp(idx),'Visible','on');
     end 
     
 
 function transitions_prob_Callback(hObject, eventdata, handles)
+    temp = findobj('Type','figure');
+    for i = 1:length(temp)
+        name = get(temp(i),'Name');
+        if isequal(name,'mwm-ml-gen')
+            set(temp(i),'Visible','off'); 
+            idx = i;
+            break;
+        end
+    end 
     % see if we have the path for the segmentation_config file
     rpath = get(handles.seg_path,'String');
     [error, segmentation_configs] = select_files_default(1,rpath);
     if error
         % if not, ask for segmentation_config file
-        segmentation_configs = select_files(1);
-        if isempty(segmentation_configs)
+        res = select_files(1);
+        if isempty(res)
+            set(temp(idx),'Visible','on');
             return
         end 
+        segmentation_configs = res{1};
+        set(handles.seg_path,'String',res{2});
     end  
-    % see if we have the path for the segmentation_config file
+    % see if we have the path for the classification_config file
     rpath = get(handles.class_path,'String');
     [error, classification_configs] = select_files_default(3,rpath);
     if error
         % if not, ask for classification_config file
-        classification_configs = select_files(3);
-        if isempty(classification_configs)
+        res = select_files(3);
+        if isempty(res)
+            set(temp(idx),'Visible','on');
             return
         end  
+        classification_configs = res{1};
+        set(handles.class_path,'String',res{2});
     end     
     % find available animal groups
     groups = zeros(1,length(segmentation_configs.TRAJECTORIES.items));
@@ -651,54 +737,101 @@ function transitions_prob_Callback(hObject, eventdata, handles)
         options.Interpreter = 'tex';
         user = inputdlg(prompt,name,[1 30],defaultans,options);
         if isempty(user)
+            set(temp(idx),'Visible','on');
             return
         end 
         results_strategies_transition_prob(segmentation_configs,classification_configs,user);
+        set(temp(idx),'Visible','on');
     else
     % There is only one group thus take all the animals
         results_strategies_transition_prob(segmentation_configs,classification_configs);
+        set(temp(idx),'Visible','on');
     end 
 
     
 function confusion_matrix_Callback(hObject, eventdata, handles)
+    temp = findobj('Type','figure');
+    for i = 1:length(temp)
+        name = get(temp(i),'Name');
+        if isequal(name,'mwm-ml-gen')
+            set(temp(i),'Visible','off'); 
+            idx = i;
+            break;
+        end
+    end 
     % see if we have the path for the segmentation_config file
     rpath = get(handles.seg_path,'String');
     [error, segmentation_configs] = select_files_default(1,rpath);
     if error
         % if not, ask for segmentation_config file
-        segmentation_configs = select_files(1);
-        if isempty(segmentation_configs)
+        res = select_files(1);
+        if isempty(res)
+            set(temp(idx),'Visible','on');
             return
         end 
+        segmentation_configs = res{1};
+        set(handles.seg_path,'String',res{2});
     end  
     % see if we have the path for the segmentation_config file
     rpath = get(handles.class_path,'String');
     [error, classification_configs] = select_files_default(3,rpath);
     if error
         % if not, ask for classification_config file
-        classification_configs = select_files(3);
-        if isempty(classification_configs)
+        res = select_files(3);
+        if isempty(res)
+            set(temp(idx),'Visible','on');
             return
         end  
+        classification_configs = res{1};
+        set(handles.class_path,'String',res{2});
     end    
     results_confusion_matrix(segmentation_configs,classification_configs,10);
+    set(temp(idx),'Visible','on');
 
 % Display Arena
 function flip_x_Callback(hObject, eventdata, handles)
 function flip_y_Callback(hObject, eventdata, handles)
 function view_arena_Callback(hObject, eventdata, handles)
-        CENTRE_X = str2num(get(handles.centreX,'String'));
-        CENTRE_Y = str2num(get(handles.centreY,'String'));
-        ARENA_RADIUS = str2num(get(handles.arena_radius,'String'));
-        PLATFORM_X = str2num(get(handles.platX,'String'));
-        PLATFORM_Y = str2num(get(handles.platY,'String'));
-        PLATFORM_RADIUS = str2num(get(handles.plat_radius,'String'));
-        flipX = get(handles.flip_x, 'Value');
-        flipY = get(handles.flip_y, 'Value');
-        if isempty(CENTRE_X) || isempty(CENTRE_Y) || isempty(ARENA_RADIUS) || isempty(PLATFORM_X) || isempty(PLATFORM_Y) || isempty(PLATFORM_RADIUS)
-            errordlg('Centre [X,Y], Arena Radius, Platform [X,Y] and Plateform Radius fields need to contain numerical values.','Input Error');
-            return
-        end
-        draw_arena(CENTRE_X,CENTRE_Y,ARENA_RADIUS,PLATFORM_X,PLATFORM_Y,PLATFORM_RADIUS,flipX,flipY);
+    CENTRE_X = str2num(get(handles.centreX,'String'));
+    CENTRE_Y = str2num(get(handles.centreY,'String'));
+    ARENA_RADIUS = str2num(get(handles.arena_radius,'String'));
+    PLATFORM_X = str2num(get(handles.platX,'String'));
+    PLATFORM_Y = str2num(get(handles.platY,'String'));
+    PLATFORM_RADIUS = str2num(get(handles.plat_radius,'String'));
+    flipX = get(handles.flip_x, 'Value');
+    flipY = get(handles.flip_y, 'Value');
+    if isempty(CENTRE_X) || isempty(CENTRE_Y) || isempty(ARENA_RADIUS) || isempty(PLATFORM_X) || isempty(PLATFORM_Y) || isempty(PLATFORM_RADIUS)
+        errordlg('Centre [X,Y], Arena Radius, Platform [X,Y] and Plateform Radius fields need to contain numerical values.','Input Error');
+        return
+    end
+    draw_arena(CENTRE_X,CENTRE_Y,ARENA_RADIUS,PLATFORM_X,PLATFORM_Y,PLATFORM_RADIUS,flipX,flipY);
 
 function main_gui_SizeChangedFcn(hObject, eventdata, handles)
+
+
+% --------------------------------------------------------------------
+function options_tab_Callback(hObject, eventdata, handles)
+function exp_pics_Callback(hObject, eventdata, handles)
+    temp = findobj('Type','figure');
+    for i = 1:length(temp)
+        name = get(temp(i),'Name');
+        if isequal(name,'mwm-ml-gen')
+            set(temp(i),'Visible','off'); 
+            idx = i;
+            break;
+        end
+    end 
+    run figure_configs;
+    set(temp(idx),'Visible','on');
+%function str_conf_Callback(hObject, eventdata, handles)
+%     temp = findobj('Type','figure');
+%     for i = 1:length(temp)
+%         name = get(temp(i),'Name');
+%         if isequal(name,'mwm-ml-gen')
+%             set(temp(i),'Visible','off'); 
+%             idx = i;
+%             break;
+%         end
+%     end 
+%     run tags_config;
+%     set(temp(idx),'Visible','on'); 

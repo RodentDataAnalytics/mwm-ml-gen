@@ -1,6 +1,6 @@
 classdef config_classification < handle
     
-    properties(GetAccess = 'public', SetAccess = 'protected')  
+    properties(GetAccess = 'public', SetAccess = 'public')  
         LABELLING_MAP = [];
         % computed features
         FEATURES = [];

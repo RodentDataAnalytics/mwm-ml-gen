@@ -43,15 +43,15 @@ function [ num_of_clusters ] = number_of_clusters(segmentation_configs, labels_p
     h.label_min = uicontrol('style','text','units',units,...
                  'position',[10,151,70,15],'string',{'Min Clusters'},...
                  'fontname',fontname,'fontsize',fontsize,...
-                 'fontunits',fontunits);
+                 'fontunits',fontunits,'HorizontalAlignment','left');
     h.label_max = uicontrol('style','text','units',units,...
                  'position',[10,131,70,15],'string',{'Max Clusters'},...
                  'fontname',fontname,'fontsize',fontsize,...
-                 'fontunits',fontunits);  
+                 'fontunits',fontunits,'HorizontalAlignment','left');  
     h.label_step = uicontrol('style','text','units',units,...
                  'position',[10,111,70,15],'string',{'Step'},...
                  'fontname',fontname,'fontsize',fontsize,...
-                 'fontunits',fontunits);   
+                 'fontunits',fontunits,'HorizontalAlignment','left');   
              
     % Texts         
     h.text_min = uicontrol('style','edit','units',units,...
@@ -97,7 +97,7 @@ function [ num_of_clusters ] = number_of_clusters(segmentation_configs, labels_p
          
     %% Run - Graphs
     h.run = uicontrol('style','pushbutton','units',units,...
-                'position',[40,70,90,25],'string','Run',...
+                'position',[40,65,90,25],'string','Run',...
                 'fontname',fontname,'fontsize',fontsize,...
                 'fontunits',fontunits,...
                 'callback',{@run_callback,h});     
@@ -105,7 +105,16 @@ function [ num_of_clusters ] = number_of_clusters(segmentation_configs, labels_p
                 'position',[40,40,90,25],'string','Show Graphs',...
                 'fontname',fontname,'fontsize',fontsize,...
                 'fontunits',fontunits,...
-                'callback',{@graphs_callback,h});     
+                'callback',{@graphs_callback,h});    
+    % Show all results
+    h.label_checkbox = uicontrol('style','text','units',units,...
+             'position',[10,90,80,15],'string',{'Show all results'},...
+             'fontname',fontname,'fontsize',fontsize,...
+             'fontunits',fontunits,'HorizontalAlignment','left');
+    h.all_res = uicontrol('style','checkbox','units',units,...
+                'position',[100,90,20,20],'Value',0,...
+                'fontname',fontname,'fontsize',fontsize,...
+                'fontunits',fontunits);
     
     %% Create Exit
     h.ok = uicontrol('style','pushbutton','units',units,...
@@ -119,6 +128,10 @@ function [ num_of_clusters ] = number_of_clusters(segmentation_configs, labels_p
                 'fontunits',fontunits,'callback',{@cancel_callback});   
             
     inc_dec = str2num(get(h.text_step,'string'));
+    tdata = get(t,'data');
+    if isempty(tdata)
+        set(h.graphs,'Enable','off');
+    end    
     
     %% Lock the figure
     lock = gcf;
@@ -130,15 +143,14 @@ function [ num_of_clusters ] = number_of_clusters(segmentation_configs, labels_p
         table = get(obj,'Data');
         row = event.Indices(1);
         col = event.Indices(2);
-        a = table{row,col};
-        if table{row,col} == true
-            for i = 1:size(table,1)
-                if table{i,5} == true
-                    table{i,5} = false;
-                end  
+        % set all true to false
+        for i = 1:size(table,1)
+            if table{i,5} == true
+               table{i,5} = false;
             end 
         end   
-        table{row,col} = a;
+        % set the targeted one to true
+        table{row,col} = true; 
         set(obj,'Data',table);
     end    
     
@@ -165,7 +177,11 @@ function [ num_of_clusters ] = number_of_clusters(segmentation_configs, labels_p
                 num_max = num_max + inc_dec;
                 set(h.text_max,'string',num_max);
             case 3 % step   
-                step = step + 5;
+                if step == 1
+                    step = 5;
+                else    
+                    step = step + 5;
+                end    
                 set(h.text_step,'string',step);
                 inc_dec = step;
         end  
@@ -197,7 +213,11 @@ function [ num_of_clusters ] = number_of_clusters(segmentation_configs, labels_p
                     set(h.text_max,'string',num_max);
                 end    
             case 3 % step 
-                if step - 5 < 5
+                if step == 5
+                    step = 1;
+                    set(h.text_step,'string',step);   
+                    inc_dec = step;
+                elseif step - 5 < 5
                     return;
                 else
                     step = step - 5;
@@ -213,38 +233,66 @@ function [ num_of_clusters ] = number_of_clusters(segmentation_configs, labels_p
         min_num  = str2num(get(h.text_min,'string'));
         max_num  = str2num(get(h.text_max,'string'));
         step = str2num(get(h.text_step,'string'));
+        if (max_num - min_num) / step > 30
+            choice = questdlg(sprintf('Number of iterations (%d) is too large. The process with take an extended amount of time, would you like to continue?',(max_num - min_num) / step), ...
+                                        'Number of iterations','No','Yes','No');
+            switch choice
+                case 'No'
+                    return
+                case 'Yes'
+            end
+        end    
+        % make the figure invisible
+        temp = findobj('Type','figure');
+        for i = 1:length(temp)
+            name = get(temp(i),'Name');
+            if isequal(name,'Number of Clusters')
+                set(temp(i),'Visible','off'); 
+                idx = i;
+                break;
+            end
+        end 
         % run clustering
         [nc,res1bare,res2bare,res1,res2,res3,covering]  = results_clustering_parameters(segmentation_configs,labels_path,0,min_num,max_num,inc_dec);
-        [nc,per_errors1,per_undefined1,coverage] = algorithm_statistics(1,nc,res1bare,res2bare,res1,res2,res3,covering);                         
+        suboption = get(h.all_res, 'Value');
+        [nc,per_errors1,per_undefined1,coverage] = algorithm_statistics(1,suboption,nc,res1bare,res2bare,res1,res2,res3,covering);                         
         % UPDATE THE TABLE
-        data_old = get(t,'Data');
-        a = false(1,length(nc));
-        a = num2cell(a');
-        data = [round(nc)', round(per_errors1)', round(per_undefined1)', round(coverage)'];
+%         data_old = get(t,'Data');
+%         a = false(1,length(nc));
+%         a = num2cell(a');
+        %data = [round(nc)', round(per_errors1)', round(per_undefined1)', round(coverage)'];
+        checkboxes = zeros(1,length(nc));
+        data = [nc', per_errors1', per_undefined1', coverage', checkboxes'];
         data = num2cell(data);
-        data = [data a]; 
-        data_new = data;
+%         data = [data a]; 
+%         data_new = data;
         % first check if we already have some data...
-        for i = 1:size(data_old,1)
-            for j = 1:size(data,1)
-                if isequal(data(j,1),data_old(i,1))
-                    % ...if we do mark the data we already have...
-                    data_old(i,:) = data(j,:);
-                    data_new{j,1} = 0;
-                end
-            end
-        end    
+%         for i = 1:size(data_old,1)
+%             for j = 1:size(data,1)
+%                 if isequal(data(j,1),data_old(i,1))
+%                     % ...if we do, mark the data we already have...
+%                     data_old(i,:) = data(j,:);
+%                     data_new{j,1} = 0;
+%                 end
+%             end
+%         end    
         %...remove the marked data
-        a = size(data,1);
-        for i = a:-1:1
-            if data_new{i,1} == 0
-                data_new(1,:) = [];
-                %a = a-1;
-            end
-        end    
+%         a = size(data,1);
+%         for i = a:-1:1
+%             if data_new{i,1} == 0
+%                 data_new(1,:) = [];
+%                 %a = a-1;
+%             end
+%         end    
         % update the table
-        data = [data_old ; data_new];      
-        set(t,'Data',data);    
+        %data = [data_old ; data_new];      
+        set(t,'Data',data);
+        set(h.graphs,'Enable','on');
+        % resume figure's visibility
+        try
+            set(temp(idx),'Visible','on'); 
+        catch
+        end    
     end    
 
     function graphs_callback(varargin)
@@ -252,12 +300,23 @@ function [ num_of_clusters ] = number_of_clusters(segmentation_configs, labels_p
         if isempty(tdata)
             return;
         end  
+        % make the figure invisible
+        temp = findobj('Type','figure');
+        for i = 1:length(temp)
+            name = get(temp(i),'Name');
+            if isequal(name,'Number of Clusters')
+                set(temp(i),'Visible','off'); 
+                idx = i;
+                break;
+            end
+        end 
         % get min/max
         min_num  = str2num(get(h.text_min,'string'));
         max_num  = str2num(get(h.text_max,'string'));  
         step = str2num(get(h.text_step,'string'));
         try
             results_clustering_parameters(segmentation_configs,labels_path,1,min_num,max_num,inc_dec,1);
+            set(temp(idx),'Visible','on'); 
             return
         catch
             errordlg('Graphs cannot be generated.','Error');

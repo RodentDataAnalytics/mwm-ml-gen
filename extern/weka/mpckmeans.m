@@ -27,8 +27,13 @@ function [ distr, centroids ] = mpckmeans( x, constr, k )
     
     mpck = weka.clusterers.MPCKMeans();
     mpck.setTotalTrainWithLabels(data);    
-
-    mpck.buildClusterer(c, data, data, k, data.numInstances())    
+    
+    % in case of error continue;
+    try
+        mpck.buildClusterer(c, data, data, k, data.numInstances())   
+    catch
+        %disp('error');
+    end    
     
     distr = mpck.getClusterAssignments();
     distr = distr';

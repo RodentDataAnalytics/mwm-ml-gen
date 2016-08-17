@@ -1,6 +1,9 @@
 function results_transition_counts(segmentation_configs,classification_configs,varargin)
 % Computes and presents the number of transitions between strategies 
 % for two groups of N animals.
+
+    % get the configurations from the configs file
+    [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
     
     segments_classification = classification_configs.CLASSIFICATION;
     trajectories_ = segmentation_configs.TRAJECTORIES;
@@ -32,7 +35,6 @@ function results_transition_counts(segmentation_configs,classification_configs,v
     vals_grps = [];           
     d = 0.05;
     pos = [];            
-    ngrp = 0;  
     % for the friedman test
     mfried = [];
     ids = {};
@@ -118,7 +120,7 @@ function results_transition_counts(segmentation_configs,classification_configs,v
         d = d + 0.05;
     end
 
-    figure;
+    f = figure;
     hold off;
     % average each value                        
     boxplot(vals, vals_grps, 'positions', pos, 'colors', [0 0 0]);     
@@ -127,11 +129,11 @@ function results_transition_counts(segmentation_configs,classification_configs,v
     for j=1:2:length(h)
          patch(get(h(j),'XData'), get(h(j), 'YData'), [0 0 0]);
     end
-    set([h], 'LineWidth', 0.8);
+    set([h], 'LineWidth', LineWidth);
 
     h = findobj(gca, 'Tag', 'Median');
     for j=1:2:length(h)
-         line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.9 .9 .9], 'LineWidth', 2);
+         line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.9 .9 .9], 'LineWidth', LineWidth);
     end
 
     h = findobj(gca, 'Tag', 'Outliers');
@@ -142,17 +144,19 @@ function results_transition_counts(segmentation_configs,classification_configs,v
     lbls = {};
     lbls = arrayfun( @(i) sprintf('%d', i), 1:total_trials, 'UniformOutput', 0);     
 
-    set(gca, 'DataAspectRatio', [1, 25*1.25, 1], 'XTick', (pos(1:2:2*total_trials - 1) + pos(2:2:2*total_trials)) / 2, 'XTickLabel', lbls, 'Ylim', [0, 25], 'FontSize', 0.75*10);
-    set(gca, 'LineWidth', 1.5);   
+    %set(gca, 'DataAspectRatio', [1, 25*1.25, 1], 'XTick', (pos(1:2:2*total_trials - 1) + pos(2:2:2*total_trials)) / 2, 'XTickLabel', lbls, 'FontSize', FontSize, 'FontName', FontName);
+    set(gca, 'XTick', (pos(1:2:2*total_trials - 1) + pos(2:2:2*total_trials)) / 2, 'XTickLabel', lbls, 'FontSize', FontSize, 'FontName', FontName);
+    set(gca, 'LineWidth', LineWidth);  
+    set(gca,'Ylim', [0, max(vals)+5]);
 
-    ylabel('transitions', 'FontSize', 0.75*10);
-    xlabel('trial', 'FontSize', 10);        
+    ylabel('transitions', 'FontSize', FontSize, 'FontName', FontName);
+    xlabel('trial', 'FontSize', FontSize, 'FontName', FontName); 
 
-    set(gcf, 'Color', 'w');
+    set(f, 'Color', 'w');
     box off;  
-    set(gcf,'papersize',[8,8], 'paperposition',[0,0,8,8]);
+    set(f,'papersize',[8,8], 'paperposition',[0,0,8,8]);
 
-    export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), 'transision_counts');
+    export_figure(f, strcat(segmentation_configs.OUTPUT_DIR,'/'), 'transision_counts', Export, ExportStyle);
 
     try
         p = friedman(mfried, nanimals, 'off');

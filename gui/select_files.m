@@ -25,6 +25,18 @@ function [ return_data ] = select_files( option )
                     return
                 end
             end 
+            %check if segmentation_configs has the correct output path
+            %and if not ask the user to specify one.
+            error = check_object_output_dir(1, FN_group,PN_group);
+            if error == 1
+                errordlg('File path for segmentation configurations not found.','Input Error');
+                return
+            elseif error == 2
+                errordlg('Wrong MAT file was selected.','Input Error');
+                return
+            end    
+            %reload
+            load(strcat(PN_group,FN_group));
             return_data = {segmentation_configs,[PN_group,FN_group]};
             
         case 2 % labels data
@@ -62,7 +74,7 @@ function [ return_data ] = select_files( option )
                     errordlg('Wrong file selected. Select a classification_configs .mat file.');
                     return
                 end
-            end 
+            end  
             return_data = {classification_configs,[PN_group,FN_group]};
             
         case 4 % folds

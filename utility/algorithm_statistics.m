@@ -1,4 +1,4 @@
-function [ varargout ] = algorithm_statistics(option,varargin)
+function [ varargout ] = algorithm_statistics(option,suboption,varargin)
 %ALGORITHM_STATISTICS computes various statistics about the algorithm
 %performance
 
@@ -45,6 +45,15 @@ function [ varargout ] = algorithm_statistics(option,varargin)
             per_clus_ebars1 = arrayfun( @(x) x.sd_nclusters*ci_fac, res1);
             coverage = covering*100;
             
+            % return all the values
+            if suboption
+                varargout{1} = nc;
+                varargout{2} = per_errors1;
+                varargout{3} = per_undefined1;
+                varargout{4} = coverage;
+                return
+            end    
+            
             % find mean
             mean_per_errors1 = mean(per_errors1);
             mean_per_undefined1 = mean(per_undefined1);
@@ -55,7 +64,7 @@ function [ varargout ] = algorithm_statistics(option,varargin)
             % find common elements
             a = find(per_errors1 < mean_per_errors1 & per_errors1 < 10);
             b = find(per_undefined1 < mean_per_undefined1 & per_undefined1 < 40);
-            c = find(coverage > mean_coverage & coverage > 60);
+            c = find(coverage > mean_coverage & coverage > 70);
             d = find(per_errors_ebars1 < mean_per_errors_ebars1);
             e = find(per_clus_ebars1 < mean_per_clus_ebars1);
             common1 = intersect(intersect(a,b),c);

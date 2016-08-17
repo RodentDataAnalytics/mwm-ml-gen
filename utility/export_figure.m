@@ -1,8 +1,5 @@
 % DESCRIPTION: Exports the current figure into different formats.
 % ARGUMENTS:
-%           -flag: if it is set to 1 the default export format .eps is
-%                  being used.
-%
 %           -get_current_figure: figure for exporting, for current "active"
 %                                figure use gcf.
 %
@@ -10,37 +7,63 @@
 %
 %           -get_name: name of the generated file (without extension).
 %
+%           -get_export_format: export format ('.format', no capitals)
 %
-% EXAMPLE_1: export_figure(1, gcf, 'C:\', 'myfig_1');
-%            -> generates: C:\myfig_1.fig
-%
-% EXAMPLE_2: export_figure(0, gcf, 'C:\', 'myfig_2'); -> 
-%            requests a user's input:
-%                1 = .fig file, 2 = .eps file
-%            generates one of the following:
-%                C:\myfig_1.fig OR C:\myfig_1.eps
+%           -get_export_properties: high/low quality (for low quality use
+%                                   "saveas" and for high quality use
+%                                   "print" with 300dpi).
 
+function export_figure(get_current_figure, get_path, get_name, get_export_format, get_export_properties)
 
-function export_figure(flag, get_current_figure, get_path, get_name)
+    % if .fig format is requested just save and terminate
+    if isequal(get_export_properties,'.fig')
+        saveas(get_current_figure, strcat(get_path,get_name,get_export_format));
+        return;
+    end    
 
-    if flag == 1
-        saveas(get_current_figure, strcat(get_path,get_name,'.fig')); %default export format
-        saveas(get_current_figure, strcat(get_path,get_name,'.eps'),'epsc2');
-        % we need to specify eps color (epsc or epsc2) as the format
-        % parameter or else the exported picture will be black & white
-    else
-        while (1)
-            prompt = sprintf('Exporting...: \n1. .fig format \n2. .eps format \nChoice: ');
-            user_input = input(prompt)
-            if user_input == 1
-                saveas(get_current_figure, strcat(get_path,get_name,'.fig'));
-                break;
-            elseif user_input == 2
-                saveas(get_current_figure, strcat(get_path,get_name,'.eps'),'epsc2');
-                break;
-            else
-                prompt = 'Wrong input'
-            end
+    if isequal(get_export_properties,'Low Quality')
+        if isequal(get_export_format,'.pdf')
+            get_export_format = 'pdf';
+        elseif isequal(get_export_format,'.svg')
+            get_export_format = 'svg';
+        elseif isequal(get_export_format,'.eps')
+            %eps level 2 colored
+            get_export_format = 'epsc2';
+        elseif isequal(get_export_format,'.jpg')    
+            get_export_format = 'jpeg';
+        elseif isequal(get_export_format,'.png')    
+            get_export_format = 'png';
+        elseif isequal(get_export_format,'.tif') 
+            %compressed
+            get_export_format = 'tiff';            
+        elseif isequal(get_export_format,'.bmp')    
+            get_export_format = 'bmp';
         end
+    elseif isequal(get_export_properties,'High Quality')
+        if isequal(get_export_format,'.pdf')
+            get_export_format = '-dpdf';
+        elseif isequal(get_export_format,'.svg')
+            get_export_format = '-dsvg';
+        elseif isequal(get_export_format,'.eps')  
+            %eps level 3 colored
+            get_export_format = '-depsc';
+        elseif isequal(get_export_format,'.jpg')    
+            get_export_format = '-djpeg';
+        elseif isequal(get_export_format,'.png')    
+            get_export_format = '-dpng';
+        elseif isequal(get_export_format,'.tif')    
+            %uncompressed
+            get_export_format = '-dtiffn';            
+        elseif isequal(get_export_format,'.bmp')    
+            get_export_format = '-dbmp';
+        end       
     end
+       
+    if isequal(get_export_properties,'Low Quality')
+        saveas(get_current_figure, strcat(get_path,get_name),get_export_format); 
+    elseif isequal(get_export_properties,'High Quality')
+        % use 300dpi
+        print(get_current_figure, strcat(get_path,get_name),get_export_format,'-r300');
+    end    
+    
 end

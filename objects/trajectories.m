@@ -121,6 +121,70 @@ classdef trajectories < handle
                 inst.segmented_map_(inst.partitions > 0) = 1:sum(inst.partitions > 0);
             end
             out = inst.segmented_map_;
-        end                    
+        end
+        
+        function [mapping] = match_segments(inst, other_seg, feat_len_1, feat_len, varargin)
+            [seg_dist, tolerance, len_tolerance] = process_options(varargin, ...
+                'SegmentDistance', 0, 'Tolerance', 20, 'LengthTolerance', 0 ...
+            );            
+            
+            if len_tolerance == 0
+                len_tolerance = tolerance;
+            end
+            mapping = ones(1, inst.count)*-1;
+            idx = 1;
+            if other_seg.count > inst.count            
+                for i = 1:other_seg.count
+                    while( ~isequal(inst.items(idx).data_identification, other_seg.items(i).data_identification) || ...
+                             inst.items(idx).offset < other_seg.items(i).offset - seg_dist - tolerance)                      
+                        idx = idx + 1;                    
+                        if idx == inst.count
+                            break;
+                        end                    
+                    end
+                    % all right now try to match the offset;
+                    if abs(inst.items(idx).offset - other_seg.items(i).offset) < seg_dist + tolerance && ...
+                        abs(feat_len_1(i) - feat_len(idx)) < len_tolerance
+                        % we have a match!
+                        mapping(idx) = i;
+                        idx = idx + 1;                    
+                    end               
+                    if idx == inst.count
+                        break;
+                    end
+                end
+            else
+                for i = 1:inst.count                    
+                    if( ~isequal(other_seg.items(idx).data_identification, inst.items(i).data_identification))
+                       continue;
+                    end    
+                    % test if we overshoot the segment                   
+                    loop = 0;
+                    while (other_seg.items(idx).offset < inst.items(i).offset - seg_dist - tolerance)                        
+                        if ~isequal(other_seg.items(idx).data_identification, inst.items(i).data_identification)
+                            loop = 1;
+                            break;
+                        end
+                        idx = idx + 1;                    
+                        if idx == other_seg.count
+                            break;
+                        end                    
+                    end
+                    if loop
+                        continue;
+                    end
+                    % all right now try to match the offset
+                    if abs(inst.items(i).offset - seg_dist - other_seg.items(idx).offset) < tolerance && ...
+                       abs(feat_len_1(i) - feat_len(idx)) < len_tolerance
+                        % we have a match!
+                        mapping(i) = idx;
+                        idx = idx + 1;                  
+                    end               
+                    if idx == other_seg.count
+                        break;
+                    end
+                end
+            end
+        end      
     end
 end

@@ -4,6 +4,9 @@ function results_strategies_distributions_length(segmentation_configs,classifica
 % show the average length in meters that the animals spent in one strategy 
 % during each trial (for S total strategies, were S is defined by the user)
 
+    fn = strcat(segmentation_configs.OUTPUT_DIR,'/','strategies_p.txt');
+    fileID = fopen(fn,'wt');
+
     % get the configurations from the configs file
     [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
 
@@ -113,6 +116,7 @@ function results_strategies_distributions_length(segmentation_configs,classifica
         try
             p = friedman(mfried, nanimals);
             str = sprintf('Class: %s\tp_frdm: %g', segments_classification.classes{1,c}{1,2}, p);            
+            fprintf(fileID,'%s\n',str);
             disp(str);        
         catch
             disp('Error on Friedman test. Friedman test is skipped');
@@ -165,6 +169,6 @@ function results_strategies_distributions_length(segmentation_configs,classifica
         export_figure(gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('segment_length_strategy_%d', c), Export, ExportStyle);
 
     end    
-    
+    fclose(fileID);
 end
 

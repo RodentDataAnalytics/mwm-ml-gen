@@ -5,6 +5,9 @@ function results_latency_speed_length(segmentation_configs,varargin)
 % 2. The average movement speed.
 % 3. The average path length.
 
+    fn = strcat(segmentation_configs.OUTPUT_DIR,'/','metrics_p.txt');
+    fileID = fopen(fn,'wt');
+
     % get the configurations from the configs file
     [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
 
@@ -152,14 +155,16 @@ function results_latency_speed_length(segmentation_configs,varargin)
         set(f,'papersize',[8,8], 'paperposition',[0,0,8,8]);
         export_figure(f, strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('animals_%s', names{i}),Export, ExportStyle);
         
-        % run friedman test            
+        % run friedman test  
         try
             p = friedman(fried, n);
             str = sprintf('Friedman p-value (%s): %g', ylabels{i}, p);
+            fprintf(fileID,'%s\n',str);
             disp(str);          
         catch
             disp('Error on Friedman test. Friedman test is skipped');
-        end    
+        end        
     end
+    fclose(fileID);
 end
 

@@ -4,6 +4,7 @@ function results_confusion_matrix(segmentation_configs,classification_configs,fo
 % cross-validation of the clustering algorithm
         
     fn = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'/'), 'confusion_matrix.mat');
+    fn2 = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'/'), 'Confusion_matrix.txt');
 
     % get classifier object
     classif = classification_configs.SEMISUPERVISED_CLUSTERING;
@@ -41,15 +42,35 @@ function results_confusion_matrix(segmentation_configs,classification_configs,fo
         cm = cm + res.results(i).confusion_matrix;
     end
     tags = res.results(1).classes;
+    
+    % NaN values
+    for i = 1:size(cm,1)
+        for j = 1:size(cm,2)
+            if isnan(cm)
+                cm(i,j) = 0;
+            end
+        end
+    end    
 
     % save data
     save(fn, 'tags', 'cm');   
-    
     disp('Tags:');
     for i = 1:length(tags)
         fprintf('%s\n', tags{1,i}{1,2});
-    end
-        
+    end  
     fprintf('\nConfusion matrix:\n');    
     cm        
+    
+    % save to file
+    fileID = fopen(fn2,'wt');
+    for i = 1:length(tags)
+        fprintf(fileID,'%d. %s\n', i, tags{1,i}{1,2});
+    end
+    fprintf(fileID, '\n');
+    for i=1:size(cm,1)
+        fprintf(fileID, '%d ', cm(i,:));
+        fprintf(fileID, '\n');
+    end
+    fclose(fileID);
+    
 end

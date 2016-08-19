@@ -91,8 +91,27 @@ function results_strategies_transition_prob(segmentation_configs,classification_
     if length(groups) ~= 1
         trans_prob1 = trans_prob1 ./ repmat(sum(trans_prob1, 2), 1, nc);
         trans_prob2 = trans_prob2 ./ repmat(sum(trans_prob2, 2), 1, nc);
+        % NaN values
+        for i = 1:size(trans_prob1,1)
+            for j = 1:size(trans_prob1,2)
+                if isnan(trans_prob1)
+                    trans_prob1(i,j) = 0;
+                end
+                if isnan(trans_prob2)
+                    trans_prob2(i,j) = 0;
+                end
+            end
+        end    
     else
         trans_prob1 = trans_prob1 ./ repmat(sum(trans_prob1, 2), 1, nc);
+        % NaN values
+        for i = 1:size(trans_prob1,1)
+            for j = 1:size(trans_prob1,2)
+                if isnan(trans_prob1)
+                    trans_prob1(i,j) = 0;
+                end
+            end
+        end
     end
     
     for i = 1:segments_classification.nclasses
@@ -108,5 +127,32 @@ function results_strategies_transition_prob(segmentation_configs,classification_
         save(fn, 'trans_prob1');
         trans_prob1
     end    
+    
+    % save to txt
+    fn2 = fullfile(strcat(segmentation_configs.OUTPUT_DIR,'/'), 'transition_probabilities.txt');
+    fileID = fopen(fn2,'wt');
+    for i = 1:segments_classification.nclasses
+        fprintf(fileID,'%d. %s\n', i, segments_classification.classes{1,i}{1,2});
+    end
+    
+    fprintf(fileID, '\n');
+    if length(groups) ~= 1
+        for i=1:size(trans_prob1,1)
+            fprintf(fileID, '%6.4f ', trans_prob1(i,:));
+            fprintf(fileID, '\n');
+        end
+        fprintf(fileID, '\n');
+        for i=1:size(trans_prob2,1)
+            fprintf(fileID, '%6.4f ', trans_prob2(i,:));
+            fprintf(fileID, '\n');
+        end      
+    else
+        for i=1:size(trans_prob1,1)
+            fprintf(fileID, '%6.4f ', trans_prob1(i,:));
+            fprintf(fileID, '\n');
+        end
+    end   
+    fclose(fileID);
+    
 end
 

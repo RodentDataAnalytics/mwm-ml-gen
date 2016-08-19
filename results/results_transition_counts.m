@@ -2,6 +2,9 @@ function results_transition_counts(segmentation_configs,classification_configs,v
 % Computes and presents the number of transitions between strategies 
 % for two groups of N animals.
 
+    fn = strcat(segmentation_configs.OUTPUT_DIR,'/','transitions_p.txt');
+    fileID = fopen(fn,'wt');
+    
     % get the configurations from the configs file
     [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
     
@@ -160,8 +163,12 @@ function results_transition_counts(segmentation_configs,classification_configs,v
 
     try
         p = friedman(mfried, nanimals, 'off');
-        str = sprintf('p_frdm: %g', p);            
+        str = sprintf('p_frdm: %g', p); 
+        fprintf(fileID,'%s\n',str);
         disp(str);
     catch
         disp('Error on Friedman test. Friedman test is skipped');
     end
+    
+    fclose(fileID);
+    

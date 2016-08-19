@@ -772,7 +772,7 @@ function confusion_matrix_Callback(hObject, eventdata, handles)
         segmentation_configs = res{1};
         set(handles.seg_path,'String',res{2});
     end  
-    % see if we have the path for the segmentation_config file
+    % see if we have the path for the classification_config file
     rpath = get(handles.class_path,'String');
     [error, classification_configs] = select_files_default(3,rpath);
     if error

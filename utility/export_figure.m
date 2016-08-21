@@ -16,7 +16,7 @@
 function export_figure(get_current_figure, get_path, get_name, get_export_format, get_export_properties)
 
     % if .fig format is requested just save and terminate
-    if isequal(get_export_properties,'.fig')
+    if isequal(get_export_format,'.fig')
         saveas(get_current_figure, strcat(get_path,get_name,get_export_format));
         return;
     end    

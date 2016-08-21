@@ -785,7 +785,10 @@ function confusion_matrix_Callback(hObject, eventdata, handles)
         classification_configs = res{1};
         set(handles.class_path,'String',res{2});
     end    
+    h = waitbar(0,'Loading...','Name','Computing');
     results_confusion_matrix(segmentation_configs,classification_configs,10);
+    delete(h);
+    waitfor(h);
     set(temp(idx),'Visible','on');
 
 % Display Arena

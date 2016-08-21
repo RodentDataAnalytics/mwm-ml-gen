@@ -320,6 +320,7 @@ function [ num_of_clusters ] = number_of_clusters(segmentation_configs, labels_p
             return
         catch
             errordlg('Graphs cannot be generated.','Error');
+            set(temp(idx),'Visible','on'); 
             return
         end    
     end  

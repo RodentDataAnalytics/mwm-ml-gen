@@ -70,7 +70,7 @@ formats = {'MATLAB FIG-file (.fig)',...
            'JPEG image (.jpg)',...
            'Portable Network Graphics (.png)',...
            'Encapsulated PostScript (.eps)',...
-           'Scalable Vector Graphics) (.svg)',...
+           'Scalable Vector Graphics (.svg)',...
            'Portable Document Format (.pdf)',...
            'Windows bitmap (.bmp)',...
            'TIFF image, compressed (.tif)'};
@@ -160,13 +160,15 @@ end
 function ok_Callback(hObject, eventdata, handles)
     % Read the configs.txt
     fmt = repmat('%s ',[1,3]);
-    if ~isdeployed
-        fileID = fopen('configs.txt');
-        contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',',');
-    else
-        fileID = fopen(fullfile(ctfroot,'configs','configs.txt'));
-        contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',','); 
-    end
+%     if ~isdeployed
+%         fileID = fopen('configs.txt');
+%         contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',',');
+%     else
+%         fileID = fopen(fullfile(ctfroot,'configs','configs.txt'));
+%         contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',','); 
+%     end
+    fileID = fopen('configs.txt');
+    contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',',');
     contents = contents{1,1};
     fclose(fileID);
     % Get the gui data
@@ -196,26 +198,29 @@ function ok_Callback(hObject, eventdata, handles)
         end
     end 
     new = cell2table(contents);
-    if ~isdeployed
-        path = fullfile(pwd,'configs','configs.txt');
-        writetable(new,path,'WriteVariableNames',0);
-    else
-        path = fullfile(ctfroot,'configs','configs.txt');
-        writetable(new,path,'WriteVariableNames',0);
-    end
+%     if ~isdeployed
+%         path = fullfile(pwd,'configs','configs.txt');
+%         writetable(new,path,'WriteVariableNames',0);
+%     else
+%         path = fullfile(ctfroot,'configs','configs.txt');
+%         writetable(new,path,'WriteVariableNames',0);
+%     end
+    writetable(new,'configs.txt','WriteVariableNames',0);
     close(gcf);
    
         
 function cancel_Callback(hObject, eventdata, handles)
     % Read the configs.txt
     fmt = repmat('%s ',[1,3]);
-    if ~isdeployed
-        fileID = fopen('configs.txt');
-        contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',',');
-    else
-        fileID = fopen(fullfile(ctfroot,'configs','configs.txt'));
-        contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',','); 
-    end
+%     if ~isdeployed
+%         fileID = fopen('configs.txt');
+%         contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',',');
+%     else
+%         fileID = fopen(fullfile(ctfroot,'configs','configs.txt'));
+%         contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',','); 
+%     end
+    fileID = fopen('configs.txt');
+    contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',',');
     contents = contents{1,1};
     fclose(fileID);
     % Get the backup
@@ -235,13 +240,14 @@ function cancel_Callback(hObject, eventdata, handles)
         end
     end
     new = cell2table(contents);
-    if ~isdeployed
-        path = fullfile(pwd,'configs','configs.txt');
-        writetable(new,path,'WriteVariableNames',0);
-    else
-        path = fullfile(ctfroot,'configs','configs.txt');
-        writetable(new,path,'WriteVariableNames',0);
-    end   
+%     if ~isdeployed
+%         path = fullfile(pwd,'configs','configs.txt');
+%         writetable(new,path,'WriteVariableNames',0);
+%     else
+%         path = fullfile(ctfroot,'configs','configs.txt');
+%         writetable(new,path,'WriteVariableNames',0);
+%     end   
+    writetable(new,'configs.txt','WriteVariableNames',0);
     close(gcf);
     
 function axes1_CreateFcn(hObject, eventdata, handles)
@@ -251,24 +257,27 @@ axis off;
 function default_Callback(hObject, eventdata, handles)
     % Read the configs_default.txt
     fmt = repmat('%s ',[1,3]);
-    if ~isdeployed
-        fileID = fopen('configs_default.txt');
-        contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',',');
-    else
-        fileID = fopen(fullfile(ctfroot,'configs','configs_default.txt'));
-        contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',','); 
-    end
+%     if ~isdeployed
+%         fileID = fopen('configs_default.txt');
+%         contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',',');
+%     else
+%         fileID = fopen(fullfile(ctfroot,'configs','configs_default.txt'));
+%         contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',','); 
+%     end
+    fileID = fopen('configs_default.txt');
+    contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',',');
     contents = contents{1,1};
     fclose(fileID);
     % Write to the configs.txt
     new = cell2table(contents);
-    if ~isdeployed
-        path = fullfile(pwd,'configs','configs.txt');
-        writetable(new,path,'WriteVariableNames',0);
-    else
-        path = fullfile(ctfroot,'configs','configs.txt');
-        writetable(new,path,'WriteVariableNames',0);
-    end
+%     if ~isdeployed
+%         path = fullfile(pwd,'configs','configs.txt');
+%         writetable(new,path,'WriteVariableNames',0);
+%     else
+%         path = fullfile(ctfroot,'configs','configs.txt');
+%         writetable(new,path,'WriteVariableNames',0);
+%     end
+    writetable(new,'configs.txt','WriteVariableNames',0);
     % Update the gui
     [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;  
     fonts = get(handles.fname,'String');

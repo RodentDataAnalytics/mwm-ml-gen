@@ -4,13 +4,15 @@ function [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs
 %color/grayscale/black&white
     
     fmt = repmat('%s ',[1,3]);
-    if ~isdeployed
-        fileID = fopen('configs.txt');
-        contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',',');
-    else
-        fileID = fopen(fullfile(ctfroot,'configs','configs.txt'));
-        contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',','); 
-    end
+%     if ~isdeployed
+%         fileID = fopen('configs.txt');
+%         contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',',');
+%     else
+%         fileID = fopen(fullfile(ctfroot,'configs','configs.txt'));
+%         contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',','); 
+%     end
+    fileID = fopen('configs.txt');
+    contents = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',',');
     contents = contents{1,1};
     fclose(fileID);
     

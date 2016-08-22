@@ -205,7 +205,12 @@ function ok_Callback(hObject, eventdata, handles)
 %         path = fullfile(ctfroot,'configs','configs.txt');
 %         writetable(new,path,'WriteVariableNames',0);
 %     end
-    writetable(new,'configs.txt','WriteVariableNames',0);
+    if ~isdeployed
+        path = fullfile(pwd,'configs','configs.txt');
+        writetable(new,path,'WriteVariableNames',0);
+    else
+        writetable(new,'configs.txt','WriteVariableNames',0);
+    end
     close(gcf);
    
         
@@ -247,7 +252,12 @@ function cancel_Callback(hObject, eventdata, handles)
 %         path = fullfile(ctfroot,'configs','configs.txt');
 %         writetable(new,path,'WriteVariableNames',0);
 %     end   
-    writetable(new,'configs.txt','WriteVariableNames',0);
+    if ~isdeployed
+        path = fullfile(pwd,'configs','configs.txt');
+        writetable(new,path,'WriteVariableNames',0);
+    else
+        writetable(new,'configs.txt','WriteVariableNames',0);
+    end
     close(gcf);
     
 function axes1_CreateFcn(hObject, eventdata, handles)
@@ -277,7 +287,12 @@ function default_Callback(hObject, eventdata, handles)
 %         path = fullfile(ctfroot,'configs','configs.txt');
 %         writetable(new,path,'WriteVariableNames',0);
 %     end
-    writetable(new,'configs.txt','WriteVariableNames',0);
+    if ~isdeployed
+        path = fullfile(pwd,'configs','configs.txt');
+        writetable(new,path,'WriteVariableNames',0);
+    else
+        writetable(new,'configs.txt','WriteVariableNames',0);
+    end
     % Update the gui
     [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;  
     fonts = get(handles.fname,'String');

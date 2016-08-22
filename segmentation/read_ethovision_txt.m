@@ -1,10 +1,5 @@
-function [ data, count ] = read_ethovision( fn, rec_time, centre_x, centre_y )
-%READ_ETHOVISION Loads native Ethovision format file into cell array
-% for later post_processing. Input CSV files have variable sized headers 
-% and variable number of column widths.
-
-% Author: Mike Croucher
-% Edited: Avgoustinos Vouros
+function [ data, count ] = read_ethovision_txt( fn, rec_time, centre_x, centre_y )
+%READ_ETHOVISION same as read_ethovision.m but for .txt files
 
     %Determine properties of input file
     fileID = fopen(fn);
@@ -27,17 +22,16 @@ function [ data, count ] = read_ethovision( fn, rec_time, centre_x, centre_y )
     fclose(fileID);
 
     %How many columns in this data_line?
-    data_line = textscan(data_line,'%s','Delimiter',',');
+    data_line = textscan(data_line,'%s','Delimiter',';');
     num_cols = length(data_line{1});
 
     %Create a format specifier of the correct size
-    fmt = repmat('%s ',[1,num_cols]);
+    fmt = repmat('%q ',[1,num_cols]); % %q skips "..."
 
     %Read data
     fileID = fopen(fn);
-    data = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',',');
+    data = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',';');
     data=data{1};
     fclose(fileID);
 
 end
-

@@ -54,6 +54,8 @@ function [varargout] = results_clustering_parameters(segmentation_configs,labels
     test_set = [];      
     covering = [];  
     
+    h = waitbar(0,'Loading...','Name','Clustering');
+    
     for i = min_num:step:max_num
         % original code
         if min_num == 1 && max_num == 10 && step == 1
@@ -114,7 +116,8 @@ function [varargout] = results_clustering_parameters(segmentation_configs,labels
             save(fn, 'res');
         end        
         res3 = [res3, res];
-        covering = [covering, res.coverage(feature_length)];      
+        covering = [covering, res.coverage(feature_length)]; 
+        waitbar(i/max_num);
     end
     
     % remap the classes as to not invalidate mixed clusters
@@ -130,8 +133,7 @@ function [varargout] = results_clustering_parameters(segmentation_configs,labels
      
     if graph 
         % Generate the graphs
-        results_clustering_parameters_graphs(segmentation_configs.OUTPUT_DIR,nc,res1bare,res2bare,res1,res2,res3,covering);
-    
+        results_clustering_parameters_graphs(segmentation_configs.OUTPUT_DIR,nc,res1bare,res2bare,res1,res2,res3,covering);    
     else
         % Returns the values
         varargout{1} = nc;
@@ -141,6 +143,7 @@ function [varargout] = results_clustering_parameters(segmentation_configs,labels
         varargout{5} = res2;
         varargout{6} = res3;
         varargout{7} = covering;
-    end    
+    end   
+    delete(h);
     
 end

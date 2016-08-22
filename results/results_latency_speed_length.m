@@ -5,6 +5,12 @@ function results_latency_speed_length(segmentation_configs,varargin)
 % 2. The average movement speed.
 % 3. The average path length.
 
+    fn = strcat(segmentation_configs.OUTPUT_DIR,'/','metrics_p.txt');
+    fileID = fopen(fn,'wt');
+
+    % get the configurations from the configs file
+    [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
+
     latency = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,9);
     length_ = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,10);
     speed = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,11);
@@ -35,7 +41,7 @@ function results_latency_speed_length(segmentation_configs,varargin)
             set(temp,'Visible','off');
             % run the other GUI
             features = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,9:11);
-            [animals_ids, animals_trajectories_map] = equalize_groups(groups_, animals_ids, animals_trajectories_map, features);
+            [~, animals_trajectories_map] = equalize_groups(groups_, animals_ids, animals_trajectories_map, features);
             % resume main GUI visibility
             set(temp,'Visible','on');
             % if Cancel or X was clicked, return
@@ -58,7 +64,7 @@ function results_latency_speed_length(segmentation_configs,varargin)
     log_y = [0, 0, 0];
     
     for i = 1:size(vars, 1)
-        figure;
+        f = figure;
         values = vars(i, :);
 
         data = [];
@@ -96,31 +102,31 @@ function results_latency_speed_length(segmentation_configs,varargin)
         end
                                                    
         boxplot(data, groups, 'positions', pos, 'colors', [0 0 0; .7 .7 .7]);
-        set(gca, 'LineWidth', 1.5, 'FontSize', 10);
+        set(gca, 'LineWidth', LineWidth, 'FontSize', FontSize, 'FontName', FontName);
         
         lbls = {};
         lbls = arrayfun( @(i) sprintf('%d', i), 1:total_trials, 'UniformOutput', 0);     
         
-        set(gca, 'XLim', [0, max(pos) + 0.1], 'XTick', (pos(1:2:2*total_trials - 1) + pos(2:2:2*total_trials)) / 2, 'XTickLabel', lbls, 'FontSize', 0.75*10);                 
-                
+        set(gca, 'XLim', [0, max(pos) + 0.1], 'XTick', (pos(1:2:2*total_trials - 1) + pos(2:2:2*total_trials)) / 2, 'XTickLabel', lbls, 'Ylim', [0 max(data)+20], 'FontSize', FontSize, 'FontName', FontName);                 
+        
         if log_y(i)
             set (gca, 'Yscale', 'log');
         else
             set (gca, 'Yscale', 'linear');
         end
         
-        ylabel(ylabels{i}, 'FontSize', 10);
-        xlabel('trial', 'FontSize', 10);
+        ylabel(ylabels{i}, 'FontSize', FontSize, 'FontName', FontName);
+        xlabel('trial', 'FontSize', FontSize, 'FontName', FontName);
 
         h = findobj(gca,'Tag','Box');
         for j=1:2:length(h)
              patch(get(h(j),'XData'), get(h(j), 'YData'), [0 0 0]);
         end
-        set([h], 'LineWidth', 0.8);
+        set([h], 'LineWidth', LineWidth);
    
         h = findobj(gca, 'Tag', 'Median');
         for j=1:2:length(h)
-             line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.9 .9 .9], 'LineWidth', 2);
+             line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.9 .9 .9], 'LineWidth', LineWidth);
         end
         
         h = findobj(gca, 'Tag', 'Outliers');
@@ -144,19 +150,21 @@ function results_latency_speed_length(segmentation_configs,varargin)
             end
         end
                 
-        set(gcf, 'Color', 'w');
+        set(f, 'Color', 'w');
         box off;        
-        set(gcf,'papersize',[8,8], 'paperposition',[0,0,8,8]);
-        export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('animals_%s', names{i}));
+        set(f,'papersize',[8,8], 'paperposition',[0,0,8,8]);
+        export_figure(f, strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('animals_%s', names{i}),Export, ExportStyle);
         
-        % run friedman test            
+        % run friedman test  
         try
             p = friedman(fried, n);
             str = sprintf('Friedman p-value (%s): %g', ylabels{i}, p);
+            fprintf(fileID,'%s\n',str);
             disp(str);          
         catch
             disp('Error on Friedman test. Friedman test is skipped');
-        end    
+        end        
     end
+    fclose(fileID);
 end
 

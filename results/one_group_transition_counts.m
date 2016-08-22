@@ -1,12 +1,13 @@
 function one_group_transition_counts(segmentation_configs,classification_configs,groups,total_trials,par,trajectories_,segments_classification)
 
-    fontsize = 12;
     vals = [];
     vals_grps = [];           
     d = 0.05;
     pos = [];            
     ids = {};
     nanimals = -1;
+    % get the configurations from the configs file
+    [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
     
     trans = segments_classification.transition_counts_trial(segmentation_configs,classification_configs);
     
@@ -63,7 +64,7 @@ function one_group_transition_counts(segmentation_configs,classification_configs
         d = d + 0.05;
     end
 
-    figure;
+    f = figure;
     hold off;
     % average each value                        
     boxplot(vals, vals_grps, 'positions', pos, 'colors', [0 0 0]);     
@@ -72,11 +73,11 @@ function one_group_transition_counts(segmentation_configs,classification_configs
     for j=1:2:length(h)
          patch(get(h(j),'XData'), get(h(j), 'YData'), [0 0 0]);
     end
-    set([h], 'LineWidth', 0.8);
+    set([h], 'LineWidth', LineWidth);
 
     h = findobj(gca, 'Tag', 'Median');
     for j=1:2:length(h)
-         line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [0 0 0], 'LineWidth', 2);
+         line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [0 0 0], 'LineWidth', LineWidth);
     end
 
     h = findobj(gca, 'Tag', 'Outliers');
@@ -87,15 +88,15 @@ function one_group_transition_counts(segmentation_configs,classification_configs
     lbls = {};
     lbls = arrayfun( @(i) sprintf('%d', i), 1:total_trials, 'UniformOutput', 0);     
 
-    set(gca, 'XTickLabel', lbls, 'Ylim', [0, 25], 'FontSize', fontsize);
-    set(gca, 'LineWidth', 1.5);   
+    set(gca, 'XTickLabel', lbls, 'Ylim', [0, max(vals)+5], 'FontSize', FontSize, 'FontName', FontName);
+    set(gca, 'LineWidth', LineWidth);   
 
-    ylabel('transitions', 'FontSize', fontsize);
-    xlabel('trial', 'FontSize', 10);        
+    ylabel('transitions', 'FontSize', FontSize, 'FontName', FontName);
+    xlabel('trial', 'FontSize', FontSize, 'FontName', FontName);
 
-    set(gcf, 'Color', 'w');
+    set(f, 'Color', 'w');
     box off;  
-    set(gcf,'papersize',[8,8], 'paperposition',[0,0,8,8]);
+    set(f,'papersize',[8,8], 'paperposition',[0,0,8,8]);
 
-    export_figure(1, gcf, strcat(segmentation_configs.OUTPUT_DIR,'/'), 'transision_counts');
+    export_figure(f, strcat(segmentation_configs.OUTPUT_DIR,'/'), 'transision_counts', Export, ExportStyle);
 end

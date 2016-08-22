@@ -7,6 +7,8 @@ function [ processed_data ] = parse_data(fn, animal_id, rec_time, centre_x, cent
         [data, header_idx] = read_ethovision(fn, rec_time, centre_x, centre_y);
     elseif isequal(ext,'.XLSX') || isequal(ext,'.xlsx')
         [data, header_idx] = read_ethovision_xlsx(fn, rec_time, centre_x, centre_y);
+    elseif isequal(ext,'.TXT') || isequal(ext,'.txt')
+        [data, header_idx] = read_ethovision_txt(fn, rec_time, centre_x, centre_y);
     end
     
     %Initialize

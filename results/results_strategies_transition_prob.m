@@ -91,29 +91,23 @@ function results_strategies_transition_prob(segmentation_configs,classification_
     if length(groups) ~= 1
         trans_prob1 = trans_prob1 ./ repmat(sum(trans_prob1, 2), 1, nc);
         trans_prob2 = trans_prob2 ./ repmat(sum(trans_prob2, 2), 1, nc);
-        % NaN values
-        for i = 1:size(trans_prob1,1)
-            for j = 1:size(trans_prob1,2)
-                if isnan(trans_prob1)
-                    trans_prob1(i,j) = 0;
-                end
-                if isnan(trans_prob2)
-                    trans_prob2(i,j) = 0;
-                end
-            end
-        end    
     else
         trans_prob1 = trans_prob1 ./ repmat(sum(trans_prob1, 2), 1, nc);
-        % NaN values
-        for i = 1:size(trans_prob1,1)
-            for j = 1:size(trans_prob1,2)
-                if isnan(trans_prob1)
-                    trans_prob1(i,j) = 0;
-                end
+    end
+     
+    % NaN values
+    for i = 1:size(trans_prob1,1)
+        for j = 1:size(trans_prob1,2)
+            if isnan(trans_prob1(i,j))
+                trans_prob1(i,j) = 0;
+            end
+            if isnan(trans_prob2(i,j))
+                trans_prob2(i,j) = 0;
             end
         end
-    end
+    end    
     
+    % Generate results
     for i = 1:segments_classification.nclasses
         fprintf('\nClass %d: %s', i, segments_classification.classes{1,i}{1,2});
     end

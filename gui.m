@@ -358,7 +358,7 @@ function classify_button_Callback(hObject, eventdata, handles)
         if isempty(labels_path)
             return
         end 
-        set(handles.path_labels,'String',res{2});
+        set(handles.path_labels,'String',labels_path);
     end 
     paths = {get(handles.path_labels,'String'),...
              get(handles.seg_path,'String')};
@@ -373,7 +373,11 @@ function classify_button_Callback(hObject, eventdata, handles)
     else % else update the type of variables (some will become integers)
         user_input{1,2} = str2num(get(handles.num_clusters,'String'));
         % run the classification
-        classification_configs = config_classification(user_input);
+        tmp = user_input{2};
+        for i = 1:length(user_input{2})
+            user_input{2} = tmp(i);
+            classification_configs = config_classification(user_input);
+        end    
         % check if object is already cached and if not save it
         rpath = check_cached_objects(classification_configs,2);
         set(handles.class_path,'String',rpath);

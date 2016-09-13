@@ -18,7 +18,8 @@ function [ test_result ] = check_user_input( user_input, switcher )
 
 % Segmentation Configs: Must have a file path.
 % Labelling: Must have a CSV file path.
-% Number of Clusters: Must be numeric (not 0).
+% Number of Clusters: Must be numeric (not 0). Multiple (comman separated)
+%                     values are allowed).
 
     %% Initialize sanity_table %%
     count = 0;
@@ -256,12 +257,22 @@ function [ test_result ] = check_user_input( user_input, switcher )
             % default number of clusters
             try
                 c = str2num(user_input{1,2}{1});
+                error = ones(1,length(c));
                 if ~isempty(c)
-                    if mod(c,1)==0 %check if it is integer
-                        if c >=10
-                            sanity_table(3) = 1;  
+                    for i = 1:length(c)
+                        if mod(c(i),1)==0 %check if it is integer
+                            if c(i) >=10
+                                error(i) = 0;
+                            else
+                                break;
+                            end    
+                        else
+                            break;
                         end    
                     end    
+                end  
+                if ~error
+                    sanity_table(3) = 1;
                 end    
             catch  
                 sanity_table(3) = 0;

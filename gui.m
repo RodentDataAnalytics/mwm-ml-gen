@@ -563,11 +563,15 @@ function clustering_performance_Callback(hObject, eventdata, handles)
     num_of_clusters = number_of_clusters(segmentation_configs, labels_path);
     % resume main GUI visibility
     set(temp(idx),'Visible','on');
-    if num_of_clusters == 0
+    if num_of_clusters{1} == 0
         return
-    end    
-    set(handles.num_clusters,'String',num_of_clusters);
-    %results_clustering_parameters(segmentation_configs,labels_path);
+    end  
+    % convert to comma-separated string
+    str = cell2mat(num_of_clusters);
+    str = sprintf('%.0f,' , str);
+    str = str(1:end-1);
+    % add to textbox
+    set(handles.num_clusters,'String',str);
     
 
 function strategies_distribution_Callback(hObject, eventdata, handles)

@@ -11,7 +11,7 @@ function [ num_of_clusters ] = number_of_clusters(segmentation_configs, labels_p
     font_size = '<font size=4>';
     
     name = 'Number of Clusters';
-    num_of_clusters = 0;
+    num_of_clusters = {0};
 
     %% Create Figure
     h.f = figure('units',units,'position',[100,150,440,180],...
@@ -138,19 +138,24 @@ function [ num_of_clusters ] = number_of_clusters(segmentation_configs, labels_p
     uiwait(lock);
     
     %% Cell Edit Callback Function
-    % Ensures that only one checkbox at a time is checked
+    % Multiple checkboxes can be checked
     function checkboxes(obj,event)
         table = get(obj,'Data');
         row = event.Indices(1);
         col = event.Indices(2);
+        if event.PreviousData
+            table{row,col} = false;
+        else
+            table{row,col} = true;
+        end    
         % set all true to false
-        for i = 1:size(table,1)
-            if table{i,5} == true
-               table{i,5} = false;
-            end 
-        end   
-        % set the targeted one to true
-        table{row,col} = true; 
+        % uncomment if we want single selection
+        %for i = 1:size(table,1)
+        %    if table{i,5} == true
+        %       table{i,5} = false;
+        %    end 
+        %end   
+        %table{row,col} = true; 
         set(obj,'Data',table);
     end    
     
@@ -257,35 +262,9 @@ function [ num_of_clusters ] = number_of_clusters(segmentation_configs, labels_p
         suboption = get(h.all_res, 'Value');
         [nc,per_errors1,per_undefined1,coverage] = algorithm_statistics(1,suboption,nc,res1bare,res2bare,res1,res2,res3,covering);                         
         % UPDATE THE TABLE
-%         data_old = get(t,'Data');
-%         a = false(1,length(nc));
-%         a = num2cell(a');
-        %data = [round(nc)', round(per_errors1)', round(per_undefined1)', round(coverage)'];
         checkboxes = zeros(1,length(nc));
         data = [nc', per_errors1', per_undefined1', coverage', checkboxes'];
-        data = num2cell(data);
-%         data = [data a]; 
-%         data_new = data;
-        % first check if we already have some data...
-%         for i = 1:size(data_old,1)
-%             for j = 1:size(data,1)
-%                 if isequal(data(j,1),data_old(i,1))
-%                     % ...if we do, mark the data we already have...
-%                     data_old(i,:) = data(j,:);
-%                     data_new{j,1} = 0;
-%                 end
-%             end
-%         end    
-        %...remove the marked data
-%         a = size(data,1);
-%         for i = a:-1:1
-%             if data_new{i,1} == 0
-%                 data_new(1,:) = [];
-%                 %a = a-1;
-%             end
-%         end    
-        % update the table
-        %data = [data_old ; data_new];      
+        data = num2cell(data); 
         set(t,'Data',data);
         set(h.graphs,'Enable','on');
         % resume figure's visibility
@@ -331,13 +310,16 @@ function [ num_of_clusters ] = number_of_clusters(segmentation_configs, labels_p
         if isempty(tdata)
             return;
         end  
+        k = 1;
         for i = 1:size(tdata,1)
             if tdata{i,5}
-                num_of_clusters = tdata{i,1};
-                break;
+                num_of_clusters{k} = tdata{i,1};
+                k = k+1;
+                % uncomment if we want only one selection
+                %break;
             end
         end 
-        if num_of_clusters == 0
+        if num_of_clusters{1} == 0
             return;
         end    
         % close current figure and continue executing

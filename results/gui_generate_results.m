@@ -15,6 +15,7 @@ function error = gui_generate_results(handles,eventdata)
     if error
         return
     end
+    project_path = char_project_path(project_path);
     
     % Select groups
     groups = select_groups(segmentation_configs);
@@ -40,6 +41,8 @@ function error = gui_generate_results(handles,eventdata)
             results_latency_speed_length(segmentation_configs,animals_trajectories_map,1,output_dir);
             error = 0;
         catch
+            errordlg('Cannot generate metrics','Error');
+            error = 1;
         end
         return
     end
@@ -51,13 +54,12 @@ function error = gui_generate_results(handles,eventdata)
     if isempty(class)
         return
     end
-    [error,name,classifications] = check_classification(char(project_path),segmentation_configs,class);
+    [error,name,classifications] = check_classification(project_path,segmentation_configs,class);
     if error 
         return
     end
     
     % Generate the results
-    generate_results(char(project_path), name, segmentation_configs, classifications, animals_trajectories_map, b_pressed, groups);
-    error = 0;
+    error = generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed, groups);
 end
 

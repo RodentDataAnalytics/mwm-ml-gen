@@ -2,6 +2,7 @@ function error = build_folder_tree(user_ppath, fname)
 % BUILD_FOLDER_TREE 
 
     error = 1;
+    user_ppath = char_project_path(user_ppath);
     ppath = fullfile(user_ppath,fname);
 
     % check if project already exists

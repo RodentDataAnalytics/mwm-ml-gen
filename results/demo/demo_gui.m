@@ -108,7 +108,11 @@ function demo_gui(set,user_path)
         end
         % Generate the results
         for i = 1:length(b_pressed)
-            generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed{i}, groups)
+            error = generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed{i}, groups);
+            if error
+                errordlg('Cannot generate results','Error');
+                return
+            end
         end
     end
 end

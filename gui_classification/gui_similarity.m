@@ -53,7 +53,7 @@ function gui_similarity_CloseRequestFcn(hObject, eventdata, handles)
 
 function pathstr = uiget(handles)
     project_path = get(handles.gui_similarity,'UserData');
-    project_path = char(project_path{1});
+    project_path = char_project_path(project_path);
     if isempty(project_path)
         project_path = matlabroot;
     end
@@ -79,7 +79,7 @@ function pathstr = uiget(handles)
     
 function refresh_similarity_Callback(hObject, eventdata, handles)
     project_path = get(handles.gui_similarity,'UserData');
-    project_path = char(project_path{1});
+    project_path = char_project_path(project_path);
     f1 = get(handles.field1,'String');
     f2 = get(handles.field2,'String');     
     if isempty(f1) || isempty(f2) || isequal(f1,f2)

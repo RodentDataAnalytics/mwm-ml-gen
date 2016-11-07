@@ -77,6 +77,9 @@ function results_latency_speed_length(segmentation_configs,animals_trajectories_
             disp('Error on Friedman test. Friedman test is skipped');
         end    
         
+        % Export figures data
+        box_plot_data(data, groups, output_dir, names{i});
+        
         % Generate figures
         if figures
             f = figure;
@@ -139,8 +142,5 @@ function results_latency_speed_length(segmentation_configs,animals_trajectories_
         end
     end 
     fclose(fileID);
-    
-    %% Export figures data
-    box_plot_data(data, groups, output_dir);
 end
 

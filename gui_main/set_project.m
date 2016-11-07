@@ -63,7 +63,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 function ok_button_Callback(hObject, eventdata, handles)
-    path = get(handles.project_path,'String');
+    ppath = get(handles.project_path,'String');
     name = get(handles.project_name,'String');
     if isempty(name)
         errordlg('Project name not specified','Error');
@@ -72,11 +72,12 @@ function ok_button_Callback(hObject, eventdata, handles)
         errordlg('Project path not specified','Error');
         return
     end    
-    error = build_folder_tree(path, name);
+    error = build_folder_tree(ppath, name);
     if error
         return;
     else
-        set(handles.ok_button,'UserData',strcat(path,'/',name));
+        ppath = fullfile(ppath,name);
+        set(handles.ok_button,'UserData',ppath);
         set_project_CloseRequestFcn(hObject, eventdata, handles);
     end
 function cancel_button_Callback(hObject, eventdata, handles)

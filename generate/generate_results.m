@@ -1,8 +1,21 @@
-function generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed, groups)
+function error = generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed, groups)
 %GENERATE_RESULTS creates results folder tree, forms the final results and
 %saves them inside the specific folders
-
+    
+    error = 1;
     dir_list = build_results_tree(project_path, b_pressed, name, length(classifications), groups);
+    
+    % Check if segmentation and classification have the same segments
+    segs = size(segmentation_configs.FEATURES_VALUES_SEGMENTS,1);
+    try
+        segs_ = size(classifications{1}.FEATURES,1);
+    catch
+        segs_ = size(classifications.FEATURES,1);
+    end
+    if segs ~= segs_
+        errordlg('Selected classification and segmentation do not match','Error');
+        return
+    end
 
     h = waitbar(0,'Generating results...','Name','Results');
     % Variables of interest:
@@ -89,11 +102,12 @@ function generate_results(project_path, name, segmentation_configs, classificati
             create_average_figure(vals_,vals_grps_,pos_,dir_list{end},total_trials,class_tags);
         case 'Probabilities'
             fpath = fullfile(dir_list{end},'pvalues_summary.csv');
-            error = create_average_probs(vals_,class_tags,fpath);
+            error = create_average_probs(vals_,class_tags,fpath,groups);
             if error
                 errordlg('Could not create summary file');
             end
             delete(h);
+            error = 0;
             return;
     end
     if length(groups) > 1;
@@ -104,5 +118,6 @@ function generate_results(project_path, name, segmentation_configs, classificati
         end
     end
     delete(h);
+    error = 0;
 end
 

@@ -29,24 +29,25 @@ function demo(mode,varargin)
     %% GUI Mode
     % With GUI elements        
     elseif mode == 1
-        prompt={'Type 1 or 2 to import the equivalent setup or ''q/Q'' to exit'};
-        name = 'Published';
-        defaultans = {'1'};
-        options.Interpreter = 'tex';
-        setup = inputdlg(prompt,name,[1 30],defaultans,options);
-        if isempty(setup)
-            return
-        end
-        setup = str2double(setup{1});
-        try
-            if setup ~= 1 && setup ~= 2
-                warndlg('Input must be 1 or 2 or q/Q.','Error');
-                return
-            end
-        catch
-             warndlg('Input must be 1 or 2 or q/Q.','Error');
-             return
-        end   
+%         prompt={'Type 1 or 2 to import the equivalent setup or ''q/Q'' to exit'};
+%         name = 'Published';
+%         defaultans = {'1'};
+%         options.Interpreter = 'tex';
+%         setup = inputdlg(prompt,name,[1 30],defaultans,options);
+%         if isempty(setup)
+%             return
+%         end
+%         setup = str2double(setup{1});
+%         try
+%             if setup ~= 1 && setup ~= 2
+%                 warndlg('Input must be 1 or 2 or q/Q.','Error');
+%                 return
+%             end
+%         catch
+%              warndlg('Input must be 1 or 2 or q/Q.','Error');
+%              return
+%         end  
+        setup = 1;
         demo_gui(setup,user_path);
     end
 end

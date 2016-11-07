@@ -1,4 +1,4 @@
-function error = create_average_probs(values,class_tags,fpath)
+function error = create_average_probs(values,class_tags,fpath,groups)
 %CREATE_AVERAGE_PROBS Summary of this function goes here
 %   Detailed explanation goes here
     
@@ -29,7 +29,7 @@ function error = create_average_probs(values,class_tags,fpath)
         table = [table;num2cell(vals_{i})];
         table = [row; table];
         table = [column',table];
-        table{1} = strcat('group',num2str(i));
+        table{1} = strcat('group',groups(i));
         table_{i} = table;
     end       
     % Form the table

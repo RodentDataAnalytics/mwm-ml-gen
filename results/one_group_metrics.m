@@ -29,6 +29,8 @@ function one_group_metrics(animals_trajectories_map,vars,total_trials,days,trial
             data = [data, tmp(:)'];          
             groups = [groups, repmat(t*2 - 1 + g - 1, 1, length(tmp(:)))];
         end
+        
+        box_plot_data(data, groups, output_dir, names{i});
                    
         f = figure;
         set(f,'Visible','off');
@@ -68,6 +70,5 @@ function one_group_metrics(animals_trajectories_map,vars,total_trials,days,trial
         export_figure(f, output_dir, sprintf('g1_animals_%s', names{i}), Export, ExportStyle); 
         close(f);
     end        
-    box_plot_data(data, groups, output_dir);
 end
 

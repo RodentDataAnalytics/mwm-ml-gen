@@ -78,6 +78,8 @@ function [varargout] = one_group_transition_counts(animals_trajectories_map,long
         close(f)
     end
     
+    box_plot_data(data, groups, output_dir, 'transition_counts');
+    
     %% Output
     varargout{1} = data; % input data (vector)
     varargout{2} = groups; % grouping variable (length(x))

@@ -22,10 +22,23 @@ function [class_1,class_2,diff] = test_similarity(pr_folder,f1,f2)
             segmentations = {};
             k = 1;
             files1 = dir(fullfile(f1,'*.mat'));
+            if isempty(files1)
+                errordlg('No classification file found','Error');
+                return
+            end
             load(fullfile(f1,files1(1).name));
+            if ~exist('classification_configs','var')
+                errordlg('Wrong specified folder','Error');
+                return
+            end
             s1 = length(classification_configs.CLASSIFICATION.class_map);
+            clear classification_configs
             files2 = dir(fullfile(f2,'*.mat'));
             load(fullfile(f2,files2(1).name));
+            if ~exist('classification_configs','var')
+                errordlg('Wrong specified folder','Error');
+                return
+            end
             s2 = length(classification_configs.CLASSIFICATION.class_map);
             %find the segmentations
             files = dir(fullfile(pr_folder,'segmentation','*.mat'));
@@ -69,10 +82,18 @@ function [class_1,class_2,diff] = test_similarity(pr_folder,f1,f2)
             classifications = {};
             k = 1;
             load(f1);
+            if ~exist('classification_configs','var')
+                errordlg('Wrong file input','Error');
+                return
+            end
             s1 = length(classification_configs.CLASSIFICATION.class_map);
             classifications{1} = classification_configs;
             clear classification_configs
             load(f2);
+            if ~exist('classification_configs','var')
+                errordlg('Wrong file input','Error');
+                return
+            end
             s2 = length(classification_configs.CLASSIFICATION.class_map);
             classifications{2} = classification_configs;
             %find the segmentations

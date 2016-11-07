@@ -109,12 +109,12 @@ function [varargout] = results_transition_counts(segmentation_configs,classifica
         box off;  
         set(f,'papersize',[8,8], 'paperposition',[0,0,8,8]);
 
-        export_figure(f, output_dir, 'transision_counts', Export, ExportStyle);
+        export_figure(f, output_dir, 'transition_counts', Export, ExportStyle);
         close(f)
     end
     
     %% Export figures data
-    box_plot_data(data, groups, output_dir);
+    box_plot_data(data, groups, output_dir, 'transition_counts');
     
     %% Output
     varargout{1} = p; % Friedman's test p-value (-1 if it is skipped)

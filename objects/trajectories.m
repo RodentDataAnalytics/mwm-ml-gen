@@ -44,7 +44,8 @@ classdef trajectories < handle
         function [ segments, partition, cum_partitions] = partition(obj, nmin, func, varargin)
         %   SEGMENT(LSEG, OVLP) breaks all trajectories into segments
         %   of length LEN and overlap OVL (given in %)   
-        %   returns an array of trajectory segments                                         
+        %   returns an array of trajectory segments    
+            h = waitbar(0,'Segmenting trajectories...');
             fprintf('Segmenting trajectories... ');
             % construct new object
             segments = trajectories([]);
@@ -53,7 +54,7 @@ classdef trajectories < handle
             p = 1;
             off = 0;
             func = str2func(func); %segmentation function
-            for i = 1:obj.count                
+            for i = 1:obj.count       
                 newseg = obj.items(i).partition(func,varargin{:},i);
                 if newseg.count >= nmin                    
                     segments = segments.append(newseg);
@@ -67,7 +68,9 @@ classdef trajectories < handle
                     fprintf('%d ', segments.count);
                     p = p + 1; 
                 end  
+                waitbar(i/obj.count);
             end
+            delete(h);
             segments.partitions_ = partition;
             segments.parent = obj;
             fprintf(': %d segments created.\n', segments.count);
@@ -144,7 +147,7 @@ classdef trajectories < handle
                     end
                     % all right now try to match the offset;
                     if abs(inst.items(idx).offset - other_seg.items(i).offset) < seg_dist + tolerance && ...
-                        abs(feat_len_1(i) - feat_len(idx)) < len_tolerance
+                        abs(feat_len_1(i,10) - feat_len(idx,10)) < len_tolerance
                         % we have a match!
                         mapping(idx) = i;
                         idx = idx + 1;                    
@@ -175,7 +178,7 @@ classdef trajectories < handle
                     end
                     % all right now try to match the offset
                     if abs(inst.items(i).offset - seg_dist - other_seg.items(idx).offset) < tolerance && ...
-                       abs(feat_len_1(i) - feat_len(idx)) < len_tolerance
+                       abs(feat_len_1(i,10) - feat_len(idx,10)) < len_tolerance
                         % we have a match!
                         mapping(i) = idx;
                         idx = idx + 1;                  

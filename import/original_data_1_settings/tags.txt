@@ -1,0 +1,11 @@
+ABBREVIATION,DESCRIPTION,ID,WEIGHT,COLOR1,COLOR2,COLOR3,LINESTYLE
+!MULTI,MULTIPLE,-1,-1,0.8,0,0.8,-
+!UD,UNDEFINED,0,0,0,0,0,--
+TT,thigmotaxis,1,1,0,1,0,-
+IC,incursion,2,1,0,1,0,:
+SC,scanning,3,1,0,1,0,--
+FS,focused search,4,10,0,0,1,-
+CR,chaining response,5,10,0,0,1,:
+SO,self orienting,6,10,0,0,1,--
+SS,scanning surroundings,7,1,1,0,0,--
+ST,target scanning,8,10,1,0,0,-

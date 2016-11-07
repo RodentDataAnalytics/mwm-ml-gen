@@ -2,7 +2,7 @@ classdef semisupervised_clustering < handle
     %CLUSTERING_PARAMETERS Input for the semisupervised_clustering
     %functions
     
-    properties(GetAccess = 'public', SetAccess = 'protected')
+    properties(GetAccess = 'public', SetAccess = 'public')
         % number of features
         nfeatures = 0;
         % feature values
@@ -35,7 +35,7 @@ classdef semisupervised_clustering < handle
         pconstraints = 1.;
     end
     
-    properties(GetAccess = 'protected', SetAccess = 'protected')
+    properties(GetAccess = 'public', SetAccess = 'public')
         % create an array of integers in which each bit represents one
         % label; this will be needed bellow to test if any two sets of labels
         % have a common member (using 'intersect' is just absurdely slow)    

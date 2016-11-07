@@ -14,29 +14,24 @@ classdef config_classification < handle
         SEMISUPERVISED_CLUSTERING = [];
         % Classification results
         CLASSIFICATION = [];
-        % Output directory        
-        OUTPUT_DIR = [];
     end
     
     methods
         %% CONSTRUCTOR %%
-        function inst = config_classification(processed_user_input)
-            
+        function inst = config_classification(segmentation_configs,DEFAULT_NUMBER_OF_CLUSTERS,LABELLING_MAP,ALL_TAGS,CLASSIFICATION_TAGS)
             % Setup
-            load(processed_user_input{1,1}{1,2});
-            inst.OUTPUT_DIR = segmentation_configs.OUTPUT_DIR;
             segments = segmentation_configs.SEGMENTS;
             features = segmentation_configs.FEATURES_VALUES_SEGMENTS(:,1:8);
-            labels_path = processed_user_input{1,1}{1,1};
             inst.FEATURES = segmentation_configs.FEATURES_VALUES_SEGMENTS;
-            inst.DEFAULT_NUMBER_OF_CLUSTERS = processed_user_input{1,2};
-            
-            % Tag trajectories/segments if data are available
-            [~, inst.LABELLING_MAP, inst.ALL_TAGS, inst.CLASSIFICATION_TAGS] = setup_tags(segments,labels_path);
+            inst.DEFAULT_NUMBER_OF_CLUSTERS = DEFAULT_NUMBER_OF_CLUSTERS;
+            inst.LABELLING_MAP = LABELLING_MAP;
+            inst.ALL_TAGS = ALL_TAGS;
+            inst.CLASSIFICATION_TAGS = CLASSIFICATION_TAGS;
             
             % Semisupervised Clustering
             res = semisupervised_clustering(segments,features,inst.LABELLING_MAP,inst.CLASSIFICATION_TAGS,0);
             inst.SEMISUPERVISED_CLUSTERING = res;
+            %last argument: 0 = mpckmeans, 1 = kmeans
             inst.CLASSIFICATION = res.cluster(inst.DEFAULT_NUMBER_OF_CLUSTERS,0); 
         end
     end

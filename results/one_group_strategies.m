@@ -1,4 +1,4 @@
-function one_group_strategies(segmentation_configs,total_trials,segments_classification,animals_trajectories_map,long_trajectories_map,strat_distr)
+function [varargout] = one_group_strategies(total_trials,segments_classification,animals_trajectories_map,long_trajectories_map,strat_distr,output_dir)
 
     nanimals = size(animals_trajectories_map{1,1},2);
 
@@ -11,7 +11,7 @@ function one_group_strategies(segmentation_configs,total_trials,segments_classif
     groups_all = cell(1,ncl);
     pos_all = cell(1,ncl);
     maximum = 0;
-    %lim = ones(1,ncl)*90*25;
+
     for c = 1:segments_classification.nclasses
         data = [];
         groups = [];
@@ -19,15 +19,8 @@ function one_group_strategies(segmentation_configs,total_trials,segments_classif
         d = 0.05;
         grp = 1;
                         
-        if c == segments_classification.nclasses                        
-            last = 1;
-        else
-            last = 0;
-        end
-
         for t = 1:total_trials
             for g = 1:length(animals_trajectories_map)            
-                %tot = 0;
                 pts_session = [];
                 map = animals_trajectories_map{1,g};
                 pts = [];
@@ -35,7 +28,6 @@ function one_group_strategies(segmentation_configs,total_trials,segments_classif
                     if long_trajectories_map(map(t, i)) ~= 0                        
                         val = 25*sum(strat_distr(long_trajectories_map(map(t, i)), :) == c);
                         pts = [pts, val];
-                        mfried((t - 1)*nanimals + i, g) = val;
                     end                                           
                 end
 
@@ -61,15 +53,17 @@ function one_group_strategies(segmentation_configs,total_trials,segments_classif
         groups_all{1,c} = groups;
         pos_all{1,c} = pos;
     end
-       
+
     for c = 1:segments_classification.nclasses
         f = figure;
+        set(f,'Visible','off');
+        
         boxplot(data_all{1,c}, groups_all{1,c}, 'positions', pos_all{1,c}, 'colors', [0 0 0]);  
         h = findobj(gca,'Tag','Box');
         for j=1:2:length(h)
              patch(get(h(j),'XData'), get(h(j), 'YData'), [0 0 0]);
         end
-        set([h], 'LineWidth', LineWidth);
+        set(h, 'LineWidth', LineWidth);
                 
         h = findobj(gca, 'Tag', 'Median');
         for j=1:2:length(h)
@@ -93,7 +87,15 @@ function one_group_strategies(segmentation_configs,total_trials,segments_classif
         set(f, 'Color', 'w');
         box off;  
         set(f,'papersize',[8,8], 'paperposition',[0,0,8,8]);
-
-        export_figure(f, strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('segment_length_strategy_%d', c), Export, ExportStyle);
+        
+        export_figure(f, output_dir, sprintf('segment_length_strategy_%d', c), Export, ExportStyle);
+        close(f);
     end     
+    
+    box_plot_data(data_all, groups_all, output_dir);
+    
+    %% Output
+    varargout{1} = data_all;
+    varargout{2} = groups_all;
+    varargout{3} = pos_all;
 end

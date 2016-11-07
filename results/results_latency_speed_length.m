@@ -1,72 +1,38 @@
-function results_latency_speed_length(segmentation_configs,varargin)
+function results_latency_speed_length(segmentation_configs,animals_trajectories_map,figures,output_dir,varargin)
 % Comparison of full trajectory metrics for 2 groups of N animals over a 
 % set of M trials. The generated plots show:
 % 1. The escape latency.
 % 2. The average movement speed.
 % 3. The average path length.
 
-    fn = strcat(segmentation_configs.OUTPUT_DIR,'/','metrics_p.txt');
-    fileID = fopen(fn,'wt');
-
-    % get the configurations from the configs file
-    [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
-
+    % Get features: latency, length, speed
     latency = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,9);
     length_ = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,10);
     speed = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,11);
-    days = segmentation_configs.COMMON_SETTINGS{1,8}{1,1}; 
-    if ischar(days)
-        days = str2num((days));
-    elseif iscell(days)
-        days = cell2mat((days));
-    end 
-    trials_per_session = segmentation_configs.COMMON_SETTINGS{1,4}{1,1};
-    if ischar(trials_per_session)
-        trials_per_session = str2num((trials_per_session));
-    elseif iscell(trials_per_session)
-        trials_per_session = cell2mat((trials_per_session));
-    end 
-    total_trials = sum(trials_per_session);
-    
-    [groups_, animals_ids, animals_trajectories_map] = trajectories_map(segmentation_configs,varargin{:});
-    if isempty(animals_trajectories_map)
-        return
-    end    
-
-    % Equalize groups
-    if size(animals_trajectories_map,2) > 1
-        if size(animals_trajectories_map{1,1},2)~=size(animals_trajectories_map{1,2},2)
-            % set current GUI visibility to off
-            temp = findall(gcf);
-            set(temp,'Visible','off');
-            % run the other GUI
-            features = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,9:11);
-            [~, animals_trajectories_map] = equalize_groups(groups_, animals_ids, animals_trajectories_map, features);
-            % resume main GUI visibility
-            set(temp,'Visible','on');
-            % if Cancel or X was clicked, return
-            if size(animals_trajectories_map{1,1},2)~=size(animals_trajectories_map{1,2},2)
-                return
-            end   
-        end
-    end
-    
     vars = [latency' ; speed' ; length_'/100];
-    
-    %for one group:
+    % Get properties: days and trials
+    days = segmentation_configs.EXPERIMENT_PROPERTIES{28}; 
+    trials_per_session = segmentation_configs.EXPERIMENT_PROPERTIES{30};
+    total_trials = sum(trials_per_session);
+    % Get output configurations
+    [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
+
+    % For one group:
     if length(animals_trajectories_map)==1
-        one_group_metrics(segmentation_configs,animals_trajectories_map,vars,total_trials,days,trials_per_session);
+        one_group_metrics(animals_trajectories_map,vars,total_trials,days,trials_per_session,FontName,FontSize,LineWidth,Export,ExportStyle,output_dir);
         return
     end    
     
+    % Figure properties
     names = {'latency' , 'speed' , 'length'};
     ylabels = {'latency [s]', 'speed [cm/s]', 'path length [m]'};
     log_y = [0, 0, 0];
+    % Generate text file for the p-values
+    fn = fullfile(output_dir,'metrics_p.txt');
+    fileID = fopen(fn,'wt');
     
     for i = 1:size(vars, 1)
-        f = figure;
         values = vars(i, :);
-
         data = [];
         groups = [];
         xpos = [];
@@ -85,7 +51,7 @@ function results_latency_speed_length(segmentation_configs,varargin)
             d = d + 0.15;
         end
         
-        % matrix for friedman's multifactor tests
+        % Matrix for friedman's multifactor tests
         [animals_trajectories_map,n] = friedman_test(animals_trajectories_map);
         fried = zeros(total_trials*n, 2);                        
         for t = 1:total_trials
@@ -100,71 +66,81 @@ function results_latency_speed_length(segmentation_configs,varargin)
                 end
             end            
         end
-                                                   
-        boxplot(data, groups, 'positions', pos, 'colors', [0 0 0; .7 .7 .7]);
-        set(gca, 'LineWidth', LineWidth, 'FontSize', FontSize, 'FontName', FontName);
         
-        lbls = {};
-        lbls = arrayfun( @(i) sprintf('%d', i), 1:total_trials, 'UniformOutput', 0);     
-        
-        set(gca, 'XLim', [0, max(pos) + 0.1], 'XTick', (pos(1:2:2*total_trials - 1) + pos(2:2:2*total_trials)) / 2, 'XTickLabel', lbls, 'Ylim', [0 max(data)+20], 'FontSize', FontSize, 'FontName', FontName);                 
-        
-        if log_y(i)
-            set (gca, 'Yscale', 'log');
-        else
-            set (gca, 'Yscale', 'linear');
-        end
-        
-        ylabel(ylabels{i}, 'FontSize', FontSize, 'FontName', FontName);
-        xlabel('trial', 'FontSize', FontSize, 'FontName', FontName);
-
-        h = findobj(gca,'Tag','Box');
-        for j=1:2:length(h)
-             patch(get(h(j),'XData'), get(h(j), 'YData'), [0 0 0]);
-        end
-        set([h], 'LineWidth', LineWidth);
-   
-        h = findobj(gca, 'Tag', 'Median');
-        for j=1:2:length(h)
-             line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.9 .9 .9], 'LineWidth', LineWidth);
-        end
-        
-        h = findobj(gca, 'Tag', 'Outliers');
-        for j=1:length(h)
-            set(h(j), 'MarkerEdgeColor', [0 0 0]);
-        end
-        
-        % check significances
-        for t = 1:total_trials
-            p = ranksum(data(groups == 2*t - 1), data(groups == 2*t));                                
-            if p < 0.05
-                if p < 0.01
-                    if p < 0.001
-                        alpha = 0.001;
-                    else
-                        alpha = 0.01;
-                    end
-                else
-                  alpha = 0.05;
-                end
-            end
-        end
-                
-        set(f, 'Color', 'w');
-        box off;        
-        set(f,'papersize',[8,8], 'paperposition',[0,0,8,8]);
-        export_figure(f, strcat(segmentation_configs.OUTPUT_DIR,'/'), sprintf('animals_%s', names{i}),Export, ExportStyle);
-        
-        % run friedman test  
+        % Run friedman's test  
         try
-            p = friedman(fried, n);
+            p = friedman(fried, n, 'off');
             str = sprintf('Friedman p-value (%s): %g', ylabels{i}, p);
             fprintf(fileID,'%s\n',str);
             disp(str);          
         catch
             disp('Error on Friedman test. Friedman test is skipped');
-        end        
-    end
+        end    
+        
+        % Generate figures
+        if figures
+            f = figure;
+            set(f,'Visible','off');
+            
+            boxplot(data, groups, 'positions', pos, 'colors', [0 0 0; .7 .7 .7]);
+            set(gca, 'LineWidth', LineWidth, 'FontSize', FontSize, 'FontName', FontName);
+
+            lbls = {};
+            lbls = arrayfun( @(i) sprintf('%d', i), 1:total_trials, 'UniformOutput', 0);     
+
+            set(gca, 'XLim', [0, max(pos) + 0.1], 'XTick', (pos(1:2:2*total_trials - 1) + pos(2:2:2*total_trials)) / 2, 'XTickLabel', lbls, 'Ylim', [0 max(data)+20], 'FontSize', FontSize, 'FontName', FontName);                 
+
+            if log_y(i)
+                set (gca, 'Yscale', 'log');
+            else
+                set (gca, 'Yscale', 'linear');
+            end
+
+            ylabel(ylabels{i}, 'FontSize', FontSize, 'FontName', FontName);
+            xlabel('trial', 'FontSize', FontSize, 'FontName', FontName);
+
+            h = findobj(gca,'Tag','Box');
+            for j=1:2:length(h)
+                 patch(get(h(j),'XData'), get(h(j), 'YData'), [0 0 0]);
+            end
+            set(h, 'LineWidth', LineWidth);
+
+            h = findobj(gca, 'Tag', 'Median');
+            for j=1:2:length(h)
+                 line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.9 .9 .9], 'LineWidth', LineWidth);
+            end
+
+            h = findobj(gca, 'Tag', 'Outliers');
+            for j=1:length(h)
+                set(h(j), 'MarkerEdgeColor', [0 0 0]);
+            end
+
+            % check significances
+            for t = 1:total_trials
+                p = ranksum(data(groups == 2*t - 1), data(groups == 2*t));                                
+                if p < 0.05
+                    if p < 0.01
+                        if p < 0.001
+                            alpha = 0.001;
+                        else
+                            alpha = 0.01;
+                        end
+                    else
+                      alpha = 0.05;
+                    end
+                end
+            end
+
+            set(f, 'Color', 'w');
+            box off;        
+            set(f,'papersize',[8,8], 'paperposition',[0,0,8,8]);
+            export_figure(f, output_dir, sprintf('animals_%s', names{i}), Export, ExportStyle);
+            close(f);
+        end
+    end 
     fclose(fileID);
+    
+    %% Export figures data
+    box_plot_data(data, groups, output_dir);
 end
 

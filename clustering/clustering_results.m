@@ -1,7 +1,7 @@
 classdef clustering_results < handle
     % CLUSTERING_RESULTS Stores results of the clustering
     
-    properties(GetAccess = 'public', SetAccess = 'protected')    
+    properties(GetAccess = 'public', SetAccess = 'public')    
         segments = [];
         nclasses = 0;
         classes = []; % this is actually optional
@@ -105,20 +105,7 @@ classdef clustering_results < handle
                 inst.class_map = inst.cluster_idx_all_;
             end            
         end
-        
-        function val = hash_value(inst)
-            if inst.hash_ == -1
-                inst.hash_ = inst.segments.hash_value;                
-                inst.hash_ = hash_combine(inst.hash_, hash_value(inst.nclasses));
-                inst.hash_ = hash_combine(inst.hash_, hash_value(inst.input_labels));
-                inst.hash_ = hash_combine(inst.hash_, hash_value(inst.training_set)); 
-                inst.hash_ = hash_combine(inst.hash_, hash_value(inst.test_set));
-                inst.hash_ = hash_combine(inst.hash_, hash_value(inst.nexternal_labels));
-                inst.hash_ = hash_combine(inst.hash_, hash_value(inst.cluster_idx_all_));
-            end
-            val = inst.hash_;
-        end
-                                                
+                                 
         function res = entropy(inst)
             % TODO: have to fix the clustering function to deal with
             % multiple labels per element
@@ -501,6 +488,7 @@ classdef clustering_results < handle
         
          % compute the prefered strategy for a small time window for each
          % trajectory
+         %RE-WRITTEN: SEE distr_strategies.m
          function [major_classes, full_distr, seg_class, class_w] = mapping_ordered(inst, varargin)        
             [classes, discard_unk, class_w, min_seg] = process_options(varargin, ...
                 'Classes', [], 'DiscardUnknown', 1, 'ClassesWeights', [], 'MinSegments', 1);
@@ -587,7 +575,7 @@ classdef clustering_results < handle
                                 
                 % for each one of them increment class count        
                 m = (wi + wf) / 2; % mid-point
-                 for j = wi:wf 
+                for j = wi:wf 
                     if inst.class_map(i) > 0
                         col = map(inst.class_map(i));                                            
                         val = class_w(col)*exp(-(j - m)^2/(2*4));
@@ -675,8 +663,7 @@ classdef clustering_results < handle
         end
         
         function [diff_set] = difference(inst, other_results, varargin)
-            % current segment in the original set
-               % trajectory
+            % current segment in the original set trajectory
             addpath(fullfile(fileparts(mfilename('fullpath')), '/extern'));
             [tolerance] = process_options(varargin, ...
                 'SegmentTolerance', 20);
@@ -702,8 +689,7 @@ classdef clustering_results < handle
         end
         
         function [out] = combine(inst, other_results, feat_len_1, feat_len, varargin)
-            % current segment in the original set
-               % trajectory
+            % current segment in the original set trajectory
             [tolerance] = process_options(varargin, ...
                 'SegmentTolerance', 20);
          
@@ -711,7 +697,7 @@ classdef clustering_results < handle
             %tag_mapping = tag.mapping(inst.classes, other_results.classes);
             tag_mapping = zeros(1,length(inst.classes));
             for i = 1:length(tag_mapping)
-                tag_mapping(i) = inst.classes{1,1}{1,3};
+                tag_mapping(i) = inst.classes{1,i}{1,3};
             end    
             new_map = inst.class_map;
             for k = 1:inst.segments.count          

@@ -29,6 +29,7 @@ function main_gui_OpeningFcn(hObject, eventdata, handles, varargin)
     set(findall(handles.panel_class, '-property', 'enable'), 'enable', 'off');
     set(findall(handles.panel_res, '-property', 'enable'), 'enable', 'off');
     set(handles.res_demo,'Enable','on');
+    set(handles.config_tags,'Visible','off');
     % Choose default command line output for main_gui
     handles.output = hObject;
     % Update handles structure

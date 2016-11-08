@@ -9,7 +9,7 @@ function [ data, row, col, time, x, y ] = read_ethovision_txt( fn, rec_time, cen
     
     %Read data
     fileID = fopen(fn);
-    data = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',delimiter);
+    data = textscan(fileID,fmt,'CollectOutput',1,'Delimiter',';');
     data=data{1};
     fclose(fileID);
     

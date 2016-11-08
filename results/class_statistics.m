@@ -29,9 +29,9 @@ function [error, count,percentage_per_classifier] = class_statistics(ppath, clas
     waitbar(1,h,'Exporting results...');
 
     % Calculate the percentages
-    percentage_per_classifier = zeros(length(count),length(strats));
-    for i = 1:length(count)
-        for j = 1:length(strats)
+    percentage_per_classifier = zeros(size(count,1),length(strats));
+    for i = 1:size(percentage_per_classifier,1)
+        for j = 1:size(percentage_per_classifier,2)
             percentage_per_classifier(i,j) = 100 * (count(i,j) / length(class_map));
         end
     end

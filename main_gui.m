@@ -56,9 +56,12 @@ function new_project_Callback(hObject, eventdata, handles)
         set(handles.load_project,'UserData',project_path);
         %load the new project
         new_project(project_path);
-        %move also the tags.txt to the new project
-        if iscell(project_path)
-            project_path = char(project_path{1});
+        project_path = char_project_path(project_path);
+        files  = dir(fullfile(project_path,'settings','*.mat'));
+        if isempty(files) % no data were loaded
+            rmdir(project_path,'s');
+            set(temp(idx),'Visible','on'); 
+            return
         end
         if isdeployed
             tags_path = fullfile(ctfroot,'configs','tags','tags.txt');

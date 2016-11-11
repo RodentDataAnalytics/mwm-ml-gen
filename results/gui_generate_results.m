@@ -1,8 +1,8 @@
-function error = gui_generate_results(handles,eventdata)
+function error_all = gui_generate_results(handles,eventdata)
 %GUI_GENERATE_RESULTS parses all the info from the main_gui and generates
 %results for the Strategies, Transitions and Probabilities.
 
-    error = 1;
+    error_all = 1;
     b_pressed = eventdata.Source.String;
     project_path = get(handles.load_project,'UserData');
     if isempty(project_path)
@@ -19,15 +19,17 @@ function error = gui_generate_results(handles,eventdata)
     
     % Select groups
     groups = select_groups(segmentation_configs);
-    if groups == -2
-        return
+    try
+        if groups == -2
+            return
+        end
+    catch
     end
     
     % Construct the trajectories_map and equalize the groups
     if ~isequal(b_pressed,'Probabilities'); %probabilities do not use map
         [exit, animals_trajectories_map] = trajectories_map(segmentation_configs,groups,'Friedman');
         if exit
-            error = 0;
             return
         end
     else
@@ -39,10 +41,9 @@ function error = gui_generate_results(handles,eventdata)
         output_dir = fullfile(project_path,'results');
         try
             results_latency_speed_length(segmentation_configs,animals_trajectories_map,1,output_dir);
-            error = 0;
+            error_all = 0;
         catch
             errordlg('Cannot generate metrics','Error');
-            error = 1;
         end
         return
     end
@@ -60,6 +61,6 @@ function error = gui_generate_results(handles,eventdata)
     end
     
     % Generate the results
-    error = generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed, groups);
+    error_all = generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed, groups);
 end
 

@@ -29,7 +29,7 @@ function error = create_average_probs(values,class_tags,fpath,groups)
         table = [table;num2cell(vals_{i})];
         table = [row; table];
         table = [column',table];
-        table{1} = strcat('group',groups(i));
+        table{1} = strcat('group',num2str(groups(i)));
         table_{i} = table;
     end       
     % Form the table

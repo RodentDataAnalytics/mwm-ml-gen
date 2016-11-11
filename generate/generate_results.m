@@ -106,7 +106,7 @@ function error = generate_results(project_path, name, segmentation_configs, clas
             case 'Transitions'
                 create_average_figure(vals_,vals_grps_,pos_,dir_list{end},total_trials,class_tags);
             case 'Probabilities'
-                fpath = fullfile(dir_list{end},'pvalues_summary.csv');
+                fpath = fullfile(dir_list{end},'summary.csv');
                 error = create_average_probs(vals_,class_tags,fpath,groups);
                 if error
                     errordlg('Could not create summary file');
@@ -120,6 +120,10 @@ function error = generate_results(project_path, name, segmentation_configs, clas
             error = create_pvalues_table(p_,class_tags,fpath);
             if error
                 errordlg('Cannot create summary file');
+            end
+            error = create_pvalues_figure(p_,class_tags,dir_list{end});
+            if error
+                errordlg('Cannot create summary p-values figure');
             end
         end
     end

@@ -77,20 +77,21 @@ function [varargout] = results_transition_counts(segmentation_configs,classifica
         f = figure;
         set(f,'Visible','off');
 
-        boxplot(data, groups, 'positions', pos, 'colors', [0 0 0]);     
-        h = findobj(gca,'Tag','Box');
+        boxplot(data, groups, 'positions', pos, 'colors', [0 0 0]);   
+        faxis = findobj(f,'type','axes');
+        h = findobj(faxis,'Tag','Box');
 
         for j=1:2:length(h)
              patch(get(h(j),'XData'), get(h(j), 'YData'), [0 0 0]);
         end
         set(h, 'LineWidth', LineWidth);
 
-        h = findobj(gca, 'Tag', 'Median');
+        h = findobj(faxis, 'Tag', 'Median');
         for j=1:2:length(h)
              line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.9 .9 .9], 'LineWidth', LineWidth);
         end
 
-        h = findobj(gca, 'Tag', 'Outliers');
+        h = findobj(faxis, 'Tag', 'Outliers');
         for j=1:length(h)
             set(h(j), 'MarkerEdgeColor', [0 0 0]);
         end        
@@ -98,9 +99,9 @@ function [varargout] = results_transition_counts(segmentation_configs,classifica
         lbls = {};
         lbls = arrayfun( @(i) sprintf('%d', i), 1:total_trials, 'UniformOutput', 0);     
 
-        set(gca, 'XTick', (pos(1:2:2*total_trials - 1) + pos(2:2:2*total_trials)) / 2, 'XTickLabel', lbls, 'FontSize', FontSize, 'FontName', FontName);
-        set(gca, 'LineWidth', LineWidth);  
-        set(gca,'Ylim', [0, max(data)+5]);
+        set(faxis, 'XTick', (pos(1:2:2*total_trials - 1) + pos(2:2:2*total_trials)) / 2, 'XTickLabel', lbls, 'FontSize', FontSize, 'FontName', FontName);
+        set(faxis, 'LineWidth', LineWidth);  
+        set(faxis,'Ylim', [0, max(data)+5]);
 
         ylabel('transitions', 'FontSize', FontSize, 'FontName', FontName);
         xlabel('trial', 'FontSize', FontSize, 'FontName', FontName); 

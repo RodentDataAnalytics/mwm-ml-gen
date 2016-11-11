@@ -5,6 +5,8 @@ function results_latency_speed_length(segmentation_configs,animals_trajectories_
 % 2. The average movement speed.
 % 3. The average path length.
 
+    hw = waitbar(0,'Generating results...','Name','Results');
+
     % Get features: latency, length, speed
     latency = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,9);
     length_ = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,10);
@@ -20,6 +22,7 @@ function results_latency_speed_length(segmentation_configs,animals_trajectories_
     % For one group:
     if length(animals_trajectories_map)==1
         one_group_metrics(animals_trajectories_map,vars,total_trials,days,trials_per_session,FontName,FontSize,LineWidth,Export,ExportStyle,output_dir);
+        delete(hw);
         return
     end    
     
@@ -86,34 +89,35 @@ function results_latency_speed_length(segmentation_configs,animals_trajectories_
             set(f,'Visible','off');
             
             boxplot(data, groups, 'positions', pos, 'colors', [0 0 0; .7 .7 .7]);
-            set(gca, 'LineWidth', LineWidth, 'FontSize', FontSize, 'FontName', FontName);
+            faxis = findobj(f,'type','axes');
+            set(faxis, 'LineWidth', LineWidth, 'FontSize', FontSize, 'FontName', FontName);
 
             lbls = {};
             lbls = arrayfun( @(i) sprintf('%d', i), 1:total_trials, 'UniformOutput', 0);     
 
-            set(gca, 'XLim', [0, max(pos) + 0.1], 'XTick', (pos(1:2:2*total_trials - 1) + pos(2:2:2*total_trials)) / 2, 'XTickLabel', lbls, 'Ylim', [0 max(data)+20], 'FontSize', FontSize, 'FontName', FontName);                 
+            set(faxis, 'XLim', [0, max(pos) + 0.1], 'XTick', (pos(1:2:2*total_trials - 1) + pos(2:2:2*total_trials)) / 2, 'XTickLabel', lbls, 'Ylim', [0 max(data)+20], 'FontSize', FontSize, 'FontName', FontName);                 
 
             if log_y(i)
-                set (gca, 'Yscale', 'log');
+                set (faxis, 'Yscale', 'log');
             else
-                set (gca, 'Yscale', 'linear');
+                set (faxis, 'Yscale', 'linear');
             end
 
             ylabel(ylabels{i}, 'FontSize', FontSize, 'FontName', FontName);
             xlabel('trial', 'FontSize', FontSize, 'FontName', FontName);
 
-            h = findobj(gca,'Tag','Box');
+            h = findobj(faxis,'Tag','Box');
             for j=1:2:length(h)
                  patch(get(h(j),'XData'), get(h(j), 'YData'), [0 0 0]);
             end
             set(h, 'LineWidth', LineWidth);
 
-            h = findobj(gca, 'Tag', 'Median');
+            h = findobj(faxis, 'Tag', 'Median');
             for j=1:2:length(h)
                  line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.9 .9 .9], 'LineWidth', LineWidth);
             end
 
-            h = findobj(gca, 'Tag', 'Outliers');
+            h = findobj(faxis, 'Tag', 'Outliers');
             for j=1:length(h)
                 set(h(j), 'MarkerEdgeColor', [0 0 0]);
             end
@@ -140,7 +144,9 @@ function results_latency_speed_length(segmentation_configs,animals_trajectories_
             export_figure(f, output_dir, sprintf('animals_%s', names{i}), Export, ExportStyle);
             close(f);
         end
+        waitbar(i/size(vars, 1));
     end 
     fclose(fileID);
+    delete(hw);
 end
 

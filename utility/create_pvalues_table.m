@@ -3,16 +3,21 @@ function error = create_pvalues_table(table,class_tags,fpath,varargin)
 %generated from the multiple classifications of a classifier group
 
     error = 1;
-    % convert to double array and find the mean of the rows
+    % convert to double array
     table_ = cell2mat(table);
-    avg_table = mean(table_,2);
+    avg_table = zeros(size(table_,1),1);
+    % score (how many more or equal to 0.05)
+    for i = 1:size(table_,1)
+        count = length(find(table_(i,:) <= 0.05));
+        avg_table(i) = count;
+    end
     avg_table = num2cell(avg_table);
     % convert to cell array and add the avg
     table_ = num2cell(table_);
     table_ = [avg_table,table_];
     % form the rows and the columns
     row = cell(1,size(table_,2));
-    row{1} = 'average';
+    row{1} = strcat('score','/',num2str(size(table_,2)-1));
     column = cell(1,size(table_,1)+1);
     column{1} = 'p-values';
     for i = 2:size(table_,2)

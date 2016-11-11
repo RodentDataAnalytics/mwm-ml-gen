@@ -36,29 +36,30 @@ function one_group_metrics(animals_trajectories_map,vars,total_trials,days,trial
         set(f,'Visible','off');
         
         boxplot(data, groups, 'positions', pos, 'colors', [0 0 0]);
-        set(gca, 'LineWidth', LineWidth, 'FontSize', FontSize, 'FontName', FontName);
+        faxis = findobj(f,'type','axes');
+        set(faxis, 'LineWidth', LineWidth, 'FontSize', FontSize, 'FontName', FontName);
         
         lbls = {};
         lbls = arrayfun( @(i) sprintf('%d', i), 1:total_trials, 'UniformOutput', 0);     
         
-        set(gca, 'XLim', [0, max(pos) + 0.1], 'XTickLabel', lbls, 'Ylim', [0 max(data)+20], 'LineWidth', LineWidth, 'FontSize', FontSize, 'FontName', FontName);                 
-        set(gca, 'Yscale', 'linear');        
+        set(faxis, 'XLim', [0, max(pos) + 0.1], 'XTickLabel', lbls, 'Ylim', [0 max(data)+20], 'LineWidth', LineWidth, 'FontSize', FontSize, 'FontName', FontName);                 
+        set(faxis, 'Yscale', 'linear');        
 
         ylabel(ylabels{i}, 'FontSize', FontSize, 'FontName', FontName);
         xlabel('trial', 'FontSize', FontSize, 'FontName', FontName);
 
-        h = findobj(gca,'Tag','Box');
+        h = findobj(faxis,'Tag','Box');
         for j=1:2:length(h)
              patch(get(h(j),'XData'), get(h(j), 'YData'), [0 0 0]);
         end
-        set([h], 'LineWidth', LineWidth);
+        set(h, 'LineWidth', LineWidth);
    
-        h = findobj(gca, 'Tag', 'Median');
+        h = findobj(faxis, 'Tag', 'Median');
         for j=1:2:length(h)
              line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.9 .9 .9], 'LineWidth', LineWidth);
         end
         
-        h = findobj(gca, 'Tag', 'Outliers');
+        h = findobj(faxis, 'Tag', 'Outliers');
         for j=1:length(h)
             set(h(j), 'MarkerEdgeColor', [0 0 0]);
         end

@@ -20,20 +20,21 @@ function create_average_figure(data,groups,positions,output_dir,total_trials,tag
         f = figure;
         set(f,'Visible','off');
         pos = positions{1,i};
-        boxplot(avg{1,i}, groups{1,i}, 'positions', positions{1,i}, 'colors', [0 0 0]);     
+        boxplot(avg{1,i}, groups{1,i}, 'positions', positions{1,i}, 'colors', [0 0 0]); 
+        faxis = findobj(f,'type','axes');
     
-        h = findobj(gca,'Tag','Box');
+        h = findobj(faxis,'Tag','Box');
         for j=1:2:length(h)
              patch(get(h(j),'XData'), get(h(j), 'YData'), [0 0 0]);
         end
         set(h, 'LineWidth', LineWidth);
 
-        h = findobj(gca, 'Tag', 'Median');
+        h = findobj(faxis, 'Tag', 'Median');
         for j=1:2:length(h)
              line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.9 .9 .9], 'LineWidth', LineWidth);
         end
 
-        h = findobj(gca, 'Tag', 'Outliers');
+        h = findobj(faxis, 'Tag', 'Outliers');
         for j=1:length(h)
             set(h(j), 'MarkerEdgeColor', [0 0 0]);
         end        
@@ -42,12 +43,12 @@ function create_average_figure(data,groups,positions,output_dir,total_trials,tag
         lbls = 1:total_trials;     
 
         try
-            set(gca, 'XTick', (pos(1:2:2*total_trials - 1) + pos(2:2:2*total_trials)) / 2, 'XTickLabel', lbls, 'FontSize', FontSize, 'FontName', FontName);
-            set(gca, 'Ylim', [0, max(avg{1,i})+0.5]);
-            set(gca, 'LineWidth', LineWidth);   
+            set(faxis, 'XTick', (pos(1:2:2*total_trials - 1) + pos(2:2:2*total_trials)) / 2, 'XTickLabel', lbls, 'FontSize', FontSize, 'FontName', FontName);
+            set(faxis, 'Ylim', [0, max(avg{1,i})+0.5]);
+            set(faxis, 'LineWidth', LineWidth);   
         catch
-            set(gca, 'XTickLabel', lbls, 'Ylim', [0, max(avg{1,i})+0.5], 'FontSize', FontSize, 'FontName', FontName);
-            set(gca, 'LineWidth', LineWidth);
+            set(faxis, 'XTickLabel', lbls, 'Ylim', [0, max(avg{1,i})+0.5], 'FontSize', FontSize, 'FontName', FontName);
+            set(faxis, 'LineWidth', LineWidth);
         end
 
         if length(avg) == 1

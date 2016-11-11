@@ -30,29 +30,36 @@ end
 % --- Executes just before browse is made visible.
 function browse_OpeningFcn(hObject, eventdata, handles, varargin)
     %load tags and features names
-    [tag_names, features_names] = browse_open_function;
-%     if tag_names{1} == 0 || features_names{1} == 0
-%         disp('Cannot load tags or features');
-%         return;
-%     end
+    [tag_names, features_names] = browse_open_function;    
+%%%%%%%% FOR DEBUGGING%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     if tag_names{1} == 0 || features_names{1} == 0 %
+%         disp('Cannot load tags or features');      %
+%         return;                                    %
+%     end                                            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %update tables' graphics (NOT WORKING)
 %     [ColumnName,RowName,ColumnWidth] = browse_tables_graphics(1);
 %     set(handles.trajectory_info,'ColumnName',ColumnName,'RowName',RowName,'ColumnWidth',ColumnWidth);
 %     [ColumnName,RowName,ColumnWidth] = browse_tables_graphics(2,features_names);
 %     set(handles.segment_info,'ColumnName',ColumnName,'RowName',RowName,'ColumnWidth',ColumnWidth); 
+    
+    %update the Segment table
     set(handles.segment_info,'RowName',['#','Offset',features_names]);
-    %update the gui
+    %update the tags
     set(handles.available_tags,'String',tag_names);
+    %save the tags
     set(handles.available_tags,'UserData',tag_names);
-    if ~isempty(varargin)
-        set(handles.browse_data,'UserData',varargin{1});  
-    end    
-    % PLAY OPTIONS + Color + ExportFile UNAVAILABLE (for now)
+    %update the counting table
+    set(handles.counting,'RowName',[tag_names,'total']);
+    data = zeros(length(tag_names)+1,1);
+    set(handles.counting,'Data',data);
+    % PLAY OPTIONS + Color UNAVAILABLE (for now)
     set(findall(handles.uibuttongroup1, '-property', 'Visible'), 'Visible', 'off');
     set(handles.color_check, 'Visible', 'off');
-    set(handles.track_check, 'Visible', 'off');
-    set(handles.export_file, 'Visible', 'off');
-    set(handles.track_pop, 'Visible', 'off');
+    % Check if it called from another function
+    if ~isempty(varargin)
+        set(handles.browse_data,'UserData',varargin{1});  
+    end      
     % Choose default command line output for browse
     handles.output = hObject;
     % Update handles structure
@@ -156,18 +163,21 @@ function save_Callback(hObject, eventdata, handles)
 % Load labels
 function load_Callback(hObject, eventdata, handles)
     error = browse_load_labels(handles);
+    browse_update_counting(handles);
     if error
         return
     end  
 % Add label
 function add_tag_Callback(hObject, eventdata, handles)
     error = browse_add_tag(handles);
+    browse_update_counting(handles);
     if error
         return
     end  
 % Remove label
 function remove_tag_Callback(hObject, eventdata, handles)
     error = browse_remove_tag(handles);
+    browse_update_counting(handles);
     if error
         return
     end  
@@ -187,22 +197,6 @@ end
 % Segment label(s)
 function tag_box_Callback(hObject, eventdata, handles)
 function tag_box_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-%% MOTION %%
-function speed_Callback(hObject, eventdata, handles)
-function speed_down_Callback(hObject, eventdata, handles)
-function speed_up_Callback(hObject, eventdata, handles)
-function speed_style_Callback(hObject, eventdata, handles)
-
-%% TRACKING %%
-% Activates tracking
-function track_check_Callback(hObject, eventdata, handles)
-% Show only specified group of segments
-function track_pop_Callback(hObject, eventdata, handles)
-function track_pop_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -253,8 +247,7 @@ function export_Callback(hObject, eventdata, handles)
         % export the figure
         export_figure(f, folder, strcat('traj',num2str(idx),'seg',num2str(index)), Export, ExportStyle);
     end
-    delete(f);
-    
+    delete(f);   
 % Export all segments of specific group as pictures
 function export_all_Callback(hObject, eventdata, handles)
     % get project path
@@ -317,6 +310,10 @@ function export_all_Callback(hObject, eventdata, handles)
         end
     end
     delete(f);
-                   
-% Export all segments of specific group to file
-function export_file_Callback(hObject, eventdata, handles)
+
+    
+%% MOTION %% <<NOT IMPLEMENTED>>
+function speed_Callback(hObject, eventdata, handles)
+function speed_down_Callback(hObject, eventdata, handles)
+function speed_up_Callback(hObject, eventdata, handles)
+function speed_style_Callback(hObject, eventdata, handles)

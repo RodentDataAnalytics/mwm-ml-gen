@@ -1,4 +1,4 @@
-function [output] = assign_groups(sessions_ids, flag, varargin)
+function [output] = assign_groups(sessions_ids, flag, def_path)
 %ASSIGN_GROUPS allows the user to create animal groups or load existed ones
 
     header = {'Session','ID','Group'};
@@ -91,28 +91,41 @@ function [output] = assign_groups(sessions_ids, flag, varargin)
     h.save = uicontrol('style','pushbutton','units',units,...
              'position',[103,110,40,20],'string','Save',...
              'fontname',fontname,'fontsize',fontsize,...
-             'fontunits',fontunits,'callback',{@save_callback,varargin{1}});  
+             'fontunits',fontunits,'callback',{@save_callback,def_path});  
     h.load = uicontrol('style','pushbutton','units',units,...
              'position',[143,110,40,20],'string','Load',...
              'fontname',fontname,'fontsize',fontsize,...
-             'fontunits',fontunits,'callback',{@load_callback,varargin{1}});         
+             'fontunits',fontunits,'callback',{@load_callback,def_path});         
          
     %% Create Exit
     h.ok = uicontrol('style','pushbutton','units',units,...
                 'position',[98,15,45,25],'string','OK',...
                 'fontname',fontname,'fontsize',fontsize,...
-                'fontunits',fontunits,'callback',{@ok_callback,varargin{1}}); 
+                'fontunits',fontunits,'callback',{@ok_callback,def_path}); 
     h.cancel = uicontrol('style','pushbutton','units',units,...
                 'position',[143,15,45,25],'string','Cancel',...
                 'fontname',fontname,'fontsize',fontsize,...
-                'fontunits',fontunits,'callback',{@cancel_callback,h});      
+                'fontunits',fontunits,'callback',{@cancel_callback});      
             
+    %% CloseRequestFcn
+    set(h.f,'CloseRequestFcn','my_exit_req');
     %% Lock the figure
-    lock = gcf;
-    uiwait(lock);         
+    %lock = gcf;
+    uiwait(h.f);         
             
+    %% Exit Function
+    function my_exit_req(varargin)
+        fig = findobj(gcf,'Name','Animal Groups');
+        if isequal(get(fig,'waitstatus'),'waiting')
+            uiresume(fig);
+            delete(fig);
+        else
+            delete(fig);
+        end
+    end
+    
     %% Callback Functions
-    function previous_callback(varargin)
+    function previous_callback(hObject, eventdata)
         idx = str2double(get(h.label_bottom_num,'string'));
         if idx == 1
             return;
@@ -121,7 +134,7 @@ function [output] = assign_groups(sessions_ids, flag, varargin)
         set(h.listbox_1,'string',ids{idx-1});
         set(h.label_bottom_num,'string',idx-1);
     end
-    function next_callback(varargin)
+    function next_callback(hObject, eventdata)
         idx = str2double(get(h.label_bottom_num,'string'));
         if idx >= length(ids) 
             return;
@@ -131,7 +144,7 @@ function [output] = assign_groups(sessions_ids, flag, varargin)
         set(h.label_bottom_num,'string',idx+1); 
     end
 
-    function assign_callback(varargin)
+    function assign_callback(hObject, eventdata)
         group = str2double(get(h.text_num,'string'));
         if ~isempty(group)  
             if isnan(group) || length(group) > 1
@@ -171,37 +184,32 @@ function [output] = assign_groups(sessions_ids, flag, varargin)
         set(t,'data',data);
     end
 
-    function save_callback(varargin)
+    function save_callback(hObject, eventdata, def_path)
         Table = array2table(data,'VariableNames',header);
+        def_path = char_project_path(def_path);
         % propose file name and create file
         time = fix(clock);
         formatOut = 'yyyy-mmm-dd-HH-MM';
         time = datestr((time),formatOut);
-        try
-            [file,path] = uiputfile('*.csv','Save animal groups',strcat(varargin{3}{1},'/settings/','groups_',time));
-        catch
-            [file,path] = uiputfile('*.csv','Save animal groups',strcat('groups_',time));
-        end
-        if path==0
+        % propose: project's results folder
+        [file,gpath] = uiputfile('*.csv','Save animal groups',fullfile(def_path,'results',strcat('groups_',time)));
+        if gpath==0
             return
         end    
         fid = fopen(strcat(path,file),'w');
         fclose(fid);      
         % save to the new csv file the tmp_data
-        writetable(Table,strcat(path,file),'WriteVariableNames',1);        
+        writetable(Table,strcat(gpath,file),'WriteVariableNames',1);        
     end
 
-    function load_callback(varargin)
+    function load_callback(hObject, eventdata, def_path)
+        def_path = char_project_path(def_path);
         % ask for labels csv file
-        try
-            [file,path] = uigetfile({'*.csv','CSV-file (*.csv)'},'Select CSV file containing segment labels',varargin{3}{1});
-        catch
-            [file,path] = uigetfile({'*.csv','CSV-file (*.csv)'},'Select CSV file containing segment labels');
-        end
-        if path == 0
+        [file,gpath] = uigetfile({'*.csv','CSV-file (*.csv)'},'Select CSV file containing segment labels',def_path);
+        if gpath == 0
             return;
         end 
-        file = strcat(path,file);  
+        file = strcat(gpath,file);  
         % check if file is correct
         fid = fopen(file);
         tmp_header = textscan(fid,'%s %s %s',1,'Delimiter',',');
@@ -222,7 +230,8 @@ function [output] = assign_groups(sessions_ids, flag, varargin)
         set(t,'data',data);
     end
 
-    function ok_callback(varargin)
+    function ok_callback(hObject, eventdata, def_path)
+        def_path = char_project_path(def_path);
         ses = unique(data(:,1));
         unique_g = sort(unique(data(:,3)));
         gap_g = find(data(:,3) == -1);
@@ -236,6 +245,9 @@ function [output] = assign_groups(sessions_ids, flag, varargin)
             end    
             if generate == -1
                 generate = max(unique_g) + 1;
+                if generate == 0
+                    generate = 1;
+                end
             end    
             str = ['Some animals are not assigned to groups. These animals will automatically be assigned to group ' num2str(generate) '. Do you wish to continue?'];
             choice = questdlg(str,'Un-grouped animals','Yes','No','No');
@@ -251,11 +263,15 @@ function [output] = assign_groups(sessions_ids, flag, varargin)
             tmp = find(data(:,1) == i);
             output{i} = data(tmp,2:3);
         end   
-        close(gcf);
+        %create the CSV file also
+        Table = array2table(data,'VariableNames',header);
+        writetable(Table,fullfile(def_path,'settings','animal_groups.csv'),'WriteVariableNames',1);        
+        %close this figure
+        my_exit_req;
     end
 
     function cancel_callback(varargin)     
-        close(gcf);    
+        my_exit_req;
     end
 end
 

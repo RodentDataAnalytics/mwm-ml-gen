@@ -115,7 +115,7 @@ function finalize_Callback(hObject, eventdata, handles)
     end    
     %save everything
     m_path = get(handles.new_project,'UserData');
-    m_path = m_path{1};
+    m_path = char_project_path(m_path);
     save(strcat(m_path,'/settings/','animal_groups.mat'),'trajectory_groups');
     save(strcat(m_path,'/settings/','new_properties.mat'),'new_properties');
     save(strcat(m_path,'/settings/','my_trajectories.mat'),'my_trajectories');
@@ -263,6 +263,7 @@ function load_data_button_Callback(hObject, eventdata, handles)
 function assign_groups_Callback(hObject, eventdata, handles)
     data = get(handles.table,'Data');
     m_path = get(handles.new_project,'UserData');
+    m_path = char_project_path(m_path);
     %find the rows that do not have NaN as ID or Points
     sessions_ids = cell2mat(data(:,[2,3,5]));
     remain = find(~isnan(sessions_ids(:,2)) & ~isnan(sessions_ids(:,3)));
@@ -276,6 +277,7 @@ function assign_groups_Callback(hObject, eventdata, handles)
         set(handles.f_days,'Enable','off');
         set(handles.f_trials,'Enable','off');
         set(handles.table,'ColumnEditable',[false,false,false,false,false,false,false]);
+        set(temp(idx),'Visible','on'); 
         return;
     else
         for i = 1:length(groups)

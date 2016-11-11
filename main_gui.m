@@ -86,7 +86,7 @@ function new_project_Callback(hObject, eventdata, handles)
 function load_project_Callback(hObject, eventdata, handles)
     main_path = get(handles.new_project,'UserData');
     [~,ppath] = uigetfile({'*.cfg','CONFIG-file (*.cfg)'},'Select configuration file',main_path{1});
-    if isequal(path,0)
+    if isequal(ppath,0)
         return
     end
     set(handles.load_project,'UserData',{ppath});

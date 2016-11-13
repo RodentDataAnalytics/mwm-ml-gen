@@ -3,10 +3,22 @@ function error = create_pvalues_figure(table,class_tags,output_dir,varargin)
 
     error = 1;
     [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
-    % get the abbreviations
+    % default labels
     t = cell(1,length(class_tags));
     for i = 1:length(t)
         t{i} = class_tags{i}{1};
+    end
+    xlabel_ = 'strategies';
+    ylabel_ = 'p-value';
+    % get other options
+    for i = 1:length(varargin)
+        if isequal(varargin{i},'tag')
+            t = varargin{i+1};
+        elseif isequal(varargin{i},'xlabel')
+            xlabel_ = varargin{i+1};
+        elseif isequal(varargin{i},'ylabel')
+            ylabel_ = varargin{i+1};
+        end
     end
     % convert to double array and find the mean of the rows
     table_ = cell2mat(table);
@@ -37,8 +49,8 @@ function error = create_pvalues_figure(table,class_tags,output_dir,varargin)
     
     xlim([0 size(table_,2)+1]);
     ylim([0 1]); %friedman test cannot be more than 1
-    xlabel('strategy', 'FontSize', FontSize);
-    ylabel('p-value', 'FontSize', FontSize)
+    xlabel(xlabel_, 'FontSize', FontSize);
+    ylabel(ylabel_, 'FontSize', FontSize)
     set(faxis, 'XTickLabel', t, 'FontSize', FontSize, 'FontName', FontName);
     set(faxis, 'LineWidth', LineWidth, 'FontSize', FontSize, 'FontName', FontName);
    
@@ -81,8 +93,8 @@ function error = create_pvalues_figure(table,class_tags,output_dir,varargin)
     
     xlim([0 size(table_,2)+1]);
     ylim([0 0.1]); %friedman test cannot be more than 1
-    xlabel('strategy', 'FontSize', FontSize);
-    ylabel('p-value', 'FontSize', FontSize)
+    xlabel(xlabel_, 'FontSize', FontSize);
+    ylabel(ylabel_, 'FontSize', FontSize)
     set(faxis, 'XTickLabel', t, 'FontSize', FontSize, 'FontName', FontName);
     set(faxis, 'LineWidth', LineWidth, 'FontSize', FontSize, 'FontName', FontName);
    

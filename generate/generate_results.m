@@ -121,7 +121,12 @@ function error = generate_results(project_path, name, segmentation_configs, clas
             if error
                 errordlg('Cannot create summary file');
             end
-            error = create_pvalues_figure(p_,class_tags,dir_list{end});
+            switch b_pressed
+                 case 'Strategies'
+                    error = create_pvalues_figure(p_,class_tags,dir_list{end});
+                case 'Transitions'    
+                    error = create_pvalues_figure(p_,class_tags,dir_list{end},'tag',{''},'xlabel','transitions');
+            end
             if error
                 errordlg('Cannot create summary p-values figure');
             end

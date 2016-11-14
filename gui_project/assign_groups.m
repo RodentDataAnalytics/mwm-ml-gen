@@ -196,10 +196,10 @@ function [output] = assign_groups(sessions_ids, flag, def_path)
         if gpath==0
             return
         end    
-        fid = fopen(strcat(path,file),'w');
+        fid = fopen(fullfile(path,file),'w');
         fclose(fid);      
         % save to the new csv file the tmp_data
-        writetable(Table,strcat(gpath,file),'WriteVariableNames',1);        
+        writetable(Table,strcat(fullfile,file),'WriteVariableNames',1);
     end
 
     function load_callback(hObject, eventdata, def_path)

@@ -55,6 +55,9 @@ function new_project_Callback(hObject, eventdata, handles)
         [temp, idx] = hide_gui('MWM-ML');
         set(handles.load_project,'UserData',project_path);
         %load the new project
+        if ~iscell(project_path) 
+            project_path = {project_path};
+        end
         new_project(project_path);
         project_path = char_project_path(project_path);
         files  = dir(fullfile(project_path,'settings','*.mat'));

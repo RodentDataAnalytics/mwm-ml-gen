@@ -10,25 +10,30 @@ function [major_classes, full_distributions, seg_classes, class_w] = distr_strat
 %-tiny_num: used for computed the full_distributions (hidden from user)
 sigma = 2;
 discard_undefined = 0;
-w = 'defined';
+%w = 'defined';
+w = 'computed';
 tiny_num = 1e-6;
 % data smoothing
 min_seg = 1;
     
     %% INITIALIZE USER INPUT %%
     for i = 1:length(varargin)
-        if isnumeric(varargin{i})
-            sigma = 2;
-        else
-            %discard_undefined options
-            if isequal(varargin{i},'off')  
-                discard_undefined = 1;
-            %weights options    
-            elseif isequal(varargin{i},'defined')
-                w = 'defined';
-            elseif isequal(varargin{i},'computed')
-                w = 'computed';
+        if isequal(varargin{i},'sigma')
+            sigma = varargin{i+1};
+            if sigma <= 0
+                sigma = 1;
             end
+        elseif isequal(varargin{i},'discard_undefined')
+            if isequal(varargin{i+1},1) || isequal(varargin{i+1},'on') || isequal(varargin{i+1},'ON')
+                discard_undefined = 1;
+            end
+        elseif isequal(varargin{i},'smoothing')   
+            min_seg = varargin{i+1};
+            if min_seg <= 0
+                min_seg = 1;
+            end
+        elseif isequal(varargin{i},'weights')   
+            w = varargin{i+1};
         end
     end     
                       
@@ -41,9 +46,9 @@ min_seg = 1;
     %segment class slots
     seg_classes = zeros(1,length(class_map));
     %all classes
-    classes = zeros(1,length(classification_configs.ALL_TAGS));
+    classes = zeros(1,length(classification_configs.CLASSIFICATION_TAGS));
     for i = 1:length(classes)
-        classes(i) = classification_configs.ALL_TAGS{i}{1,3};
+        classes(i) = classification_configs.CLASSIFICATION_TAGS{i}{1,3};
     end
     %class weights
     class_w = zeros(1,length(classes));
@@ -52,12 +57,12 @@ min_seg = 1;
             class_w = ones(1,length(classes));
         case 'defined'  
             for i = 1:length(classes)
-                class_w(i) = classification_configs.ALL_TAGS{i}{1,4};
+                class_w(i) = classification_configs.CLASSIFICATION_TAGS{i}{1,4};
             end
         case 'computed'
-            %NOT IMPLEMENTED YET
+            class_w = computed_weights(segmentation_configs, classification_configs);           
     end      
-    class_w = class_w(2:end);
+    
     %strategies distribution
     class_distr_traj = [];
     %array that shows numerically distribution values

@@ -230,6 +230,9 @@ function browse_trajectories_Callback(hObject, eventdata, handles)
     end
     %hide this GUI
     [temp, idx] = hide_gui('MWM-ML');
+    if ~iscell(project_path)
+        project_path = {project_path};
+    end    
     browse(project_path);
     set(temp(idx),'Visible','on');
     refresh_labs_Callback(hObject, eventdata, handles);

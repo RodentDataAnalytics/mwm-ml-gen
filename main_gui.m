@@ -274,42 +274,28 @@ function check_labels_Callback(hObject, eventdata, handles)
     output_path = char(fullfile(project_path,'labels',strcat(p,'_check')));
     if ~exist(output_path,'dir')
         mkdir(output_path);
-    else
-        choice = questdlg('Checking has already been performed would you like to rerun it?','Cross-validation','No','Yes','No');
-        if isequal(choice,'No')
-            return;
-        else
-            rmdir(output_path,'s');
-            mkdir(output_path); 
-        end
     end
-    [nc,res1bare,res2bare,res1,res2,res3,covering] = results_clustering_parameters(segmentation_configs,labels,0,output_path);
+%     else
+%         choice = questdlg('Checking has already been performed would you like to rerun it?','Cross-validation','No','Yes','No');
+%         if isequal(choice,'No')
+%             return;
+%         else
+%             rmdir(output_path,'s');
+%             mkdir(output_path); 
+%         end
+%     end
+    [nc,res1bare,res2bare,res1,res2,res3,covering] = results_clustering_parameters(segmentation_configs,labels,0,output_path,10,100,1);
     output_path = char(fullfile(project_path,'results',strcat(p,'_cross_validation')));
     if exist(output_path,'dir');
         rmdir(output_path,'s');
     end
     mkdir(output_path);
     [nc,per_errors1,per_undefined1,coverage] = algorithm_statistics(1,1,nc,res1bare,res2bare,res1,res2,res3,covering);
+    data = [nc', per_errors1', per_undefined1', coverage'];
+    % export results to CSV file
+    export_num_of_clusters(output_path,data);
+    % generate graphs
     results_clustering_parameters_graphs(output_path,nc,res1bare,res2bare,res1,res2,res3,covering);
-    row = {'Clusters','Error(%)','Undefined(%)','Coverage(%)'};
-    table = [nc;per_errors1;per_undefined1;coverage];
-    table = table';
-    table = num2cell(table);
-    table = [row;table];
-    table = cell2table(table);
-    fpath = fullfile(output_path,'cross_validation.csv');
-    try
-        fid = fopen(fpath,'w');
-        fclose(fid);      
-        % save the labels to the file
-        writetable(table,fpath,'WriteVariableNames',0);
-        error = 0;
-    catch
-        error = 1;
-    end    
-    if error
-        errordlg('Cannot generate cross-validation file');
-    end
     set(temp(idx),'Visible','on'); 
     
 function default_labels_Callback(hObject, eventdata, handles)

@@ -1,7 +1,7 @@
-MClassifiers_folder = 'I:\Documents\MWMGEN\Test\split_10';
-Output_folder = 'I:\Documents\MWMGEN\Test';
-Segmentation = 'I:\Documents\MWMGEN\tiago_original\segmentation\segmentation_configs_29476_250_09.mat';
-Name = 'Strategies_1664_250_09';
+MClassifiers_folder = 'I:\Documents\MWMGEN\Test2\split_10';
+Output_folder = 'I:\Documents\MWMGEN\Test2';
+Segmentation = 'I:\Documents\MWMGEN\tiago_original\segmentation\segmentation_configs_10388_250_07.mat';
+Name = 'Strategies_1301_250_07';
 
 load(Segmentation);
 
@@ -35,7 +35,7 @@ dir_list{end+1} = folder;
 delete(h)
 
 %% Results
-
+h = waitbar(0,'Generate results','Name','Results');
 % Variables of interest:
 %Friedman's test p-value (-1 if it is skipped)
 p_ = cell(1,length(classifications));

@@ -1,5 +1,5 @@
-Classifiers_folder = 'I:\Documents\MWMGEN\tiago_original\classification\class_1664_29476_250_09';
-Output_folder = 'I:\Documents\MWMGEN\Test';
+Classifiers_folder = 'I:\Documents\MWMGEN\tiago_original\classification\class_1301_10388_250_07';
+Output_folder = 'I:\Documents\MWMGEN\Test2';
 Sample = 10;
 
 files = dir(fullfile(Classifiers_folder,'*.mat'));

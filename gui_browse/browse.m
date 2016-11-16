@@ -111,6 +111,7 @@ function load_configuration_Callback(hObject, eventdata, handles)
         set(handles.tag_box,'UserData',[]);
     % run with classification configs file    
     elseif mode == 2    
+        errordlg('Requires a segmentation file.','Error');
         %check and save the file into the UserData
         %error = browse_mode_classification(obj,handles);
         %if error

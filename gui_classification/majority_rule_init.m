@@ -74,6 +74,8 @@ function error = majority_rule_init(output_folder, class_folders, sample, thresh
         str = sprintf('merged_%d.mat',i);
         save(fullfile(output_folder,str),'classification_configs');
     end   
+    % Create a CSV-file for the undecided segments
+    find_similar_unlabelled(output_folder);
     close(h)
     error = 0;
 end

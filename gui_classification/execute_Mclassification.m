@@ -1,5 +1,6 @@
 function error = execute_Mclassification(project_path, classifications, sample, iterations, threshold)
-%EXECUTE_MCLASSIFICATION
+%EXECUTE_MCLASSIFICATION merges the classification results of different
+%classifiers
 
     project_path = char_project_path(project_path);
     class_paths = {};

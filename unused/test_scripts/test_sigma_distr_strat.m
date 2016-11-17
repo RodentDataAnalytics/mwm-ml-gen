@@ -1,4 +1,4 @@
-function [major_classes, full_distributions, seg_classes, class_w] = distr_strategies(segmentation_configs, classification_configs, varargin)
+function [major_classes, full_distributions, seg_classes, class_w] = test_sigma_distr_strat(segmentation_configs, classification_configs, output_dir, varargin)
 %DISTR_STRATEGIES computes the prefered strategy for a small time window
 %for each trajectory.
 
@@ -7,17 +7,19 @@ function [major_classes, full_distributions, seg_classes, class_w] = distr_strat
 %       classes over the swimming paths.
 %-discard_undefined: keep/discard undefined
 %-w: method of computed the weights
-%-norm_method: normalizes the weights (off/OFF/0) to skip
-%-tiny_num: used for computed the full_distributions (data smoothing)
+%-tiny_num: used for computed the full_distributions (hidden from user)
 sigma = 4;
 discard_undefined = 0;
 %w = 'defined';
-w = 'computed';
-norm_method = 'off';
-hard_bounds = 'on';
+w = 'defined';
 tiny_num = 1e-6;
+% data smoothing
 min_seg = 1;
-    
+
+sig = 1:50;
+h = waitbar(0,'Generating distr_strats');
+for ss = 1:length(sig)
+sigma = sig(ss);
     %% INITIALIZE USER INPUT %%
     for i = 1:length(varargin)
         if isequal(varargin{i},'sigma')
@@ -36,10 +38,6 @@ min_seg = 1;
             end
         elseif isequal(varargin{i},'weights')   
             w = varargin{i+1};
-        elseif isequal(varargin{i},'norm_method')
-            norm_method = varargin{i+1};
-        elseif isequal(varargin{i},'hard_bounds')
-            norm_method = varargin{i+1};
         end
     end     
                       
@@ -68,20 +66,6 @@ min_seg = 1;
         case 'computed'
             class_w = computed_weights(segmentation_configs, classification_configs);           
     end      
-    %weights normalization
-    if ~isequal(norm_method,'off') && ~isequal(norm_method,'OFF') && ~isequal(norm_method,0)
-        class_w = normalizations(class_w,norm_method);
-    end
-    %hard bounds
-    if ~isequal(hard_bounds,'off') && ~isequal(hard_bounds,'OFF') && ~isequal(hard_bounds,0);
-        for i = 1:length(class_w)
-            if class_w(i) < 5
-                class_w(i) = 1;
-            else
-                class_w(i) = 10;
-            end
-        end
-    end
     
     %strategies distribution
     class_distr_traj = [];
@@ -243,5 +227,10 @@ min_seg = 1;
             index = index + partitions(i);
         end
     end
-end    
-
+strat_distr = major_classes;
+file = fullfile(output_dir,strcat('strat_distr',num2str(sigma),'.mat'));
+save(file,'strat_distr');
+waitbar(ss/length(sig));
+end 
+delete(h);
+end

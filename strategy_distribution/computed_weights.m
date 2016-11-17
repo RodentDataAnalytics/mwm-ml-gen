@@ -2,7 +2,7 @@ function [w] = computed_weights(segmentation_configs, classification_configs)
 %COMPUTED_WEIGHTS computes adopted weights for minor and major classes
 
     % first execute distr_strategies with weights = ones
-    [strat_distr, ~, ~, ~] = distr_strategies(segmentation_configs, classification_configs, 'weights', 'ones');
+    [strat_distr, ~, ~, ~] = distr_strategies(segmentation_configs, classification_configs, 'weights', 'ones', 'norm_method', 'off', 'hard_bounds', 'off');
     
     max_len = zeros(1,length(classification_configs.CLASSIFICATION_TAGS));
 

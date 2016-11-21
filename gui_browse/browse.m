@@ -163,25 +163,25 @@ function save_Callback(hObject, eventdata, handles)
     end  
 % Load labels
 function load_Callback(hObject, eventdata, handles)
-    error = browse_load_labels(handles);
-    browse_update_counting(handles);
+    error = browse_load_labels(handles); 
     if error
         return
     end  
+    browse_update_counting(handles);
 % Add label
 function add_tag_Callback(hObject, eventdata, handles)
-    error = browse_add_tag(handles);
-    browse_update_counting(handles);
+    error = browse_add_tag(handles); 
     if error
         return
     end  
+    browse_update_counting(handles);
 % Remove label
 function remove_tag_Callback(hObject, eventdata, handles)
     error = browse_remove_tag(handles);
-    browse_update_counting(handles);
     if error
         return
     end  
+    browse_update_counting(handles);
 % Select trajectory/segment
 function listbox_Callback(hObject, eventdata, handles)
     browse_select_segment(handles);
@@ -206,6 +206,10 @@ end
 %% EXPORTING %%
 % Export currect plot as picture
 function export_Callback(hObject, eventdata, handles)
+    index = get(handles.plotter,'UserData');
+    if isempty(index)
+        return;
+    end    
     % get project path
     ppath = get(handles.browse_data,'UserData');  
     ppath = char_project_path(ppath);
@@ -251,6 +255,10 @@ function export_Callback(hObject, eventdata, handles)
     delete(f);   
 % Export all segments of specific group as pictures
 function export_all_Callback(hObject, eventdata, handles)
+    index = get(handles.plotter,'UserData');
+    if isempty(index)
+        return;
+    end    
     % get project path
     ppath = get(handles.browse_data,'UserData');  
     ppath = char_project_path(ppath);

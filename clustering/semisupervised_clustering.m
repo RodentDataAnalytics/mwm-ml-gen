@@ -185,6 +185,8 @@ classdef semisupervised_clustering < handle
                     elseif sqrt(sum((inst.features(labels_idx(j), :) - inst.features(labels_idx(k), :)).^2)) < inst.constraints_max_distance
                         % CANNOT-LINK constraint - other way around
                         constr = [constr; max(j, k), min(j, k)];
+                    else
+                        continue;
                     end
                 end
             end

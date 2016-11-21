@@ -15,7 +15,8 @@ discard_undefined = 0;
 w = 'computed';
 norm_method = 'off';
 hard_bounds = 'on';
-tiny_num = 1e-6;
+%tiny_num = 1e-6;
+tiny_num = realmin;
 min_seg = 1;
     
     %% INITIALIZE USER INPUT %%
@@ -39,7 +40,7 @@ min_seg = 1;
         elseif isequal(varargin{i},'norm_method')
             norm_method = varargin{i+1};
         elseif isequal(varargin{i},'hard_bounds')
-            norm_method = varargin{i+1};
+            hard_bounds = varargin{i+1};
         end
     end     
                       
@@ -74,12 +75,20 @@ min_seg = 1;
     end
     %hard bounds
     if ~isequal(hard_bounds,'off') && ~isequal(hard_bounds,'OFF') && ~isequal(hard_bounds,0);
+        avg_w = max(class_w)/2;
+        avg_w = avg_w-1;
+        avg_w = avg_w/2;
         for i = 1:length(class_w)
-            if class_w(i) < 5
+            if class_w(i) < avg_w
                 class_w(i) = 1;
             else
-                class_w(i) = 10;
+                class_w(i) = max(class_w);
             end
+%             if class_w(i) < 5
+%                 class_w(i) = 1;
+%             else
+%                 class_w(i) = 10;
+%             end
         end
     end
     

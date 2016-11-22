@@ -1,4 +1,4 @@
-function error = majority_rule_init(output_folder, class_folders, sample, threshold, iterations, varargin)
+function error = majority_rule_init(segmentation_configs, output_folder, class_folders, sample, threshold, iterations, varargin)
 %MAJORITY_RULE_INIT runs the majority rule a number of times with the given
 %options.
 
@@ -75,7 +75,7 @@ function error = majority_rule_init(output_folder, class_folders, sample, thresh
         save(fullfile(output_folder,str),'classification_configs');
     end   
     % Create a CSV-file for the undecided segments
-    find_similar_unlabelled(output_folder);
+    find_similar_unlabelled(segmentation_configs,output_folder);
     close(h)
     error = 0;
 end

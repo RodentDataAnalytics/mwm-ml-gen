@@ -62,7 +62,7 @@ function error = default_classification(project_path,seg_name,lab_name)
     sample = 10;
     threshold = 0;
     iterations = 10;
-    error = majority_rule_init(Mclass_folder, {class_folder}, sample, threshold, iterations);
+    error = majority_rule_init(segmentation_configs, Mclass_folder, {class_folder}, sample, threshold, iterations);
     if ~error
         error = 0;
     end

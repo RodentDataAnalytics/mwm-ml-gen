@@ -12,10 +12,14 @@ function error = execute_Mclassification(project_path, classifications, sample, 
     %the appropriate segmentation objects.  
     if length(classifications) > 1
         seg_objs = cell(1,length(classifications));
+        c = 0;
         for i = 1:length(classifications)
             %get segs, len, ovl of classification
             temp = strsplit(classifications{i},'_');
             segs = temp{3};
+            if str2double(segs) > c;
+                c = i;
+            end
             len = temp{4};
             ovl = temp{5};
             %construct the full path of the segmentation object
@@ -31,6 +35,13 @@ function error = execute_Mclassification(project_path, classifications, sample, 
             end
         end
     else
+        temp = strsplit(classifications{i},'_');
+        segs = temp{3};
+        len = temp{4};
+        ovl = temp{5};
+        %construct the full path of the segmentation object
+        n_path = fullfile(project_path,'segmentation',strcat('segmentation_configs_',segs,'_',len,'_',ovl,'.mat'));
+        load(n_path);
         class_paths = class_paths{1};
     end
 
@@ -48,9 +59,9 @@ function error = execute_Mclassification(project_path, classifications, sample, 
         class_paths = {class_paths};
     end
     if length(classifications) > 1
-        error = majority_rule_init(Mclass_folder, class_paths, sample, threshold, iterations, seg_objs);
+        error = majority_rule_init(seg_objs{c}, Mclass_folder, class_paths, sample, threshold, iterations, seg_objs);
     else
-        error = majority_rule_init(Mclass_folder, class_paths, sample, threshold, iterations);
+        error = majority_rule_init(segmentation_configs, Mclass_folder, class_paths, sample, threshold, iterations);
     end
     if ~error
         error = 0;

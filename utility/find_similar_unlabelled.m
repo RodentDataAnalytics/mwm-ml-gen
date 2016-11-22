@@ -1,6 +1,6 @@
-function find_similar_unlabelled(Mfolder)
+function find_similar_unlabelled(segmentation_configs,Mfolder)
 %FIND_SIMILAR_UNLABELLED counts how many times each segment appears as
-%unlabelled.
+%unlabelled over all the Mclassifications.
 
     files = dir(fullfile(Mfolder,'*.txt'));
     all_nums = [];
@@ -26,9 +26,19 @@ function find_similar_unlabelled(Mfolder)
     end
     % Sort by number count
     table = sortrows(table,2);
+    % Convert to trajectory-segments
+    traj = zeros(size(table,1),1);
+    segs = zeros(size(table,1),1);
+    for i = 1:length(traj)
+        [traj_id, seg_id] = find_traj_of_seg(segmentation_configs.SEGMENTS,table(i,1));
+        traj(i) = traj_id;
+        segs(i) = seg_id;
+    end
+    % Finalize the table
+    table = [traj, segs, table];
     % Export as CSV-file
     table = num2cell(table);
-    table = [{'Segment','Count'};table];
+    table = [{'Trajectry','Segment', 'Segment ID', 'Count'} ; table];
     table = cell2table(table);
     fpath = fullfile(Mfolder,'common_undefined.csv');
     writetable(table,fpath,'WriteVariableNames',0);

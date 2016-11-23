@@ -21,7 +21,8 @@ function error = execute_Mclassification(project_path, classifications, sample, 
                 c = i;
             end
             len = temp{4};
-            ovl = temp{5};
+            ovl = strsplit(temp{5},'-');
+            ovl = ovl{1};
             %construct the full path of the segmentation object
             n_path = fullfile(project_path,'segmentation',strcat('segmentation_configs_',segs,'_',len,'_',ovl,'.mat'));
             %test if file exists
@@ -38,7 +39,8 @@ function error = execute_Mclassification(project_path, classifications, sample, 
         temp = strsplit(classifications{i},'_');
         segs = temp{3};
         len = temp{4};
-        ovl = temp{5};
+        ovl = strsplit(temp{5},'-');
+        ovl = ovl{1};
         %construct the full path of the segmentation object
         n_path = fullfile(project_path,'segmentation',strcat('segmentation_configs_',segs,'_',len,'_',ovl,'.mat'));
         load(n_path);

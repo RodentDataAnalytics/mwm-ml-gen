@@ -74,6 +74,7 @@ function [ error ] = browse_add_tag(handles)
         end    
         set(handles.tag_box,'String',tags); 
         set(handles.tag_box,'UserData',labels); 
+        error = 0;
         
         
     %% CLASSIFICATION OBJECT LOADED    

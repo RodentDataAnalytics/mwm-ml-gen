@@ -11,12 +11,14 @@ function [major_classes, full_distributions, seg_classes, class_w] = test_sigma_
 sigma = 4;
 discard_undefined = 0;
 %w = 'defined';
-w = 'defined';
-tiny_num = 1e-6;
-% data smoothing
+w = 'computed';
+norm_method = 'off';
+hard_bounds = 'on';
+%tiny_num = 1e-6;
+tiny_num = realmin;
 min_seg = 1;
 
-sig = 1:50;
+sig = 0.05:0.05:10;
 h = waitbar(0,'Generating distr_strats');
 for ss = 1:length(sig)
 sigma = sig(ss);
@@ -65,7 +67,30 @@ sigma = sig(ss);
             end
         case 'computed'
             class_w = computed_weights(segmentation_configs, classification_configs);           
-    end      
+    end   
+    
+    %weights normalization
+    if ~isequal(norm_method,'off') && ~isequal(norm_method,'OFF') && ~isequal(norm_method,0)
+        class_w = normalizations(class_w,norm_method);
+    end
+    %hard bounds
+    if ~isequal(hard_bounds,'off') && ~isequal(hard_bounds,'OFF') && ~isequal(hard_bounds,0);
+        avg_w = max(class_w)/2;
+        avg_w = avg_w-1;
+        avg_w = avg_w/2;
+        for i = 1:length(class_w)
+            if class_w(i) < avg_w
+                class_w(i) = 1;
+            else
+                class_w(i) = max(class_w);
+            end
+%             if class_w(i) < 5
+%                 class_w(i) = 1;
+%             else
+%                 class_w(i) = 10;
+%             end
+        end
+    end
     
     %strategies distribution
     class_distr_traj = [];

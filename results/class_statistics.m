@@ -62,7 +62,7 @@ function [error, count,percentage_per_classifier] = class_statistics(ppath, clas
     for i = 1:length(strats)
         rows{i+1} = strats{i}{2};
     end 
-    count_ = num2cell(count);
+    count_ = num2cell(round(count));
     count_ = [cols;count_];
     count_ = [rows',count_];
     count_ = cell2table(count_);
@@ -73,8 +73,9 @@ function [error, count,percentage_per_classifier] = class_statistics(ppath, clas
     % Export the tables
     writetable(count_,fullfile(rpath,'numeric.csv'),'WriteVariableNames',0);
     writetable(percentage_per_classifier_,fullfile(rpath,'percentage.csv'),'WriteVariableNames',0);
-    
-    error = 0;
     delete(h);
+ 
+    error = 0;
+
 end
 

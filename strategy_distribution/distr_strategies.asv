@@ -80,7 +80,7 @@ min_seg = 1;
         avg_w = avg_w + min(class_w);
         for i = 1:length(class_w)
             if class_w(i) < avg_w
-                class_w(i) = min(class_w);
+                class_w(i) = class_w;
             else
                 class_w(i) = max(class_w);
             end

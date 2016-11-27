@@ -30,7 +30,7 @@ function one_group_metrics(animals_trajectories_map,vars,total_trials,days,trial
             groups = [groups, repmat(t*2 - 1 + g - 1, 1, length(tmp(:)))];
         end
         
-        box_plot_data(data, groups, output_dir, names{i});
+        box_plot_data(data, groups, output_dir, strcat('animals_',names{i}));
                    
         f = figure;
         set(f,'Visible','off');

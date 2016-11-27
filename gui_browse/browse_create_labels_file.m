@@ -3,13 +3,19 @@ function [error,fpath] = browse_create_labels_file(table,varargin)
 
     error = 1;  
     % propose file name
-    time = fix(clock);
-    formatOut = 'yyyy-mmm-dd-HH-MM';
+    %time = fix(clock);
+    %formatOut = 'yyyy-mmm-dd-HH-MM';
+    time  = datetime('now');
+    formatOut = 'dd-mmm-yyyy-HH-MM';
     time = datestr((time),formatOut);
+    idx = strfind(time,'-');
+    time(idx(end-1)) = 'h';
+    time(idx(end)) = 'm';
+    time = regexprep(time,'[^\w'']','');
     if ~isempty(varargin)
         path = char(varargin{2});
         file = strcat('labels_',varargin{1});
-        pr = strcat('A file with name <',file,'> will be generated inside the project folder. Would you like to add a note to the name of the file?');
+        pr = strcat('A file with name <',file,'> will be generated inside the project folder. Would you like to add a note to the name of the file? Allowed characters: A-Z, a-z, 0-9');
         %save note for user
         note = inputdlg(pr,'Input Note',1,{time});
         if isempty(note)
@@ -17,6 +23,8 @@ function [error,fpath] = browse_create_labels_file(table,varargin)
             fpath = 0;
             return;
         end
+        %remove spaces and special characters
+        note{1} = regexprep(note{1},'[^\w'']','');
         if isempty(note{1})
             file = strcat(file,'.csv');  
         else

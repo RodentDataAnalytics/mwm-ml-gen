@@ -122,7 +122,10 @@ function export_table_Callback(hObject, eventdata, handles)
     time = fix(clock);
     formatOut = 'yyyy-mm-dd-HH-MM';
     time = datestr((time),formatOut);
-    results_path = fullfile(char(results_path{1}),'results',strcat(p1,'-',p2,'@',time,'.csv'));
+    if ~exist(fullfile(char(results_path{1}),'results','similarity'),'dir');
+        mkdir(fullfile(char(results_path{1}),'results','similarity'));
+    end
+    results_path = fullfile(char(results_path{1}),'results','similarity',strcat(p1,'-',p2,'@',time,'.csv'));
     % create the file
     try
         fid = fopen(results_path,'w');

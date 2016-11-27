@@ -38,7 +38,13 @@ function error_all = gui_generate_results(handles,eventdata)
     
     % If metrics is pressed
     if isequal(b_pressed,'Metrics')
-        output_dir = fullfile(project_path,'results');
+        str = num2str(groups);
+        str = regexprep(str,'[^\w'']',''); %remove gaps
+        str = strcat('group',str);   
+        output_dir = fullfile(project_path,'results','metrics',str);
+        if ~exist(output_dir,'dir')
+            mkdir(output_dir);
+        end
         try
             results_latency_speed_length(segmentation_configs,animals_trajectories_map,1,output_dir);
             error_all = 0;

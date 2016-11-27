@@ -1,4 +1,4 @@
-function results_latency_speed_length(segmentation_configs,animals_trajectories_map,figures,output_dir,varargin)
+function results_latency_speed_length(segmentation_configs,animals_trajectories_map,figures,output_dir)
 % Comparison of full trajectory metrics for 2 groups of N animals over a 
 % set of M trials. The generated plots show:
 % 1. The escape latency.
@@ -31,7 +31,7 @@ function results_latency_speed_length(segmentation_configs,animals_trajectories_
     ylabels = {'latency [s]', 'speed [cm/s]', 'path length [m]'};
     log_y = [0, 0, 0];
     % Generate text file for the p-values
-    fn = fullfile(output_dir,'metrics_p.txt');
+    fn = fullfile(output_dir,'animals_metrics_p.txt');
     fileID = fopen(fn,'wt');
     
     for i = 1:size(vars, 1)
@@ -81,7 +81,7 @@ function results_latency_speed_length(segmentation_configs,animals_trajectories_
         end    
         
         % Export figures data
-        box_plot_data(data, groups, output_dir, names{i});
+        box_plot_data(data, groups, output_dir, strcat('animals_',names{i}));
         
         % Generate figures
         if figures

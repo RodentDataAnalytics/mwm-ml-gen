@@ -1,4 +1,4 @@
-function [error, count,percentage_per_classifier] = class_statistics(ppath, class_name)
+function [error, count, percentage_per_classifier] = class_statistics(ppath, class_name)
 %CLASS_STATISTICS computes statistics for the mclassification
 
     h = waitbar(0,'Computing statistics...');
@@ -71,10 +71,13 @@ function [error, count,percentage_per_classifier] = class_statistics(ppath, clas
     percentage_per_classifier_ = [rows',percentage_per_classifier_];
     percentage_per_classifier_ = cell2table(percentage_per_classifier_);
     % Export the tables
-    writetable(count_,fullfile(rpath,'numeric.csv'),'WriteVariableNames',0);
-    writetable(percentage_per_classifier_,fullfile(rpath,'percentage.csv'),'WriteVariableNames',0);
+    writetable(count_,fullfile(rpath,'statistics_numeric.csv'),'WriteVariableNames',0);
+    writetable(percentage_per_classifier_,fullfile(rpath,'statistics_percentage.csv'),'WriteVariableNames',0);
     delete(h);
  
+    % Also create the confusion matrix
+    results_classification_agreement(rpath,mcpath);
+    
     error = 0;
 
 end

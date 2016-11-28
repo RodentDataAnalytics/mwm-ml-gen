@@ -3,15 +3,19 @@ function demo_gui(set,user_path,varargin)
 %and produces the results
 
     %%Global Options
-    seg_overlap = [0.7,0.9];
-    seg_length = 250;
-    if ~isempty(varargin)
-        if varargin{1} == -1
-            seg_overlap = 0.7;
+    if set == 1
+        seg_overlap = [0.7,0.9];
+        seg_length = 250;
+        groups = [1,2];
+        if ~isempty(varargin)
+            if varargin{1} == -1
+                seg_overlap = 0.7;
+            end
         end
+    elseif set == 2
     end
+        
     
-
     user_path = char_project_path(user_path);
     h = waitbar(0,'Initializing...');
     
@@ -24,7 +28,12 @@ function demo_gui(set,user_path,varargin)
     if error
         return
     end
-    project_path = fullfile(user_path,'demo_original_set_1');
+    
+    if set == 1
+        project_path = fullfile(user_path,'demo_original_set_1');
+    elseif set == 2
+        project_path = fullfile(user_path,'demo_original_set_2');
+    end
     waitbar(1/2);
     
     %% Copy the settings mat files (skip gui_project.m)
@@ -67,40 +76,36 @@ function demo_gui(set,user_path,varargin)
     end    
     
     %% Labelling
-    files = {'labels_1301_250_07-tiago.csv','labels_1657_250_09-tiago.csv'};
-    seg_name = {'segmentation_configs_10388_250_07.mat','segmentation_configs_29476_250_09.mat'};
+    files = dir(fullfile(datapath,'*.csv'));
+    seg_name = dir(fullfile(project_path,'segmentation','*.mat'));
     for i = 1:length(seg_overlap)
-        %check if everything is ok
-        if ~exist(fullfile(datapath,files{i}),'file') || ~exist(fullfile(project_path,'segmentation',seg_name{i}),'file')
-            errordlg('Cannot create labels files','Error');
-            return
-        end
         %copy the csv files from the datapath
-        labels_path = fullfile(datapath,files{i});
+        labels_path = fullfile(datapath,files(i).name);
         copyfile(labels_path,fullfile(project_path,'labels'));
         %the labels are now inside the project path
-        labels_path = fullfile(project_path,'labels',files{i});
+        labels_path = fullfile(project_path,'labels',files(i).name);
         %load the segmentation and generate the labels mat file
-        load(fullfile(project_path,'segmentation',seg_name{i}));
+        load(fullfile(project_path,'segmentation',seg_name(i).name));
         generate_mat_from_labels(labels_path,segmentation_configs);
         clear segmentation_configs
     end
     
     %% Classification
-    lab_name = {'labels_1301_250_07-tiago.mat','labels_1657_250_09-tiago.mat'};
+    lab_name = dir(fullfile(project_path,'labels','*.mat'));
     for i = 1:length(seg_overlap)
         %check if everything is ok
-        if ~exist(fullfile(project_path,'labels',lab_name{i}),'file')
+        if ~exist(fullfile(project_path,'labels',lab_name(i).name),'file')
             errordlg('Cannot create classifiers','Error');
             return
         end        
-        default_classification(project_path,seg_name{i},lab_name{i});
-    end    
+        default_classification(project_path,seg_name(i).name,lab_name(i).name);
+    end
+    
+    %% Animal Trajectories Map
+    load(fullfile(project_path,'segmentation',seg_name(1).name));
+    [exit, animals_trajectories_map] = trajectories_map(segmentation_configs,groups,'Friedman',set);
     
     %% Results
-    groups = [1,2];
-    load(fullfile(project_path,'segmentation',seg_name{1}));
-    [exit, animals_trajectories_map] = trajectories_map(segmentation_configs,groups,'Friedman',set);
     
     % METRICS
     str = num2str(groups);
@@ -118,24 +123,12 @@ function demo_gui(set,user_path,varargin)
     
     % STRATEGIES - TRANSITIONS - PROBABILITIES - STATISTICS
     b_pressed = {'Strategies','Transitions','Probabilities'};
-    class = {'class_1301_10388_250_07_10_10_mr0-tiago','class_1657_29476_250_09_10_10_mr0-tiago'};
+    class = dir(fullfile(project_path,'Mclassification'));
     
     for j = 1:length(seg_overlap)
-        
-        % Check if everything is ok
-        if ~exist(fullfile(project_path,'Mclassification',class{j}),'file')
-            errordlg('Check fail for results: strategies, transitions and probabilities','Error');
-            return
-        end     
-        
-        % Statistics
-        [error,~,~] = class_statistics(project_path, class{j});
-        if error
-            errordlg('Error: statistics generation','Error');
-        end   
-    
+
         % Check the classification
-        [error,name,classifications] = check_classification(project_path,segmentation_configs,class{j});
+        [error,name,classifications] = check_classification(project_path,segmentation_configs,class(2+j).name);
         if error
             errordlg('Classification check failed','Error');
             return
@@ -149,21 +142,25 @@ function demo_gui(set,user_path,varargin)
                 return
             end
         end
+        
+        % Statistics
+        [error,~,~] = class_statistics(project_path, class(2+j).name);
+        if error
+            errordlg('Error: statistics generation','Error');
+        end   
     end
     
     %% Labelling Quality
-    files = {'labels_1301_250_07-tiago.mat','labels_1657_250_09-tiago.mat'};
     for i = 1:length(seg_overlap)
-        load(fullfile(project_path,'segmentation',seg_name{i}));
-        load(fullfile(project_path,'labels',files{i}));
-        
+        load(fullfile(project_path,'segmentation',seg_name(i).name));
+
         p = strsplit(files{i},'.mat');
         p = p{1};
         output_path = char(fullfile(project_path,'labels',strcat(p,'_check')));
         if ~exist(output_path,'dir')
             mkdir(output_path);
         end
-        [nc,res1bare,res2bare,res1,res2,res3,covering] = results_clustering_parameters(segmentation_configs,labels,0,output_path,10,100,1);
+        [nc,res1bare,res2bare,res1,res2,res3,covering] = results_clustering_parameters(segmentation_configs,fullfile(project_path,'labels',lab_name(i).name),0,output_path,10,100,1);
         output_path = char(fullfile(project_path,'results',strcat(p,'_cross_validation')));
         if exist(output_path,'dir');
             rmdir(output_path,'s');

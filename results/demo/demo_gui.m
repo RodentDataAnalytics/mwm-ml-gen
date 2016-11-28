@@ -160,7 +160,7 @@ function demo_gui(set,user_path,varargin)
         if ~exist(output_path,'dir')
             mkdir(output_path);
         end
-        [nc,res1bare,res2bare,res1,res2,res3,covering] = results_clustering_parameters(segmentation_configs,fullfile(project_path,'labels',lab_name(i).name),0,output_path,10,100,1);
+        [nc,res1bare,res2bare,res1,res2,res3,covering] = results_clustering_parameters(segmentation_configs,fullfile(project_path,'labels',lab_name(i).name),0,output_path,10,100,10);
         output_path = char(fullfile(project_path,'results',strcat(p,'_cross_validation')));
         if exist(output_path,'dir');
             rmdir(output_path,'s');

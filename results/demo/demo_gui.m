@@ -154,7 +154,7 @@ function demo_gui(set,user_path,varargin)
     for i = 1:length(seg_overlap)
         load(fullfile(project_path,'segmentation',seg_name(i).name));
 
-        p = strsplit(files{i},'.mat');
+        p = strsplit(files(i).name,'.mat');
         p = p{1};
         output_path = char(fullfile(project_path,'labels',strcat(p,'_check')));
         if ~exist(output_path,'dir')

@@ -90,10 +90,10 @@ function demo_gui(set,user_path)
     
     %% Results
     groups = [1,2];
+    load(fullfile(project_path,'segmentation',seg_name{1}));
     [exit, animals_trajectories_map] = trajectories_map(segmentation_configs,groups,'Friedman',set);
     
     % METRICS
-    groups = [1,2];
     str = num2str(groups);
     str = regexprep(str,'[^\w'']',''); %remove gaps
     str = strcat('group',str);   
@@ -107,33 +107,30 @@ function demo_gui(set,user_path)
         errordlg('Error: metrics generation','Error');
     end
     
-    % STATISTICS
-    [error,~,~] = class_statistics(project_path, class_name);
-    if error
-        errordlg('Error: statistics generation','Error');
-    end   
-    
-    % STRATEGIES - TRANSITIONS - PROBABILITIES
+    % STRATEGIES - TRANSITIONS - PROBABILITIES - STATISTICS
     b_pressed = {'Strategies','Transitions','Probabilities'};
     class = {'class_1301_10388_250_07_10_10_mr0-tiago','class_1657_29476_250_09_10_10_mr0-tiago'};
     for j = 1:length(seg_name)
-        %check if everything is ok
+        
+        % Check if everything is ok
         if ~exist(fullfile(project_path,'Mclassification',class{j}),'file')
             errordlg('Check fail for results: strategies, transitions and probabilities','Error');
             return
-        end             
-        % Generate the animals_trajectories_map
-        load(fullfile(project_path,'segmentation',seg_name{j}));
-        if exit
-            errordlg('Cannot create the animals_trajectories_map','Error');
-            return
-        end
+        end     
+        
+        % Statistics
+        [error,~,~] = class_statistics(project_path, class{j});
+        if error
+            errordlg('Error: statistics generation','Error');
+        end   
+    
         % Check the classification
         [error,name,classifications] = check_classification(project_path,segmentation_configs,class{j});
         if error
             errordlg('Classification check failed','Error');
             return
         end
+        
         % Generate the results
         for i = 1:length(b_pressed)
             error = generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed{i}, groups);
@@ -145,18 +142,29 @@ function demo_gui(set,user_path)
     end
     
     %% Labelling Quality
-%     [nc,res1bare,res2bare,res1,res2,res3,covering] = results_clustering_parameters(segmentation_configs,labels,0,output_path,10,100,1);
-%     output_path = char(fullfile(project_path,'results',strcat(p,'_cross_validation')));
-%     if exist(output_path,'dir');
-%         rmdir(output_path,'s');
-%     end
-%     mkdir(output_path);
-%     [nc,per_errors1,per_undefined1,coverage] = algorithm_statistics(1,1,nc,res1bare,res2bare,res1,res2,res3,covering);
-%     data = [nc', per_errors1', per_undefined1', coverage'];
-%     % export results to CSV file
-%     export_num_of_clusters(output_path,data);
-%     % generate graphs
-%     results_clustering_parameters_graphs(output_path,nc,res1bare,res2bare,res1,res2,res3,covering);
-%     set(temp(idx),'Visible','on'); 
+    files = {'labels_1301_250_07-tiago.mat','labels_1657_250_09-tiago.mat'};
+    for i = 1:2
+        load(fullfile(project_path,'segmentation',seg_name{i}));
+        load(fullfile(project_path,'labels',files{i}));
+        
+        p = strsplit(files{i},'.mat');
+        p = p{1};
+        output_path = char(fullfile(project_path,'labels',strcat(p,'_check')));
+        if ~exist(output_path,'dir')
+            mkdir(output_path);
+        end
+        [nc,res1bare,res2bare,res1,res2,res3,covering] = results_clustering_parameters(segmentation_configs,labels,0,output_path,10,100,1);
+        output_path = char(fullfile(project_path,'results',strcat(p,'_cross_validation')));
+        if exist(output_path,'dir');
+            rmdir(output_path,'s');
+        end
+        mkdir(output_path);
+        [nc,per_errors1,per_undefined1,coverage] = algorithm_statistics(1,1,nc,res1bare,res2bare,res1,res2,res3,covering);
+        data = [nc', per_errors1', per_undefined1', coverage'];
+        % export results to CSV file
+        export_num_of_clusters(output_path,data);
+        % generate graphs
+        results_clustering_parameters_graphs(output_path,nc,res1bare,res2bare,res1,res2,res3,covering);
+    end
 end
 

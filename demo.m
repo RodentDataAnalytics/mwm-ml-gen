@@ -4,7 +4,7 @@ function demo(mode,varargin)
     user_path = initialization;
     
     %% Terminal Mode
-    % No GUI elements
+    % No GUI elements --> UDER DEVELOPMENT
     if mode == 0
         flag = 1;
         disp('Generating original results...');

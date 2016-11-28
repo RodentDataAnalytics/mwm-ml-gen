@@ -153,7 +153,7 @@ function demo_gui(set,user_path,varargin)
     
     %% Labelling Quality
     files = {'labels_1301_250_07-tiago.mat','labels_1657_250_09-tiago.mat'};
-    for i = 1:length(seg_overlap)
+    for i = 1:length(seg_name)
         load(fullfile(project_path,'segmentation',seg_name{i}));
         load(fullfile(project_path,'labels',files{i}));
         

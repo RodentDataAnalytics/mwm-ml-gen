@@ -32,6 +32,5 @@ function [ ids, map ] = published_animal_results(g,speed,ids,map)
         ids = ids(ord(nd + 1:length(ord)));
         map = map(:, ord(nd + 1:length(ord)));                    
     end
-
 end
 

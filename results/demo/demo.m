@@ -8,7 +8,7 @@ function demo(mode,varargin)
     if mode == 0
         flag = 1;
         disp('Generating original results...');
-        disp('Type 1 or 2 to import the equivalent datasetor ''q/Q'' to exit');
+        disp('Type 1 or 2 to import the equivalent dataset or ''q/Q'' to exit');
         while flag
             prompt='Choice: ';
             setup = input(prompt,'s');

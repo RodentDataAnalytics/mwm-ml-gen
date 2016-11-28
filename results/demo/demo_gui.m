@@ -3,6 +3,7 @@ function demo_gui(set,user_path)
 %and produces the results
 
     user_path = char_project_path(user_path);
+    h = waitbar(0,'Initializing...');
     
     %% Create project folder tree (set_folder.m)
     if set == 1
@@ -14,6 +15,7 @@ function demo_gui(set,user_path)
         return
     end
     project_path = fullfile(user_path,'demo_original_set_1');
+    waitbar(1/2);
     
     %% Copy the settings mat files (skip gui_project.m)
     if isdeployed
@@ -35,6 +37,8 @@ function demo_gui(set,user_path)
     end
     ptags = fullfile(datapath,'tags.txt');
     copyfile(ptags,fullfile(project_path,'settings'));
+    waitbar(2/2);
+    delete(h);
     
     %% Segmentation
     try
@@ -85,20 +89,44 @@ function demo_gui(set,user_path)
     end    
     
     %% Results
+    groups = [1,2];
+    [exit, animals_trajectories_map] = trajectories_map(segmentation_configs,groups,'Friedman',set);
+    
+    % METRICS
+    groups = [1,2];
+    str = num2str(groups);
+    str = regexprep(str,'[^\w'']',''); %remove gaps
+    str = strcat('group',str);   
+    output_dir = fullfile(project_path,'results','metrics',str);
+    if ~exist(output_dir,'dir')
+        mkdir(output_dir);
+    end
+    try
+        results_latency_speed_length(segmentation_configs,animals_trajectories_map,1,output_dir);
+    catch
+        errordlg('Error: metrics generation','Error');
+    end
+    
+    % STATISTICS
+    [error,~,~] = class_statistics(project_path, class_name);
+    if error
+        errordlg('Error: statistics generation','Error');
+    end   
+    
+    % STRATEGIES - TRANSITIONS - PROBABILITIES
     b_pressed = {'Strategies','Transitions','Probabilities'};
     class = {'class_1301_10388_250_07_10_10_mr0-tiago','class_1657_29476_250_09_10_10_mr0-tiago'};
     for j = 1:length(seg_name)
         %check if everything is ok
-         if ~exist(fullfile(project_path,'Mclassification',class{j}),'file')
-            errordlg('Cannot create results','Error');
+        if ~exist(fullfile(project_path,'Mclassification',class{j}),'file')
+            errordlg('Check fail for results: strategies, transitions and probabilities','Error');
             return
         end             
         % Generate the animals_trajectories_map
         load(fullfile(project_path,'segmentation',seg_name{j}));
-        groups = [1,2];
-        [exit, animals_trajectories_map] = trajectories_map(segmentation_configs,groups,'Friedman',set);
         if exit
             errordlg('Cannot create the animals_trajectories_map','Error');
+            return
         end
         % Check the classification
         [error,name,classifications] = check_classification(project_path,segmentation_configs,class{j});
@@ -110,10 +138,25 @@ function demo_gui(set,user_path)
         for i = 1:length(b_pressed)
             error = generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed{i}, groups);
             if error
-                errordlg('Cannot generate results','Error');
+                errordlg('Cannot create results for strategies, transitions and probabilities','Error');
                 return
             end
         end
     end
+    
+    %% Labelling Quality
+%     [nc,res1bare,res2bare,res1,res2,res3,covering] = results_clustering_parameters(segmentation_configs,labels,0,output_path,10,100,1);
+%     output_path = char(fullfile(project_path,'results',strcat(p,'_cross_validation')));
+%     if exist(output_path,'dir');
+%         rmdir(output_path,'s');
+%     end
+%     mkdir(output_path);
+%     [nc,per_errors1,per_undefined1,coverage] = algorithm_statistics(1,1,nc,res1bare,res2bare,res1,res2,res3,covering);
+%     data = [nc', per_errors1', per_undefined1', coverage'];
+%     % export results to CSV file
+%     export_num_of_clusters(output_path,data);
+%     % generate graphs
+%     results_clustering_parameters_graphs(output_path,nc,res1bare,res2bare,res1,res2,res3,covering);
+%     set(temp(idx),'Visible','on'); 
 end
 

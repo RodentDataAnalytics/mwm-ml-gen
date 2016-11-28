@@ -49,6 +49,12 @@ function demo(mode,varargin)
 %         end  
         setup = 1;
         demo_gui(setup,user_path);
+    
+    %% Test Mode
+    % Run everything just once for test  
+    elseif mode == -1
+        setup = 1;
+        demo_gui(setup,user_path,mode);
     end
 end
 

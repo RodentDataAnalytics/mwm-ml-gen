@@ -1,6 +1,16 @@
-function demo_gui(set,user_path)
+function demo_gui(set,user_path,varargin)
 %DEMO_GUI executes the processes: segmentation, labelling, classification
 %and produces the results
+
+    %%Global Options
+    seg_overlap = [0.7,0.9];
+    seg_length = 250;
+    if ~isempty(varargin)
+        if varargin{1} == -1
+            seg_overlap = 0.7;
+        end
+    end
+    
 
     user_path = char_project_path(user_path);
     h = waitbar(0,'Initializing...');
@@ -49,8 +59,7 @@ function demo_gui(set,user_path)
         errordlg('Cannot load project settings','Error');
         return
     end
-    seg_overlap = [0.7,0.9];
-    seg_length = 250;
+
     for i = 1:length(seg_overlap)
         seg_properties = [seg_length,seg_overlap(i)];
         segmentation_configs = config_segments(new_properties, seg_properties, trajectory_groups, my_trajectories);
@@ -60,7 +69,7 @@ function demo_gui(set,user_path)
     %% Labelling
     files = {'labels_1301_250_07-tiago.csv','labels_1657_250_09-tiago.csv'};
     seg_name = {'segmentation_configs_10388_250_07.mat','segmentation_configs_29476_250_09.mat'};
-    for i = 1:2
+    for i = 1:length(seg_overlap)
         %check if everything is ok
         if ~exist(fullfile(datapath,files{i}),'file') || ~exist(fullfile(project_path,'segmentation',seg_name{i}),'file')
             errordlg('Cannot create labels files','Error');
@@ -143,7 +152,7 @@ function demo_gui(set,user_path)
     
     %% Labelling Quality
     files = {'labels_1301_250_07-tiago.mat','labels_1657_250_09-tiago.mat'};
-    for i = 1:2
+    for i = 1:length(seg_name)
         load(fullfile(project_path,'segmentation',seg_name{i}));
         load(fullfile(project_path,'labels',files{i}));
         

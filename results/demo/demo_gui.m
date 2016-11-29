@@ -126,6 +126,7 @@ function demo_gui(set,user_path,varargin)
     class = dir(fullfile(project_path,'Mclassification'));
     
     for j = 1:length(seg_overlap)
+		load(fullfile(project_path,'segmentation',seg_name(i).name));
 
         % Check the classification
         [error,name,classifications] = check_classification(project_path,segmentation_configs,class(2+j).name);

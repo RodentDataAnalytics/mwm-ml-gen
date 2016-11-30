@@ -14,11 +14,14 @@ function [varargout] = results_strategies_distributions_length(segmentation_conf
     % Keep only the trajectories with length > 0
     long_trajectories_map = long_trajectories( segmentation_configs ); 
     % Strategies distribution
-    [strat_distr, ~, ~, ~] = distr_strategies(segmentation_configs, classification_configs);    
+    [strat_distr, ~, ~, ~] = distr_strategies(segmentation_configs, classification_configs);
+    % path interval = length(1-overlap)
+    path_interval = segmentation_configs.SEGMENTATION_PROPERTIES;
+    path_interval = path_interval(1)*(1-path_interval(2));
     
     % For one animal group
     if length(animals_trajectories_map) == 1
-        [data_, groups_all, pos] = one_group_strategies(total_trials,segments_classification,animals_trajectories_map,long_trajectories_map,strat_distr,output_dir);
+        [data_, groups_all, pos] = one_group_strategies(total_trials,segments_classification,animals_trajectories_map,long_trajectories_map,strat_distr,output_dir,path_interval);
         varargout{1} = data_;
         varargout{2} = groups_all;
         varargout{3} = pos;
@@ -53,7 +56,7 @@ function [varargout] = results_strategies_distributions_length(segmentation_conf
                 pts = [];
                 for i = 1:nanimals
                     if long_trajectories_map(map(t, i)) ~= 0                        
-                        val = 25*sum(strat_distr(long_trajectories_map(map(t, i)), :) == c);
+                        val = path_interval * sum(strat_distr(long_trajectories_map(map(t, i)), :) == c);
                         pts = [pts, val];
                         mfried((t - 1)*nanimals + i, g) = val;
                     end                                           

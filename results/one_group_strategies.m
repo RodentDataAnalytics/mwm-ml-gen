@@ -1,4 +1,4 @@
-function [varargout] = one_group_strategies(total_trials,segments_classification,animals_trajectories_map,long_trajectories_map,strat_distr,output_dir)
+function [varargout] = one_group_strategies(total_trials,segments_classification,animals_trajectories_map,long_trajectories_map,strat_distr,output_dir,path_interval)
 
     nanimals = size(animals_trajectories_map{1,1},2);
 
@@ -26,7 +26,7 @@ function [varargout] = one_group_strategies(total_trials,segments_classification
                 pts = [];
                 for i = 1:nanimals
                     if long_trajectories_map(map(t, i)) ~= 0                        
-                        val = 25*sum(strat_distr(long_trajectories_map(map(t, i)), :) == c);
+                        val = path_interval * sum(strat_distr(long_trajectories_map(map(t, i)), :) == c);
                         pts = [pts, val];
                     end                                           
                 end

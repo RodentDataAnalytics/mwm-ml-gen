@@ -1,5 +1,16 @@
-mclassification = 'I:\Documents\MWMGEN\tiago_original\Mclassification\class_2322_29476_250_09_10_10_mr0-correct2\merged_1.mat';
-output_file = 'I:\Documents\labels.csv';
+% Get classifier file
+[fname, pname] = uigetfile({'*.mat','MAT-file (*.mat)'},'Select classifier');
+if isequl(fname,0)
+    return
+end
+mclassification = strcat(pname,fname);
+% Define output file name and path 
+[fname, pname] = uiputfile('*.csv','Output File');
+if isequl(pname,0)
+    return
+end
+output_file = strcat(pname,fname);
+
 
 load(mclassification);
 labels = classification_configs.CLASSIFICATION.class_map';

@@ -11,6 +11,10 @@ function error = create_pvalues_table(table,class_tags,fpath,varargin)
         count = length(find(table_(i,:) <= 0.05));
         avg_table(i) = count;
     end
+    
+    % Confidence intervals figure
+    create_pvalues_confidence_intervals(avg_table,size(table,2),class_tags,fpath);
+    
     avg_table = num2cell(avg_table);
     % convert to cell array and add the avg
     table_ = num2cell(table_);

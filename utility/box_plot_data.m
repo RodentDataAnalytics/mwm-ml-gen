@@ -8,7 +8,11 @@ function box_plot_data(vals, groups, output_dir, varargin)
             bars = {};
             nums = unique(groups{i});
             % output file path and name
-            fpath = fullfile(output_dir,strcat(strcat('segment_length_strategy_',num2str(i),'.csv')));
+            if length(vals) == 1
+                fpath = fullfile(output_dir,'transitions.csv');
+            else
+                fpath = fullfile(output_dir,strcat('segment_length_strategy_',num2str(i),'.csv'));
+            end
             % for each bar
             for j = 1:length(nums)
                 bar = vals{i}(groups{i} == nums(j));

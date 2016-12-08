@@ -27,7 +27,7 @@ function create_pvalues_confidence_intervals(score,sample,class_tags,fpath)
         %      a given binomial trial based on the number of successes, x, 
         %      observed in n independent trials ("correct" mean). 
         %pci: 95% confidence interval
-        [phat pci] = binofit(score(i),sample);
+        [phat, pci] = binofit(score(i),sample);
         
         m = pci(1) + (pci(2)-pci(1)) / 2; %mean
         l = pci(1) - m; %lower limit
@@ -52,7 +52,11 @@ function create_pvalues_confidence_intervals(score,sample,class_tags,fpath)
     hold off
     % add tags
     faxis = findobj(f,'type','axes');
-    set(faxis, 'XTickLabel', t, 'FontSize', FontSize, 'FontName', FontName);
+    xticks = [];
+    for i = 1:length(class_tags)+2
+        xticks = [xticks, i-1];
+    end
+    set(faxis, 'XTick', xticks, 'XTickLabel', t, 'FontSize', FontSize, 'FontName', FontName);
     
     % export
     fpath = fileparts(fpath);

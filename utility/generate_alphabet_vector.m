@@ -1,4 +1,4 @@
-function [ vector ] = generate_alphabel_vector(vector_size)
+function [ vector ] = generate_alphabet_vector(vector_size)
 %GENERATE_ALPHABEL_VECTOR generates a cell array with letters:
 % A, ..., Z, AA, ..., AZ, ..., ZZ
 

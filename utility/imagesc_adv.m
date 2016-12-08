@@ -12,12 +12,13 @@ function z = imagesc_adv(mymatrix, varargin)
     
     z = figure;
     set(z,'Visible','off');
+        
     imagesc(mymatrix); 
-    
+
     %% Default Values
     colormap(flipud(gray));
     YTickLabel_ = {};
-    XTickLabel_ = generate_alphabel_vector(size(mymatrix,2));
+    XTickLabel_ = generate_alphabet_vector(size(mymatrix,2));
     if isempty(XTickLabel_)
         fprintf('Cannot generate image. x-axis size can be up to 676.');
         z = {};
@@ -26,7 +27,7 @@ function z = imagesc_adv(mymatrix, varargin)
     for i = 1:size(mymatrix,1)
         YTickLabel_ = [YTickLabel_ , num2str(i)];
     end
-    
+
     %% User Defined Values
     for i = 1:length(varargin)
         if isequal(varargin{i},'colormap')
@@ -43,7 +44,7 @@ function z = imagesc_adv(mymatrix, varargin)
             YTickLabel_ = varargin{i+1};
         end
     end
-   
+
     %% EXECUTE
     %Create strings from the matrix values
     textStrings = num2str(mymatrix(:),'%0.1f');  
@@ -65,6 +66,6 @@ function z = imagesc_adv(mymatrix, varargin)
     %Change the axes tick marks and tick labels
     set(gca,'XTick',1:size(mymatrix,1),'XTickLabel',XTickLabel_,... 
             'YTick',1:size(mymatrix,2),'YTickLabel',YTickLabel_,...
-            'TickLength',[0 0]);      
+            'TickLength',[0 0]);     
 end
 

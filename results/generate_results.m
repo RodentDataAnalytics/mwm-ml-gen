@@ -104,6 +104,7 @@ function error = generate_results(project_path, name, segmentation_configs, clas
             case 'Strategies'
                 create_average_figure(vals_,vals_grps_{1},pos_{1},dir_list{end},total_trials,class_tags);
             case 'Transitions'
+                class_tags = {{'Transitions','Transitions',0,0}};
                 create_average_figure(vals_,vals_grps_,pos_,dir_list{end},total_trials,class_tags);
             case 'Probabilities'
                 fpath = fullfile(dir_list{end},'summary.csv');

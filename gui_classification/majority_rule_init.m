@@ -45,6 +45,7 @@ function error = majority_rule_init(segmentation_configs, output_folder, class_f
         clusters = [];
         for k = 1:length(class_folders)
             x = randsample(data{k},new_sample);
+            x = sort(x);
             classifications_ = cell(1,length(new_sample));
             clusters_ = 1:length(new_sample);
             for j = 1:length(x)
@@ -78,5 +79,6 @@ function error = majority_rule_init(segmentation_configs, output_folder, class_f
     find_similar_unlabelled(segmentation_configs,output_folder);
     close(h)
     error = 0;
+    % Create also a summary 
 end
 

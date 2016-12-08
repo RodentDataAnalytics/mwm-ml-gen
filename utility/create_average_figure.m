@@ -51,7 +51,7 @@ function create_average_figure(data,groups,positions,output_dir,total_trials,tag
             set(faxis, 'LineWidth', LineWidth);
         end
 
-        if length(avg) == 1
+        if length(tags) == 1
             ylabel('transitions', 'FontSize', FontSize, 'FontName', FontName);
         else
             ylabel(tags{i}{2}, 'FontSize', FontSize, 'FontName', FontName);
@@ -62,7 +62,7 @@ function create_average_figure(data,groups,positions,output_dir,total_trials,tag
         box off;  
         set(f,'papersize',[8,8], 'paperposition',[0,0,8,8]);
         
-        if length(avg) == 1
+        if length(tags) == 1
             export_figure(f, output_dir, 'average_transitions', Export, ExportStyle);
         else
             export_figure(f, output_dir, sprintf('average_segment_length_strategy_%d', i), Export, ExportStyle);

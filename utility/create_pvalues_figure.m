@@ -92,7 +92,7 @@ function error = create_pvalues_figure(table,class_tags,output_dir,varargin)
     end   
     
     xlim([0 size(table_,2)+1]);
-    ylim([0 0.1]); %friedman test cannot be more than 1
+    ylim([0 0.1]);
     xlabel(xlabel_, 'FontSize', FontSize);
     ylabel(ylabel_, 'FontSize', FontSize)
     set(faxis, 'XTickLabel', t, 'FontSize', FontSize, 'FontName', FontName);

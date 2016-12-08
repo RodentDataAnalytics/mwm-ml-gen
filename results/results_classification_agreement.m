@@ -167,7 +167,7 @@ function results_classification_agreement(ouput_folder, varargin)
     
     waitbar(1,h,'Finalizing');
     
-    %export the confusion matrix
+    % Export the confusion matrix
     column = {};
     for i = 1:length(files)
         tmp = strsplit(files(i).name,'.mat');
@@ -180,20 +180,57 @@ function results_classification_agreement(ouput_folder, varargin)
     save(fullfile(ouput_folder,'confusion_matrix.mat'),'cmatrix');
     writetable(table,fullfile(ouput_folder,'confusion_matrix.csv'),'WriteVariableNames',0);
     
-    %export confusion matrix as image
+    delete(h) %if it is not deleted the next figure is not generated
+    
+    % Export the confusion matrix as image (10x10 grid)
+    
+    %split the confusion matrix into 10x10 grids and in case we have
+    %remainder increase the grids by 1
+    cmatrix_bk = cmatrix;
+    if size(cmatrix_bk,1) > 10
+        integer = fix(size(cmatrix_bk,1)/10);
+        remainder = rem(size(cmatrix_bk,1),10);
+    end    
+    if remainder > 0
+        digit = num2str(size(cmatrix_bk,1));
+        digit = str2num(digit(end));
+        digit = 10-digit;
+        cmatrix_bk( size(cmatrix_bk,1)+digit , size(cmatrix_bk,1)+digit ) = 0;
+        integer = integer + 1;    
+    end
+    %x, y axes labels
     xylabels = {};
-    for i = 1:length(files)
+    for i = 1:size(cmatrix_bk,1)
         xylabels = [xylabels,strcat('c',num2str(i))];
     end
-    delete(h)
-    f = imagesc_adv(cmatrix,'colorbar','on','colormap_range',[0 100],'XTickLabel',xylabels,'YTickLabel',xylabels);
-    if isempty(f)
-        errordlg('Cannot generate image. x-axis size can be up to 676.','Error');
-        return
-    else
-        [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
-        export_figure(f, ouput_folder, 'confusion_matix_icon', Export, ExportStyle);
-        delete(f)
-    end   
+    
+    k = 1; %counts decades from up to down
+    kk = 1; %counts decades from left to right
+    for ii = 1 : integer * integer
+        if k <= size(cmatrix_bk,1)
+            cmatrix = cmatrix_bk(k:k+9,kk:kk+9);
+            ylabels = xylabels(k:k+9);
+            xlabels = xylabels(kk:kk+9);
+            k = k+10;
+        elseif k > size(cmatrix_bk,1)
+            k = 1;
+            kk = kk+10;
+            cmatrix = cmatrix_bk(k:k+9,kk:kk+9);
+            ylabels = xylabels(k:k+9);
+            xlabels = xylabels(kk:kk+9);
+            k = k+10;
+        end
+        
+        % Generate and export the image
+        f = imagesc_adv(cmatrix,'colorbar','on','colormap_range',[0 100],'XTickLabel',xlabels,'YTickLabel',ylabels);
+        if isempty(f)
+            errordlg('Cannot generate image. x-axis size can be up to 676.','Error');
+            return
+        else
+            [~, ~, ~, Export, ExportStyle] = parse_configs;
+            export_figure(f, ouput_folder, sprintf('confusion_matix_icon%d',ii), Export, ExportStyle);
+            delete(f)
+        end   
+    end
 end
 

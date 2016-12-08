@@ -110,7 +110,7 @@ function [varargout] = results_strategies_distributions_length(segmentation_conf
             
             boxplot(data_all{1,c}, groups_all{1,c}, 'positions', pos_all{1,c}, 'colors', [0 0 0]);     
             faxis = findobj(f,'type','axes');
-            h = findobj(gca,'Tag','Box');
+            h = findobj(f,'Tag','Box');
             for j=1:2:length(h)
                  patch(get(h(j),'XData'), get(h(j), 'YData'), [0 0 0]);
             end

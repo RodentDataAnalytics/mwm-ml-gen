@@ -18,7 +18,7 @@ hard_bounds = 'on';
 tiny_num = realmin;
 min_seg = 1;
 
-sig = 0.05:0.05:10;
+sig = 0.5:0.5:10;
 h = waitbar(0,'Generating distr_strats');
 for ss = 1:length(sig)
 sigma = sig(ss);

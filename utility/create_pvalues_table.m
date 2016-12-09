@@ -6,9 +6,9 @@ function error = create_pvalues_table(table,class_tags,fpath,varargin)
     % convert to double array
     table_ = cell2mat(table);
     avg_table = zeros(size(table_,1),1);
-    % score (how many more or equal to 0.05)
+    % score (how many less than 0.05)
     for i = 1:size(table_,1)
-        count = length(find(table_(i,:) <= 0.05));
+        count = length(find(table_(i,:) < 0.05));
         avg_table(i) = count;
     end
     

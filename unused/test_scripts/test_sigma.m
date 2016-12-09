@@ -1,6 +1,6 @@
-segmentation_path = 'C:\Users\Avgoustinos\Desktop\tiago_original\segmentation\segmentation_configs_29476_250_09.mat';
-classification_folder = 'C:\Users\Avgoustinos\Desktop\tiago_original\Mclassification\class_2322_29476_250_09_10_10_mr0-correct2';
-animals_trajectories_map_file = 'C:\Users\Avgoustinos\Desktop\traj_map.mat';
+segmentation_path = 'C:\Users\Avgoustinos\Documents\MWMGEN\demo_original_set_1\segmentation\segmentation_configs_10388_250_07.mat';
+classification_folder = 'C:\Users\Avgoustinos\Documents\MWMGEN\demo_original_set_1\Mclassification\class_1301_10388_250_07_10_10_mr0-tiago';
+animals_trajectories_map_file = 'C:\Users\Avgoustinos\Desktop\original_data\traj_map.mat';
 
 % Output Folder
 output_folder = char(getSpecialFolder('Desktop'));

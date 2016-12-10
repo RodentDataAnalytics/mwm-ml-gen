@@ -1,4 +1,4 @@
-function [segments,len,ovl,ppath] = split_segmentation_name(path_seg)
+function [segments,len,ovl,ppath] = get_segmentation_name(path_seg)
 %SPLIT_SEGMENTATION_NAME given the full file path of a segmentation it
 %returns the number of segments, the segments length, the segments overlap
 %and the project path.

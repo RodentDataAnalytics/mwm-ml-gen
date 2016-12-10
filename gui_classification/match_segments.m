@@ -1,25 +1,28 @@
-function [output,segmentations] = match_segments(objects,varargin)
-%MATCH_SEGMENTS checks which segments of two segmentations match.
+function matched = match_segments(objects,varargin)
+%MATCH_SEGMENTS checks which segments of two segmentations match. Requires
+%segmentations with same segments length
 
 % INPUT:
-%objects: 1xN cell array containing segmantation configs objects.
+%objects: 1x2 cell array containing segmantation configs objects.
 %varargin: optional, specifies a tolerance for matching segments.
 
 % RETURNS:
-%output (a) or (b):
-% (a) length(objects)>2 generates a 1xlength(objects)-1 cell array in which
-%each cell contains an Nx2 array of matched segments (first column always
-%refers to the first segmentation, which is the segmentation with the most
-%segments). 
-% (b) length(objects)=2 generates a Nx2 array of matched segments, the first 
-%column refers to the first segmentation, which is the segmentation with
-%the most segments).
-%segmentations:
-% Segmentation objects sorted by number of segments.
+%Nx2 matrix of matched semgnent indexes
 
-    output = [];
-    segmentations = [];
-    % if (objects) < 2 return
+    matched = [];
+    if length(objects) < 2
+        disp('Nothing to match');
+        return;
+    elseif length(objects) > 2
+        disp('Cannot match more than two objects');
+        return;        
+    end
+    if objects{1}.SEGMENTATION_PROPERTIES(1) ~= objects{2}.SEGMENTATION_PROPERTIES(1)
+        disp('Cannot match objects. Objects do not have the same segments length');
+        return;           
+    end
+    
+    % config tolerance level
     if isempty(varargin)
         tolerance = 10;
     else
@@ -29,73 +32,49 @@ function [output,segmentations] = match_segments(objects,varargin)
         end    
     end    
 
-    % all match
-    if length(objects) < 2
-        if objects{1}.SEGMENTATION_PROPERTIES(2) == objects{1}.SEGMENTATION_PROPERTIES(2)
-            output = 1 : size(objects{1}.FEATURES_VALUES_SEGMENTS,1);
-            output = [output; 1 : size(objects{1}.FEATURES_VALUES_SEGMENTS,1)];
-            output = output';
-            return
-        else
-            return
-        end
-    end    
-    
-    % check (if objects have the same segment length
-    overlaps = objects{1}.SEGMENTATION_PROPERTIES(2);
-    for i = 2:length(objects)
-        if objects{1}.SEGMENTATION_PROPERTIES(1) ~= objects{i}.SEGMENTATION_PROPERTIES(1)
-            return;
-        else
-            %get the overlap
-            overlaps = [overlaps, objects{i}.SEGMENTATION_PROPERTIES(2)];
-        end    
+    % sort by number of segments (descending order)
+    flag = 0; % check if order is changed
+    segs_1 = objects{1}.SEGMENTS.items;
+    segs_2 = objects{2}.SEGMENTS.items;
+    if length(segs_1) < length(segs_2)
+        flag = 1;
+        temp = objects{1};
+        objects{1} = objects{2};
+        objects{2} = temp;
     end
-    % sort objects based on the overlap
-    [~,idx] = sort(overlaps,'descend');
-    segmentations = cell(1,length(objects));
-    for i = 1:length(objects)
-        segmentations{i} = objects{idx(i)};
-    end    
-
-    % first is the segmentation with the most segments
-    segments_1 = segmentations{1}.SEGMENTS.items;
-    partition_1 = segmentations{1}.PARTITION;
-    f_matched = {};
-    for i = 2:length(segmentations)
-        segments_2 = segmentations{i}.SEGMENTS.items;
-        partition_2 = segmentations{i}.PARTITION;
-        index_1 = 1;
-        index_2 = 1;
-        matched = [];
-        % for each trajectory
-        for j = 1:length(partition_1)
-            if partition_1(j) == 0
-                continue;
-            end    
-            % take the segments of this trajectory
-            segs_1 = segments_1(index_1 : partition_1(j) + index_1 -1);
-            segs_2 = segments_2(index_2 : partition_2(j) + index_2 -1);
-            % for each segment of segmentation 2 see if we have a match
-            for z = 1:length(segs_2)
-                for k = 1:length(segs_1)
-                    if abs(segs_1(k).offset - segs_2(z).offset) < tolerance
-                        matched = [matched ; k+index_1-1,z+index_2-1];
-                        break;
-                    end
+    
+    segs_1 = objects{1}.SEGMENTS.items;
+    segs_2 = objects{2}.SEGMENTS.items;
+    partition_1 = objects{1}.PARTITION;
+    partition_2 = objects{2}.PARTITION;
+    index_1 = 1;
+    index_2 = 1;
+    % for each trajectory
+    for i = 1:length(partition_1)
+        % if trajectory has no segments continue
+        if partition_1(i) == 0 || partition_2(i) == 0
+            continue;
+        end  
+        % take the segments of this trajectory
+        segments_1 = segs_1(index_1 : partition_1(i) + index_1 -1);
+        segments_2 = segs_2(index_2 : partition_2(i) + index_2 -1);  
+        % for each segment of segmentation 2 see if we have a match
+        for z = 1:length(segments_2)
+            for k = 1:length(segments_1)
+                if abs(segments_1(k).offset - segments_2(z).offset) < tolerance
+                    matched = [matched ; k+index_1-1,z+index_2-1];
+                    break;
                 end
-            end 
-            index_1 = index_1 + partition_1(j);
-            index_2 = index_2 + partition_2(j);
-        end           
-        f_matched{i} = matched;         
-    end
-    
+            end
+        end 
+        index_1 = index_1 + partition_1(i);
+        index_2 = index_2 + partition_2(i);        
+    end        
+       
     % generate output
-    if length(objects) > 2
-        output = f_matched;
-    else
-        output = matched;
-    end    
+    if flag
+        new_match = [matched(:,2),matched(:,1)];
+        matched = new_match;
+    end
 end
 

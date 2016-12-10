@@ -80,7 +80,6 @@ function results_classification_agreement(ouput_folder, varargin)
             
             [confusion_matrix,order] = confusionmat(class_map_1,class_map_x,'order',ids);
             
-            
             diagonal = diag(confusion_matrix);
             % overall agreement (numeric)
             overall_agreement_num = sum(diagonal);
@@ -162,7 +161,7 @@ function results_classification_agreement(ouput_folder, varargin)
         files(end+1) = files(1);
         files(1) = [];
         
-        h = waitbar(iter/length(files),h,strcat('Computing agreements ',num2str(iter),'/',num2str(length(files))));
+        h = waitbar(iter/length(files),h,strcat('Computing agreements ',num2str(iter+1),'/',num2str(length(files))));
     end
     
     waitbar(1,h,'Finalizing');

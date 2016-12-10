@@ -345,15 +345,6 @@ function advanced_classification_Callback(hObject, eventdata, handles)
     classification_adv(project_path);
     set(temp(idx),'Visible','on');
     refresh_class_Callback(hObject, eventdata, handles)
-function similarity_check_Callback(hObject, eventdata, handles)
-    project_path = get(handles.load_project,'UserData');
-    if isempty(project_path)
-        errordlg('No project is currently loaded','Error');
-        return;
-    end
-    [temp, idx] = hide_gui('MWM-ML');
-    gui_similarity(project_path);
-    set(temp(idx),'Visible','on');
 function default_class_Callback(hObject, eventdata, handles)
 function default_class_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -392,6 +383,14 @@ function res_transitions_Callback(hObject, eventdata, handles)
         msgbox('Operation successfully completed','Success');
     end   
     
+function res_probabilities_Callback(hObject, eventdata, handles)
+    [temp, idx] = hide_gui('MWM-ML');
+    error = gui_generate_results(handles,eventdata);
+    set(temp(idx),'Visible','on');
+    if ~error
+        msgbox('Operation successfully completed','Success');
+    end     
+    
 function res_statistics_Callback(hObject, eventdata, handles)
     project_path = get(handles.load_project,'UserData');
     if isempty(project_path)
@@ -410,20 +409,21 @@ function res_statistics_Callback(hObject, eventdata, handles)
     set(temp(idx),'Visible','on'); 
     if ~error
         msgbox('Operation successfully completed','Success');
-    end   
-
-function res_probabilities_Callback(hObject, eventdata, handles)
+    end  
+    
+function res_compare_class_Callback(hObject, eventdata, handles)
+    project_path = get(handles.load_project,'UserData');
+    if isempty(project_path)
+        errordlg('No project is currently loaded','Error');
+        return;
+    end
     [temp, idx] = hide_gui('MWM-ML');
-    error = gui_generate_results(handles,eventdata);
-    set(temp(idx),'Visible','on');
-    if ~error
-        msgbox('Operation successfully completed','Success');
-    end     
-
+    gui_compare(project_path);
+    set(temp(idx),'Visible','on');    
+    
 %%%% MENU %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function options_tab_Callback(hObject, eventdata, handles)
 function conf_figs_Callback(hObject, eventdata, handles)
     [temp, idx] = hide_gui('MWM-ML');
     figure_configs;
     set(temp(idx),'Visible','on');
-

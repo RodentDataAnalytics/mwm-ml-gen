@@ -21,7 +21,7 @@ function error = default_classification(project_path,seg_name,lab_name)
     end
     
     %% Parse the names
-    [segs,len,ovl,ppath] = split_segmentation_name(segs);
+    [segs,len,ovl,ppath] = get_segmentation_name(segs);
     [labs,lenl,ovll,note,~] = split_labels_name(labels);
     if ~isequal(len,lenl) || ~isequal(ovl,ovll)
         errordlg('The selected segmentation and labels do not match','Error');

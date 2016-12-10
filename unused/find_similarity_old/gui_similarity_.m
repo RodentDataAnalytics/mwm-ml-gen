@@ -26,6 +26,7 @@ function gui_similarity_OpeningFcn(hObject, eventdata, handles, varargin)
         disp('Cannot load tags');
         return;
     end
+    tag_names = ['Segs',tag_names];
     data = zeros(length(tag_names),3);
     set(handles.table1,'RowName',tag_names);
     set(handles.table1,'Data',data);

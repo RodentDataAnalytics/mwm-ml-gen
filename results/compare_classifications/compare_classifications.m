@@ -255,6 +255,9 @@ function error = compare_classifications(classifications,ppath)
         end
         
         % Generate and export the image
+        for i = 1:length(xlabels)
+            xlabels{i} = strcat(xlabels{i},char(39));
+        end
         f = imagesc_adv(cmatrix,'colorbar','on','colormap_range',[0 100],'XTickLabel',xlabels,'YTickLabel',ylabels);
         if isempty(f)
             errordlg('Cannot generate image. x-axis size can be up to 676.','Error');

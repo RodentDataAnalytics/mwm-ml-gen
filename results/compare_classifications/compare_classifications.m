@@ -49,7 +49,6 @@ function error = compare_classifications(classifications,ppath)
     % Select equal number of files from each classification folder
     files_1 = dir(fullfile(classifications{1},'*.mat'));
     files_2 = dir(fullfile(classifications{2},'*.mat'));
-    less = min(length(files_1),length(files_2));
     
     % Check if everything is ok
     if isempty(files_1) || isempty(files_2)
@@ -99,12 +98,12 @@ function error = compare_classifications(classifications,ppath)
     
     delete(h);
     
-    h = waitbar(0,strcat('Computing agreements 1/',num2str(less)),'Name','Confusion Matrix');
-    cmatrix = 0*eye(less);
+    h = waitbar(0,strcat('Computing agreements 1/',num2str(length(files_1))),'Name','Confusion Matrix');
+    cmatrix = zeros(length(files_1),length(files_2));
     collect = {};
     
     %% Compute confusion matrices and statistics 
-    for i = 1:less
+    for i = 1:length(files_1)
         load(fullfile(classifications{1},files_1(i).name));
         % select only matched segments
         class_1 = classification_configs.CLASSIFICATION.class_map(matched(:,1));
@@ -115,7 +114,7 @@ function error = compare_classifications(classifications,ppath)
         end
         
         % Each loop will find agreement of class_map_1 ---> class_map_x
-        for j = 1:less
+        for j = 1:length(files_2)
             load(fullfile(classifications{2},files_2(j).name));
             % select only matched segments
             class_2 = classification_configs.CLASSIFICATION.class_map(matched(:,2));
@@ -158,10 +157,15 @@ function error = compare_classifications(classifications,ppath)
         save(fullfile(ouput_folder,strcat('collect_',number{2},'.mat')),'collect');
         
         %form the first column
-        names = {};
-        for j = 1:less
+        names1 = {};
+        for j = 1:length(files_1)
             fileName = strsplit(files_1(j).name,'.mat');
-            names = [names, fileName{1}];
+            names1 = [names1, fileName{1}];
+        end
+        names2 = {};
+        for j = 1:length(files_2)
+            fileName = strsplit(files_2(j).name,'.mat');
+            names2 = [names2, fileName{1}];
         end
         tags = cell(length(classification_configs.ALL_TAGS),1);
         for j = 1:length(tags)
@@ -182,7 +186,7 @@ function error = compare_classifications(classifications,ppath)
             table{end,1} = collect{j,4}(2);
             %put everything together
             table = [column,table];
-            table{1,1} = strcat(names{i},'--',names{j});
+            table{1,1} = strcat(names1{i},'--',names2{j});
 
             gap_line = cell(1,size(table,2));
             table_all = [table_all ; table ; gap_line];
@@ -190,81 +194,98 @@ function error = compare_classifications(classifications,ppath)
         table_all = table_all(1:end-1,:); %remove last empty row
         %write to CSV-file (.csv)
         header = ['Reference', tags'];
-        subheader = [names{i}, num2cell(per_strat)];
+        [~,class_name] = fileparts(classifications{1});
+        subheader = [strcat(class_name,'::',names1{i}) num2cell(per_strat)];
         table_all = [header ; subheader ; gap_line ; table_all]; 
         table_all = cell2table(table_all);
         writetable(table_all,fullfile(ouput_folder,strcat('agreement_',number{2},'.csv')),'WriteVariableNames',0);
 
-        h = waitbar(i/less,h,strcat('Computing agreements ',num2str(i+1),'/',num2str(less)));
+        h = waitbar(i/length(files_1),h,strcat('Computing agreements ',num2str(i+1),'/',num2str(length(files_1))));
     end
     
     waitbar(1,h,'Finalizing');
     
-    % Export the confusion matrix    
+    % Export the agreement matrix    
     column = {};
-    for i = 1:less
+    for i = 1:length(files_1)
         tmp = strsplit(files_1(i).name,'.mat');
         column = [column; tmp{1}];
     end
-    header = ['Confusion Matrix',column'];
+    row = {};
+    for i = 1:length(files_2)
+        tmp = strsplit(files_2(i).name,'.mat');
+        row = [row; tmp{1}];
+    end  
+    header = ['Agreement Matrix',row'];
     table = [column,num2cell(cmatrix)];
     table = [header;table];
     table = cell2table(table);
-    save(fullfile(ouput_folder,'confusion_matrix.mat'),'cmatrix');
-    writetable(table,fullfile(ouput_folder,'confusion_matrix.csv'),'WriteVariableNames',0);
+    save(fullfile(ouput_folder,'agreement_matrix.mat'),'cmatrix');
+    writetable(table,fullfile(ouput_folder,'agreement_matrix.csv'),'WriteVariableNames',0);
     
     delete(h) %if it is not deleted the next figure is not generated
     
-    % Export the confusion matrix as image (10x10 grid)
+    % Export the agreement matrix as image (10x10 grid)
     
-    %split the confusion matrix into 10x10 grids and in case we have
-    %remainder increase the grids by 1
+    %split the agreement matrix into 10x10 grids and in case we have
+    %remainder increase the grids so that remainder = 0
     cmatrix_bk = cmatrix;
-    if size(cmatrix_bk,1) > 10
-        integer = fix(size(cmatrix_bk,1)/10);
-        remainder = rem(size(cmatrix_bk,1),10);
-    end    
-    if remainder > 0
-        digit = num2str(size(cmatrix_bk,1));
-        digit = str2num(digit(end));
-        digit = 10-digit;
-        cmatrix_bk( size(cmatrix_bk,1)+digit , size(cmatrix_bk,1)+digit ) = 0;
-        integer = integer + 1;    
+    integer_ = [0 0];
+    for i = 1:2
+        if size(cmatrix_bk,i) > 10
+            integer = fix(size(cmatrix_bk,i)/10);
+            remainder = rem(size(cmatrix_bk,i),10);
+        end    
+        if remainder > 0
+            digit = num2str(size(cmatrix_bk,i));
+            digit = str2num(digit(end));
+            digit = 10-digit;
+            si = size(cmatrix_bk,i);
+            if i == 1
+                cmatrix_bk(digit + si , :) = 0;
+            else
+                cmatrix_bk(:, digit + si) = 0;
+            end  
+            integer_(i) = integer + 1;
+        else
+            integer_(i) = integer;
+        end
     end
     %x, y axes labels
-    xylabels = {};
+    ylabels_ = cell(1,size(cmatrix_bk,1));
     for i = 1:size(cmatrix_bk,1)
-        xylabels = [xylabels,strcat('c',num2str(i))];
+        ylabels_{i} = strcat('c',num2str(i));
+    end
+    xlabels_ = cell(1,size(cmatrix_bk,2));
+    for i = 1:size(cmatrix_bk,2)
+        xlabels_{i} = strcat('c',num2str(i),char(39));
     end
     
     k = 1; %counts decades from up to down
     kk = 1; %counts decades from left to right
-    for ii = 1 : integer * integer
+    for ii = 1 : integer_(1) * integer_(2)
         if k <= size(cmatrix_bk,1)
             cmatrix = cmatrix_bk(k:k+9,kk:kk+9);
-            ylabels = xylabels(k:k+9);
-            xlabels = xylabels(kk:kk+9);
+            ylabels = ylabels_(k:k+9);
+            xlabels = xlabels_(kk:kk+9);
             k = k+10;
         elseif k > size(cmatrix_bk,1)
             k = 1;
             kk = kk+10;
             cmatrix = cmatrix_bk(k:k+9,kk:kk+9);
-            ylabels = xylabels(k:k+9);
-            xlabels = xylabels(kk:kk+9);
+            ylabels = ylabels_(k:k+9);
+            xlabels = xlabels_(kk:kk+9);
             k = k+10;
         end
         
         % Generate and export the image
-        for i = 1:length(xlabels)
-            xlabels{i} = strcat(xlabels{i},char(39));
-        end
         f = imagesc_adv(cmatrix,'colorbar','on','colormap_range',[0 100],'XTickLabel',xlabels,'YTickLabel',ylabels);
         if isempty(f)
             errordlg('Cannot generate image. x-axis size can be up to 676.','Error');
             return
         else
             [~, ~, ~, Export, ExportStyle] = parse_configs;
-            export_figure(f, ouput_folder, sprintf('confusion_matix_icon%d',ii), Export, ExportStyle);
+            export_figure(f, ouput_folder, sprintf('agreement_matix_icon%d',ii), Export, ExportStyle);
             delete(f)
         end   
     end   

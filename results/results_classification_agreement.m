@@ -53,8 +53,8 @@ function results_classification_agreement(ouput_folder, varargin)
         ids(i) = classification_configs.ALL_TAGS{i}{3};
     end
     
-    %% Compute confusion matrices and statistics 
-    h = waitbar(0,strcat('Computing agreements 1/',num2str(length(files))),'Name','Confusion Matrix');
+    %% Compute agreement matrices and statistics 
+    h = waitbar(0,strcat('Computing agreements 1/',num2str(length(files))),'Name','Agreement Matrix');
     cmatrix = 100*eye(length(files));
     for iter = 1:length(files)
         %fprintf('Computing agreements. Iteration %d/%d...\n',iter,length(files));
@@ -166,30 +166,28 @@ function results_classification_agreement(ouput_folder, varargin)
     
     waitbar(1,h,'Finalizing');
     
-    % Export the confusion matrix
+    % Export the agreement matrix
     column = {};
     for i = 1:length(files)
         tmp = strsplit(files(i).name,'.mat');
         column = [column; tmp{1}];
     end
-    header = ['Confusion Matrix',column'];
+    header = ['Agreement Matrix',column'];
     table = [column,num2cell(cmatrix)];
     table = [header;table];
     table = cell2table(table);
-    save(fullfile(ouput_folder,'confusion_matrix.mat'),'cmatrix');
-    writetable(table,fullfile(ouput_folder,'confusion_matrix.csv'),'WriteVariableNames',0);
+    save(fullfile(ouput_folder,'Agreement_matrix.mat'),'cmatrix');
+    writetable(table,fullfile(ouput_folder,'Agreement_matrix.csv'),'WriteVariableNames',0);
     
     delete(h) %if it is not deleted the next figure is not generated
     
-    % Export the confusion matrix as image (10x10 grid)
+    % Export the agreement matrix as image (10x10 grid)
     
     %split the confusion matrix into 10x10 grids and in case we have
     %remainder increase the grids by 1
     cmatrix_bk = cmatrix;
-    if size(cmatrix_bk,1) > 10
-        integer = fix(size(cmatrix_bk,1)/10);
-        remainder = rem(size(cmatrix_bk,1),10);
-    end    
+    integer = fix(size(cmatrix_bk,1)/10);
+    remainder = rem(size(cmatrix_bk,1),10); 
     if remainder > 0
         digit = num2str(size(cmatrix_bk,1));
         digit = str2num(digit(end));
@@ -227,7 +225,7 @@ function results_classification_agreement(ouput_folder, varargin)
             return
         else
             [~, ~, ~, Export, ExportStyle] = parse_configs;
-            export_figure(f, ouput_folder, sprintf('confusion_matix_icon%d',ii), Export, ExportStyle);
+            export_figure(f, ouput_folder, sprintf('agreement_matix_icon%d',ii), Export, ExportStyle);
             delete(f)
         end   
     end

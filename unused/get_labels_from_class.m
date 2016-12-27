@@ -1,12 +1,12 @@
 % Get classifier file
 [fname, pname] = uigetfile({'*.mat','MAT-file (*.mat)'},'Select classifier');
-if isequl(fname,0)
+if isequal(fname,0)
     return
 end
 mclassification = strcat(pname,fname);
 % Define output file name and path 
 [fname, pname] = uiputfile('*.csv','Output File');
-if isequl(pname,0)
+if isequal(pname,0)
     return
 end
 output_file = strcat(pname,fname);

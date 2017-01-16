@@ -116,9 +116,9 @@ function finalize_Callback(hObject, eventdata, handles)
     %save everything
     m_path = get(handles.new_project,'UserData');
     m_path = char_project_path(m_path);
-    save(strcat(m_path,'/settings/','animal_groups.mat'),'trajectory_groups');
-    save(strcat(m_path,'/settings/','new_properties.mat'),'new_properties');
-    save(strcat(m_path,'/settings/','my_trajectories.mat'),'my_trajectories');
+    save(fullfile(m_path,'settings','animal_groups.mat'),'trajectory_groups');
+    save(fullfile(m_path,'settings','new_properties.mat'),'new_properties');
+    save(fullfile(m_path,'settings','my_trajectories.mat'),'my_trajectories');
     new_project_CloseRequestFcn(hObject, eventdata, handles)
 
 % PLOTTER
@@ -216,6 +216,19 @@ function load_data_button_Callback(hObject, eventdata, handles)
     set(handles.exclude_group,'Enable','off');
     %load the data
     [data, table_data, session] = load_files(format{1}, format{2}, format{3}, format{4}, format{5});
+    if isempty(data) || isempty(table_data)
+        errordlg('No data found on the specified directory.','Input Error');
+        return
+    end    
+    try
+        if isempty(table_data{1,1})
+            errordlg('No data found on the specified directory.','Input Error');
+            return  
+        end
+    catch
+            errordlg('No data found on the specified directory.','Input Error');
+            return  
+    end
     set(handles.f_sessions,'String',session);
     %update the table
     available = cell(size(table_data,1),1);

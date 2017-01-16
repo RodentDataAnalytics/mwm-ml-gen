@@ -13,10 +13,10 @@ function [data, table, session] = load_files(path, animal_id, rec_time, centre_x
     h = waitbar(0,str,'Name','Importing...');
     
     %calibration (if needed)
-    mat_files = dir([path,'/*.mat']);
+    mat_files = dir(fullfile(path,'*.mat'));
     for i = 1:length(mat_files)
         if isequal(mat_files(i).name,'calibration_data.mat');
-            load(strcat(path,'/',mat_files(i).name));
+            load(fullfile(path,mat_files(i).name));
         end
     end    
     
@@ -64,10 +64,10 @@ function [data, table, session] = load_files(path, animal_id, rec_time, centre_x
         %loading bar
         str = ['Loading files from the subfolder ',files(dir_indexes(i)).name];
         h = waitbar(0,str,'Name','Importing...');
-        files_ = dir(strcat(path,'/',files(dir_indexes(i)).name));
+        files_ = dir(fullfile(path,files(dir_indexes(i)).name));
         k = 1;
         for j = 3:length(files_)
-            fn = fullfile(path,'/', files(dir_indexes(i)).name, files_(j).name); 
+            fn = fullfile(path,files(dir_indexes(i)).name, files_(j).name); 
             %skip temp open files (names starting with '~')
             [~, check, ~] = fileparts(fn);
             if isequal(check(1),'~')

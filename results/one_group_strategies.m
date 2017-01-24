@@ -82,8 +82,9 @@ function [varargout] = one_group_strategies(total_trials,segments_classification
         set(faxis, 'XTickLabel', lbls, 'Ylim', [0, max(data_all{1,c})+0.5], 'FontSize', FontSize, 'FontName', FontName);
         set(faxis, 'LineWidth', LineWidth);   
                  
-        ylabel(segments_classification.classes{1,c}{1,2}, 'FontSize', FontSize, 'FontName', FontName);
-        xlabel('trial', 'FontSize', FontSize, 'FontName', FontName); 
+        title(segments_classification.classes{1,c}{1,2}, 'FontSize', FontSize, 'FontName', FontName)
+        xlabel('trials', 'FontSize', FontSize, 'FontName', FontName);  
+        ylabel('average segment length (m)', 'FontSize', FontSize, 'FontName', FontName); 
         
         set(f, 'Color', 'w');
         box off;  

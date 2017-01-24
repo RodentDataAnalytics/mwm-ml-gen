@@ -103,8 +103,9 @@ function [varargout] = results_transition_counts(segmentation_configs,classifica
         set(faxis, 'LineWidth', LineWidth);  
         set(faxis,'Ylim', [0, max(data)+5]);
 
-        ylabel('transitions', 'FontSize', FontSize, 'FontName', FontName);
-        xlabel('trial', 'FontSize', FontSize, 'FontName', FontName); 
+        title('transitions', 'FontSize', FontSize, 'FontName', FontName)
+        xlabel('trials', 'FontSize', FontSize, 'FontName', FontName); 
+        ylabel('number of transitions', 'FontSize', FontSize, 'FontName', FontName); 
 
         set(f, 'Color', 'w');
         box off;  

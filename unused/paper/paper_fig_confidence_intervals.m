@@ -1,14 +1,19 @@
-function create_pvalues_confidence_intervals(score,sample,class_tags,fpath)
+function paper_fig_confidence_intervals(score,sample,class_tags,fpath)
     
-    fpath = fileparts(fpath);
+    %fpath = fileparts(fpath);
     fpath = fullfile(fpath,'binomial.txt');
     fileID = fopen(fpath,'wt');
     
     f = figure;
-    set(f,'Visible','off');
+    %set(f,'Visible','off');
     
     % get configurations
-    [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
+    %[FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
+    FontName = 'Arial';
+    FontSize = 12;
+    LineWidth = 0.8;
+    Export = '.jpg';
+    ExportStyle = 'High Quality';
     
     % get abbreviations
     t = cell(1,length(class_tags)+2);
@@ -19,7 +24,7 @@ function create_pvalues_confidence_intervals(score,sample,class_tags,fpath)
     t{end} = ' ';
     
     % plot the line
-    plot([0,length(class_tags)+1],[0.5,0.5],'color','red','LineStyle','-','LineWidth',1.5);
+    plot([0,length(class_tags)+1],[0.5,0.5],'color','black','LineStyle','--','LineWidth',1.5);
     hold on
     for i = 1:length(class_tags)    
         %Binomial parameter estimates
@@ -41,10 +46,12 @@ function create_pvalues_confidence_intervals(score,sample,class_tags,fpath)
         errorbar( i, m, l, u, 'black', 'Marker', 'none', 'LineStyle', '-', 'LineWidth', LineWidth);
         
         %fix lower, mid, upper points and also plot the "correct" mean
-        plot(i,m,'color','black','LineStyle','none','Marker','o','MarkerFaceColor','black');
-        plot(i,pci(1),'color','black','LineStyle','none','Marker','*','MarkerFaceColor','black');
-        plot(i,pci(2),'color','black','LineStyle','none','Marker','*','MarkerFaceColor','black');
-        plot(i,phat,'color','red','LineStyle','none','Marker','d','MarkerFaceColor','none','MarkerEdgeColor','red','LineWidth',1.5);
+        %plot(i,m,'color','black','LineStyle','none','Marker','o','MarkerFaceColor','black');
+        %plot(i,pci(1),'color','black','LineStyle','none','Marker','*','MarkerFaceColor','black');
+        %plot(i,pci(2),'color','black','LineStyle','none','Marker','*','MarkerFaceColor','black');
+        plot([i-0.2,i+0.2],[pci(1),pci(1)],'color','black','LineStyle','-','Marker','none','LineWidth', LineWidth+0.1);
+        plot([i-0.2,i+0.2],[pci(2),pci(2)],'color','black','LineStyle','-','Marker','none','LineWidth', LineWidth+0.1);
+        plot(i,phat,'color','red','LineStyle','none','Marker','square','MarkerFaceColor','none','MarkerEdgeColor','black','LineWidth',1.5);
     end
     fclose(fileID);
     % correct the axis limits
@@ -63,6 +70,3 @@ function create_pvalues_confidence_intervals(score,sample,class_tags,fpath)
     export_figure(f, fpath, 'binomial', Export, ExportStyle);
     close(f);
 end
-
-
-

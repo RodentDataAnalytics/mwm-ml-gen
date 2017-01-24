@@ -133,8 +133,9 @@ function [varargout] = results_strategies_distributions_length(segmentation_conf
             set(faxis, 'Ylim', [0, max(data_all{1,c})+0.5]);
             set(faxis, 'LineWidth', LineWidth);   
 
-            ylabel(segments_classification.classes{1,c}{1,2}, 'FontSize', FontSize, 'FontName', FontName);
-            xlabel('trial', 'FontSize', FontSize);  
+            title(segments_classification.classes{1,c}{1,2}, 'FontSize', FontSize, 'FontName', FontName)
+            xlabel('trials', 'FontSize', FontSize, 'FontName', FontName);  
+            ylabel('average segment length (m)', 'FontSize', FontSize, 'FontName', FontName); 
 
             set(f, 'Color', 'w');
             box off;  

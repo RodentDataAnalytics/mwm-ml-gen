@@ -51,20 +51,19 @@ function create_average_figure(data,groups,positions,output_dir,total_trials,tag
             set(faxis, 'LineWidth', LineWidth);
         end
 
-        if length(tags) == 1
-            ylabel('transitions', 'FontSize', FontSize, 'FontName', FontName);
-        else
-            ylabel(tags{i}{2}, 'FontSize', FontSize, 'FontName', FontName);
-        end
-        xlabel('trial', 'FontSize', FontSize);  
+        xlabel('trials', 'FontSize', FontSize, 'FontName', FontName);  
 
         set(f, 'Color', 'w');
         box off;  
         set(f,'papersize',[8,8], 'paperposition',[0,0,8,8]);
         
         if length(tags) == 1
+            ylabel('transitions', 'FontSize', FontSize, 'FontName', FontName);
+            title('number of transitions', FontSize, 'FontName', FontName);
             export_figure(f, output_dir, 'average_transitions', Export, ExportStyle);
         else
+            ylabel('average segment length (m)', 'FontSize', FontSize, 'FontName', FontName);
+            title(tags{i}{2}, 'FontSize', FontSize, 'FontName', FontName)
             export_figure(f, output_dir, sprintf('average_segment_length_strategy_%d', i), Export, ExportStyle);
         end
         close(f)

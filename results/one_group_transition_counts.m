@@ -68,8 +68,9 @@ function [varargout] = one_group_transition_counts(animals_trajectories_map,long
         set(faxis, 'XTickLabel', lbls, 'Ylim', [0, max(data)+0.5], 'FontSize', FontSize, 'FontName', FontName);
         set(faxis, 'LineWidth', LineWidth);  
 
-        ylabel('transitions', 'FontSize', FontSize, 'FontName', FontName);
-        xlabel('trial', 'FontSize', FontSize, 'FontName', FontName); 
+        title('transitions', 'FontSize', FontSize, 'FontName', FontName)
+        xlabel('trials', 'FontSize', FontSize, 'FontName', FontName); 
+        ylabel('number of transitions', 'FontSize', FontSize, 'FontName', FontName); 
 
         set(f, 'Color', 'w');
         box off;  

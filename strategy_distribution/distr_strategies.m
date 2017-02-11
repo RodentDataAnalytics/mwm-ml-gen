@@ -96,7 +96,7 @@ min_seg = 1;
     %
     undef = [];
     %for matching segments to trajectory
-    id = [-1, -1, -1];
+    id = [-1, -1, -1, -1, -1];
     %the ith path segment, Si 
     iseg = 0;
 
@@ -133,6 +133,9 @@ min_seg = 1;
                     else
                         if j > iseg
                             traj_distr(j) = -1;
+                        elseif j == iseg
+                            [~,pos] = max(class_distr_traj(j-1,:));
+                            traj_distr(j) = pos;
                         else
                             traj_distr(j) = 0;
                         end
@@ -203,6 +206,9 @@ min_seg = 1;
             else
                 if j > iseg
                     traj_distr(j) = -1;
+                elseif j == iseg
+                    [~,pos] = max(class_distr_traj(j-1,:));
+                    traj_distr(j) = pos;
                 else
                     traj_distr(j) = 0;
                 end
@@ -247,5 +253,9 @@ min_seg = 1;
             index = index + partitions(i);
         end
     end
-end    
+    
+    %EXTRA: Smooth the final data
+    
+    
+end
 

@@ -59,7 +59,7 @@ function create_average_figure(data,groups,positions,output_dir,total_trials,tag
         
         if length(tags) == 1
             ylabel('transitions', 'FontSize', FontSize, 'FontName', FontName);
-            title('number of transitions', FontSize, 'FontName', FontName);
+            title('number of transitions', 'FontSize', FontSize, 'FontName', FontName);
             export_figure(f, output_dir, 'average_transitions', Export, ExportStyle);
         else
             ylabel('average segment length (m)', 'FontSize', FontSize, 'FontName', FontName);

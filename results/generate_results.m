@@ -91,6 +91,7 @@ function error = generate_results(project_path, name, segmentation_configs, clas
                 end  
         end
     catch
+        delete(h);
         return
     end
         

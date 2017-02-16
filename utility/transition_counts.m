@@ -3,7 +3,8 @@ function tpm = transition_counts(segmentation_configs,classification_configs)
 %strategy
 
     % Strategies distribution
-    [strat_distr, ~, ~, ~] = distr_strategies(segmentation_configs, classification_configs);
+    %[strat_distr, ~, ~, ~] = distr_strategies(segmentation_configs, classification_configs);
+    [strat_distr,~] = strats_distributions(segmentation_configs,classification_configs); 
     % Classification
     segments_classification = classification_configs.CLASSIFICATION;
     tpm = zeros(1, segments_classification.segments.parent.count);

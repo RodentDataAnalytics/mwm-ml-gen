@@ -14,7 +14,8 @@ function [varargout] = results_strategies_distributions_length(segmentation_conf
     % Keep only the trajectories with length > 0
     long_trajectories_map = long_trajectories( segmentation_configs ); 
     % Strategies distribution
-    [strat_distr, ~, ~, ~] = distr_strategies(segmentation_configs, classification_configs);
+    %[strat_distr, ~, ~, ~] = distr_strategies(segmentation_configs, classification_configs);
+    %[strat_distr,~] = strats_distributions(segmentation_configs,classification_configs); 
     % path interval = length(1-overlap)
     path_interval = segmentation_configs.SEGMENTATION_PROPERTIES;
     path_interval = path_interval(1)*(1-path_interval(2));

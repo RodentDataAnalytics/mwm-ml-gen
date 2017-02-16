@@ -31,7 +31,7 @@ function error = generate_results(project_path, name, segmentation_configs, clas
     vals_grps_ = cell(1,length(classifications)); 
     %Position of each boxplot in the figure  
     pos_ = cell(1,length(classifications)); 
-    try
+    %try
         switch b_pressed
             case 'Transitions'
                 if length(groups) > 1
@@ -90,10 +90,10 @@ function error = generate_results(project_path, name, segmentation_configs, clas
                     end
                 end  
         end
-    catch
-        delete(h);
-        return
-    end
+    %catch
+    %    delete(h);
+    %    return
+    %end
         
     %% Generate a summary of the results
     waitbar(1,h,'Finalizing...');

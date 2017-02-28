@@ -1,0 +1,15 @@
+class_tags = classification_configs.CLASSIFICATION_TAGS;
+class_tags{1,9} = {'tr','Transitions',0,0};
+%1
+[20,20,0,0,20,0,2,0,]
+%3
+score = {[30,30,0,0,26,0,0,0,]...;
+sample = 30;
+
+scenarios = {'sc1','sc2','sc3','sc4'};
+
+
+fpath = strcat('C:\Users\Avgoustinos\Documents\MWMGEN\EPFL_original_data\results\paper\',scenarios{i});
+
+
+paper_fig_confidence_intervals(score,sample,class_tags,fpath)

@@ -1,5 +1,7 @@
 function results_classified_trajectories(segmentation_configs,classification_configs,output_dir,varargin)
 
+    DEBUG = 0;
+    
     % get the configurations from the configs file
     [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
     
@@ -38,7 +40,9 @@ function results_classified_trajectories(segmentation_configs,classification_con
 
         % Plot classified trajectory
         f = figure;
-        set(f,'Visible','off');
+        if ~DEBUG
+            set(f,'Visible','off');
+        end
         plot_arena(segmentation_configs);
         hold on;
 
@@ -58,8 +62,10 @@ function results_classified_trajectories(segmentation_configs,classification_con
                     w = 1.5;
                 end
                 plot(all_trajectories.items(i).points(starti:end,2),all_trajectories.items(i).points(starti:end,3),lspc,'LineWidth',w,'Color',lclr);
-                plot(all_trajectories.items(i).points(starti,2),all_trajectories.items(i).points(starti,3),'r*', 'LineWidth', 2);
-                plot(all_trajectories.items(i).points(end,2),all_trajectories.items(i).points(end,3),'rx', 'LineWidth', 2);
+                if DEBUG
+                    plot(all_trajectories.items(i).points(starti,2),all_trajectories.items(i).points(starti,3),'r*', 'LineWidth', 2);
+                    plot(all_trajectories.items(i).points(end,2),all_trajectories.items(i).points(end,3),'rx', 'LineWidth', 2);
+                end
                 lasti = j;
             elseif distr(j) ~= lastc
                 lastc = distr(j);
@@ -75,15 +81,20 @@ function results_classified_trajectories(segmentation_configs,classification_con
                     w = 1.5;
                 end
                 plot(all_trajectories.items(i).points(starti:endi,2),all_trajectories.items(i).points(starti:endi,3),lspc,'LineWidth',w,'Color',lclr);
-                plot(all_trajectories.items(i).points(starti,2),all_trajectories.items(i).points(starti,3),'r*', 'LineWidth', 2);
-                plot(all_trajectories.items(i).points(endi,2),all_trajectories.items(i).points(endi,3),'rx', 'LineWidth', 2);
+                if DEBUG
+                    plot(all_trajectories.items(i).points(starti,2),all_trajectories.items(i).points(starti,3),'r*', 'LineWidth', 2);
+                    plot(all_trajectories.items(i).points(endi,2),all_trajectories.items(i).points(endi,3),'rx', 'LineWidth', 2);
+                end
                 lasti = j;
             end
         end
-        %set(gca,'LooseInset',[0,0,0,0]);
-        %set(gcf,'Color','w');
-        
-        export_figure(f, output_dir, sprintf('trajectory_%d', i), Export, ExportStyle);
+        set(gca,'LooseInset',[0,0,0,0]);
+        set(gcf,'Color','w');
+        if ~DEBUG
+            export_figure(f, output_dir, sprintf('trajectory_%d', i), Export, ExportStyle);
+        else
+            pause(2);
+        end
         close(f);
     end
 end

@@ -1,9 +1,9 @@
-function [ w ] = class_weights(distr_maps_segs,length_map,WEIGHTS_NORMALIZATION,HARD_BOUNDS,tags)
+function [ w ] = class_weights(distr_maps_segs,length_map,tags)
 %CLASS_WEIGHTS computes the strategies weights
     
     % Detect the maximum nember of continuous segments for each strategy
     maximum_sequences = zeros(4,tags);
-    for i = 1:8 %for each strategy   
+    for i = 1:tags %for each strategy   
         max_sequence = 0;
         for rows = 1:size(distr_maps_segs,1) %for each row
             %make a vector with length the length of the row,
@@ -35,7 +35,7 @@ function [ w ] = class_weights(distr_maps_segs,length_map,WEIGHTS_NORMALIZATION,
     end
 
     % Calculate the maximum length of continuous segments for each strategy  
-    Lmax = zeros(1,8);
+    Lmax = zeros(1,tags);
     for i = 1:8
         rowi = maximum_sequences(2,i);
         starti = maximum_sequences(3,i);
@@ -46,22 +46,5 @@ function [ w ] = class_weights(distr_maps_segs,length_map,WEIGHTS_NORMALIZATION,
     % Calculate the weights
     Lmax_ = ones(1,length(Lmax))*max(Lmax);
     w = Lmax_ ./ Lmax;
-    %Weights normalization
-    if WEIGHTS_NORMALIZATION 
-        w = normalizations(w,'n-norm',WEIGHTS_NORMALIZATION);
-    end
-    %Weights hard bounds (min, max)
-    if HARD_BOUNDS == 1
-        avg_w = max(w) - min(w);
-        avg_w = avg_w / 2;
-        avg_w = avg_w + min(w);
-        for i = 1:length(w)
-            if w(i) < avg_w
-                w(i) = min(w);
-            else
-                w(i) = max(w);
-            end
-        end      
-    end
 end
 

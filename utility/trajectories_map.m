@@ -44,7 +44,7 @@ function [exit,animals_trajectories_map] = trajectories_map(segmentation_configs
             if size(animals_trajectories_map,2) > 1
                 if size(animals_trajectories_map{1,1},2)~=size(animals_trajectories_map{1,2},2)
                     features = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,9:11);
-                    [~, animals_trajectories_map] = equalize_groups(groups, animals_ids, animals_trajectories_map, features);
+                    [~, animals_trajectories_map] = equalize_groups(user_groups, animals_ids, animals_trajectories_map, features);
                     % if Cancel or X was clicked, return
                     if size(animals_trajectories_map{1,1},2)~=size(animals_trajectories_map{1,2},2)
                         exit = 1;

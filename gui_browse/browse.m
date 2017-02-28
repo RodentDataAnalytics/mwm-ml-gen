@@ -319,10 +319,41 @@ function export_all_Callback(hObject, eventdata, handles)
         end
     end
     delete(f);
-
+% Export all full trajectories
+function export_full_Callback(hObject, eventdata, handles)
+    index = get(handles.plotter,'UserData');
+    if isempty(index)
+        return;
+    end    
+    % get project path
+    ppath = get(handles.browse_data,'UserData');  
+    ppath = char_project_path(ppath);
+    % export format
+    [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
+    % parse UserData
+    segmentation_configs = get(handles.trajectory_info,'UserData');
+    swimming_paths = segmentation_configs.TRAJECTORIES.items;
+    % make a folder
+    folder = fullfile(ppath,'results','exported_pics_full_trajectories');
+    if ~exist(folder,'dir')
+        mkdir(folder);
+    end
+    % generate a new figure
+    f = figure;  
+    
+    for idx = 1:length(swimming_paths)
+        % plot the arena
+        plot_arena(segmentation_configs);
+        % plot the trajectory
+        plot_trajectory(segmentation_configs.TRAJECTORIES.items(1,idx));  
+        % export the figure
+        export_figure(f, folder, strcat('traj',num2str(idx)), Export, ExportStyle);
+    end
+    delete(f);       
     
 %% MOTION %% <<NOT IMPLEMENTED>>
 function speed_Callback(hObject, eventdata, handles)
 function speed_down_Callback(hObject, eventdata, handles)
 function speed_up_Callback(hObject, eventdata, handles)
 function speed_style_Callback(hObject, eventdata, handles)
+

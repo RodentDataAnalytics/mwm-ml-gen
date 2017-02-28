@@ -1,7 +1,5 @@
 function [ distr_maps_segs ] = remove_orphan_strategies(distr_maps_segs,weights)
 %REMOVE_ORPHAN_STRATEGIES dispose scatter strategies
-
-    HARD_BOUNDS = 0;
     
     for i = 1:size(distr_maps_segs,1)
         for j = 1:size(distr_maps_segs,1)
@@ -31,11 +29,11 @@ function [ distr_maps_segs ] = remove_orphan_strategies(distr_maps_segs,weights)
                         distr_maps_segs(i,j) = prev;
                     else
                         if weights(prev) == weights(next)
-                            if HARD_BOUNDS
-                                distr_maps_segs(i,j) = -3;
-                            else
-                                distr_maps_segs(i,j) = next;
-                            end
+%                             if HARD_BOUNDS
+%                                 distr_maps_segs(i,j) = -3;
+%                             else
+%                                 distr_maps_segs(i,j) = next;
+%                             end
                         else
                             if weights(prev) > weights(next)
                                 distr_maps_segs(i,j) = next;

@@ -1,10 +1,11 @@
-function [distr_maps_segs] = original_strats_distr(distr_maps_segs,segments,w,length_map)
+function [distr_maps_segs] = original_strats_distr(distr_maps_segs,segmentation_configs,w,length_map)
 %ORIGINAL_STRATS_DISTR performs the original strategies distribution
       
     %seg_length = segmentation_configs.SEGMENTATION_PROPERTIES(1);
     %seg_overlap = segmentation_configs.SEGMENTATION_PROPERTIES(2);
     %min_path_interval = seg_length * (1 - seg_overlap); %minimum path interval
     sigma = 4;
+    segments = segmentation_configs.SEGMENTS.items;
     pointer = 1; %specifies the end of the trajectory
     % for each trajectory
     for i = 1:size(distr_maps_segs,1)

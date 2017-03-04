@@ -19,8 +19,8 @@ function results_classified_trajectories(segmentation_configs,classification_con
     all_trajectories = segmentation_configs.TRAJECTORIES;
     all_segments = segmentation_configs.SEGMENTS;
     long_trajectories_map = long_trajectories( segmentation_configs ); 
-    [strat_distr,~] = strats_distributions(segmentation_configs,classification_configs);
-    %[strat_distr, ~, ~, ~] = distr_strategies(segmentation_configs, classification_configs, varargin);
+    %[strat_distr,~] = strats_distributions(segmentation_configs,classification_configs);
+    [strat_distr, ~, ~, ~] = distr_strategies(segmentation_configs, classification_configs);
 
     for i = 1:length(all_trajectories.items);
         if long_trajectories_map(i) == 0 % segmentation_configs.partision(i)==0

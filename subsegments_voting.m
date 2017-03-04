@@ -1,5 +1,7 @@
 function [ repl_distr_maps_segs ] = subsegments_voting(repl_distr_maps_segs,true_length_maps,my_segments,distr_maps_segs,length_map,w)
-%SUBSEGMENTS_VOTING 
+%SUBSEGMENTS_VOTING finds how many segments overlaps a specific interval
+%with length proportional to the segmentation options and performs a voting
+%in order to assess its class.
     
     class_vector = zeros(1,length(w));
     
@@ -41,7 +43,14 @@ function [ repl_distr_maps_segs ] = subsegments_voting(repl_distr_maps_segs,true
                 counter = length(find(distr_maps_segs(i,Start:End) == c));
                 class_vector(c) = counter;
             end
-            [val,pos] = max(class_vector.*w);
+            class_vector = class_vector.*w;
+            %[val,pos] = (max(class_vector.*w));
+            pos = find(class_vector == max(class_vector(:)));
+            if length(pos) == 1
+                val = class_vector(pos(1));
+            else
+                val = 0;
+            end
             if val > 0
                 repl_distr_maps_segs(i,j) = pos;
             else
@@ -50,5 +59,11 @@ function [ repl_distr_maps_segs ] = subsegments_voting(repl_distr_maps_segs,true
         end
     end
     
+    %% Correction: the last sub-segment will be the same strategy as the last segment
+    for i = 1:size(true_length_maps,1)
+        idx = length(find(distr_maps_segs(i,:) ~= -1));
+        index = length(find(repl_distr_maps_segs(i,:) ~= -1));
+        repl_distr_maps_segs(i,index) = distr_maps_segs(i,idx);
+    end    
 end
 

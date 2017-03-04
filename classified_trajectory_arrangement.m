@@ -1,5 +1,11 @@
 function [repl_distr_maps_segs,true_length_maps] = classified_trajectory_arrangement(distr_maps_segs,length_map,my_segments,traj_lengths)
-%CLASSIFIED_TRAJECTORY_ARRANGEMENT
+%CLASSIFIED_TRAJECTORY_ARRANGEMENT calculates the lengths of the
+%sub-segments (part of the segment that does not overlap with each previous
+%one. For the last segment the operation is performed in reverse, thus
+%there will be one point caught in between, this point is further split
+%into two segments which can be distiguished as there will be having the
+%same length which is going to be less than the rest of the lengths of the
+%other segments of the specific trajectory.
 
     true_length_maps = zeros(size(distr_maps_segs,1),size(distr_maps_segs,2));
     true_length_maps_ = true_length_maps;
@@ -9,17 +15,17 @@ function [repl_distr_maps_segs,true_length_maps] = classified_trajectory_arrange
         for j = 1:length(iter)-1
             true_length_maps(i,j) = my_segments{i,j+1}.offset - my_segments{i,j}.offset;
         end
-        % last
+        % last segment
         true_length_maps(i,length(iter)) = traj_lengths(i) - sum(true_length_maps(i,:));
     end    
     
-    % reverse
+    % reverse: begin from the last segment
     for i = 1:size(distr_maps_segs,1)
         iter = find(distr_maps_segs(i,:)~=-1);
         for j = length(iter):-1:2
             true_length_maps_(i,j) = (my_segments{i,j}.offset + length_map(i,j)) - (my_segments{i,j-1}.offset + length_map(i,j-1));
         end
-        % last
+        % last segment (first)
         true_length_maps_(i,1) = traj_lengths(i) - sum(true_length_maps_(i,:));
     end   
     
@@ -54,7 +60,7 @@ function [repl_distr_maps_segs,true_length_maps] = classified_trajectory_arrange
         repl_distr_maps_segs(i,length(iter)) = distr_maps_segs(i,length(iter));
         repl_distr_maps_segs(i,length(iter)+1) = distr_maps_segs(i,length(iter)-1);
     end
-    % make sure that 'repl_distr_maps_segs' has no zeros
+    % make sure that 'repl_distr_maps_segs' has no zeros after the -1
     for i = 1:size(repl_distr_maps_segs,1)
         idx = find(repl_distr_maps_segs(i,:) == -1);
         if isempty(idx)

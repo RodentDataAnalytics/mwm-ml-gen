@@ -274,17 +274,18 @@ function check_labels_Callback(hObject, eventdata, handles)
     output_path = char(fullfile(project_path,'labels',strcat(p,'_check')));
     if ~exist(output_path,'dir')
         mkdir(output_path);
+    else
+        choice = questdlg('Checking has already been performed would you like to rerun it?','Cross-validation','No','Yes','Generate graphs only','Generate graphs only');
+        if isequal(choice,'No')
+            return;
+        elseif isequal(choice,'Yes')
+            rmdir(output_path,'s');
+            mkdir(output_path); 
+        elseif isequal(choice,'Generate graphs only')
+        end
     end
-%     else
-%         choice = questdlg('Checking has already been performed would you like to rerun it?','Cross-validation','No','Yes','No');
-%         if isequal(choice,'No')
-%             return;
-%         else
-%             rmdir(output_path,'s');
-%             mkdir(output_path); 
-%         end
-%     end
-    [nc,res1bare,res2bare,res1,res2,res3,covering] = results_clustering_parameters(segmentation_configs,labels,0,output_path,10,100,10);
+    [s,e,step] = cross_validation_clusters;
+    [nc,res1bare,res2bare,res1,res2,res3,covering] = results_clustering_parameters(segmentation_configs,labels,0,output_path,s,e,step);
     output_path = char(fullfile(project_path,'results',strcat(p,'_cross_validation')));
     if exist(output_path,'dir');
         rmdir(output_path,'s');

@@ -23,7 +23,7 @@ function [error, count, percentage_per_classifier] = class_statistics(ppath, cla
         end
         waitbar(i/length(files));
     end
-    average = mean(count);
+    average = mean(count,1);
     count = [count;average];
     
     waitbar(1,h,'Exporting results...');
@@ -75,8 +75,10 @@ function [error, count, percentage_per_classifier] = class_statistics(ppath, cla
     writetable(percentage_per_classifier_,fullfile(rpath,'statistics_percentage.csv'),'WriteVariableNames',0);
     delete(h);
  
-    % Also create the confusion matrix
-    results_classification_agreement(rpath,mcpath);
+    % Also create the agreement matrix
+    if length(cols) > 2 % only if we have more than one classifiers
+        results_classification_agreement(rpath,mcpath);
+    end
     
     error = 0;
 

@@ -2,6 +2,8 @@ function results_clustering_parameters_graphs(output_path,nc,res1bare,res2bare,r
 %RESULTS_CLUSTERING_PARAMETERS_GRAPHS generates and exports the
 % results_clustering_parameters graphs
 
+    DETAILED_GRAPH = 0;
+
     % get the configurations from the configs file
     [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
 
@@ -12,7 +14,9 @@ function results_clustering_parameters_graphs(output_path,nc,res1bare,res2bare,r
     ci_fac = 1.96/sqrt(length(nc));
     errorbar( nc, arrayfun( @(x) 100*x.mean_perrors, res1bare),  arrayfun( @(x) 100*x.sd_perrors*ci_fac, res1bare), 'k-', 'LineWidth', LineWidth);                       
     hold on;
-    errorbar( nc, arrayfun( @(x) 100*x.mean_perrors, res2bare),  arrayfun( @(x) 100*x.sd_perrors*ci_fac, res2bare), 'k:', 'LineWidth', LineWidth);                           
+    if DETAILED_GRAPH
+        errorbar( nc, arrayfun( @(x) 100*x.mean_perrors, res2bare),  arrayfun( @(x) 100*x.sd_perrors*ci_fac, res2bare), 'k:', 'LineWidth', LineWidth);                           
+    end
     xlabel('N_{clus}', 'FontSize', FontSize, 'FontName', FontName);
     ylabel('% errors', 'FontSize', FontSize, 'FontName', FontName);            
     set(f, 'Color', 'w');
@@ -27,7 +31,9 @@ function results_clustering_parameters_graphs(output_path,nc,res1bare,res2bare,r
     title('Percentage of unknown segments');
     errorbar( nc, arrayfun( @(x) 100*x.mean_punknown, res1),  arrayfun( @(x) 100*x.sd_punknown*ci_fac, res1), 'k-', 'LineWidth', LineWidth);                       
     hold on;
-    errorbar( nc, arrayfun( @(x) 100*x.mean_punknown, res2),  arrayfun( @(x) 100*x.sd_punknown*ci_fac, res2), 'k:', 'LineWidth', LineWidth);                           
+    if DETAILED_GRAPH
+        errorbar( nc, arrayfun( @(x) 100*x.mean_punknown, res2),  arrayfun( @(x) 100*x.sd_punknown*ci_fac, res2), 'k:', 'LineWidth', LineWidth);                           
+    end
     plot(nc, arrayfun( @(x) 100*x.punknown, res3), 'k*');   
     xlabel('N_{clus}', 'FontSize', FontSize, 'FontName', FontName);
     ylabel('% undefined', 'FontSize', FontSize, 'FontName', FontName);            

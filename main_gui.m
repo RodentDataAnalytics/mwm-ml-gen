@@ -267,6 +267,10 @@ function check_labels_Callback(hObject, eventdata, handles)
         errordlg('Cannot load segmentation file','Error');
         return
     end
+    if ~isequal(length(segmentation_configs.SEGMENTS.items),length(LABELLING_MAP))
+        errordlg('The selected segmentation do not match with the selected labelling','Error');
+        return    
+    end
     % Run the cross-validation process
     [temp, idx] = hide_gui('MWM-ML');
     p = strsplit(lab_name,'.mat');

@@ -1,3 +1,5 @@
+% This script generates the results of for each 111 classification 
+
 output_dir = 'C:\Users\Avgoustinos\Desktop\New folder (3)';
 figures = 0;
 load('C:\Users\Avgoustinos\Desktop\animals_trajectories_map.mat')

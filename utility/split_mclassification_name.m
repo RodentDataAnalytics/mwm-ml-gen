@@ -1,5 +1,5 @@
 function [error,labels,segments,seg_length,seg_overlap,merging,iterations,special] = split_mclassification_name(mclassification)
-%SPLIT_MCLASSIFICATION_NAME returns the parts of an Mclassification full
+%SPLIT_MCLASSIFICATION_NAME returns the parts of a Mclassification full
 %path or folder
 
     error = 1;

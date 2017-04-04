@@ -35,6 +35,25 @@ function error = majority_rule_init(segmentation_configs, output_folder, class_f
         files{i} = dir(fullfile(char(class_folders{i}),'*.mat'));
         data{i} = 1:length(files{i});
     end
+    % Keep only the name and Sort by name
+    for i = 1:length(files)
+        a = files{i};
+        a = {a.name};
+        [num,idx] = sort_classifiers(a);
+        a = a(idx);
+        files{i} = a;
+    end
+    
+    % Pick only the selected classifiers
+    if ~isempty(varargin)
+        sel = varargin{1};
+        indexes = zeros(length(sel),1);
+        for i = 1:length(sel)
+            indexes(i) = find(num == sel(i));
+        end
+        files{1} = files{1}(indexes);
+        data{1} = 1:length(files{1});
+    end
 
     % Run the majority rule ITERATIONS times and each time pick another
     % random sample from the classifiers pool.
@@ -50,7 +69,7 @@ function error = majority_rule_init(segmentation_configs, output_folder, class_f
             clusters_ = 1:length(new_sample);
             for j = 1:length(x)
                 clear classification_configs;
-                file_path = fullfile(class_folders{k},files{k}(x(j)).name);
+                file_path = fullfile(class_folders{k},files{k}{x(j)});
                 load(file_path)
                 classifications_{j} = classification_configs;
                 clusters_(j) = classification_configs.DEFAULT_NUMBER_OF_CLUSTERS;

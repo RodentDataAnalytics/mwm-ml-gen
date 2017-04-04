@@ -1,4 +1,4 @@
-function [varargout] = one_group_strategies(total_trials,segments_classification,animals_trajectories_map,long_trajectories_map,strat_distr,output_dir,path_interval)
+function [varargout] = one_group_strategies(total_trials,segments_classification,animals_trajectories_map,long_trajectories_map,strat_distr,output_dir)
 
     nanimals = size(animals_trajectories_map{1,1},2);
 
@@ -26,7 +26,7 @@ function [varargout] = one_group_strategies(total_trials,segments_classification
                 pts = [];
                 for i = 1:nanimals
                     if long_trajectories_map(map(t, i)) ~= 0                        
-                        val = path_interval * sum(strat_distr(long_trajectories_map(map(t, i)), :) == c);
+                        val = sum(strat_distr(long_trajectories_map(map(t, i)), :) == c);
                         pts = [pts, val];
                     end                                           
                 end
@@ -44,17 +44,28 @@ function [varargout] = one_group_strategies(total_trials,segments_classification
                 d = d + 0.05;                 
             end                                  
         end
-        % collect all the data and store maximum data number
-        a = max(data)/1000;
+        % collect all the data and store maximum data number, to be used
+        % for graph visualization purposes
+        a = max(data);
         if a > maximum
             maximum = a;
         end    
-        data_all{1,c} = data./1000;
+        data_all{1,c} = data;
         groups_all{1,c} = groups;
-        pos_all{1,c} = pos;
-    end
+        pos_all{1,c} = pos;  
+    end     
+    
+    % Do also the direct finding (DF = anu unsegmented trajectory)
+    [~,~,~,~] = friedman_test_DF(total_trials,animals_trajectories_map,long_trajectories_map,nanimals,p_table,fileID);
+    nc = segments_classification.nclasses;
+    %data_all{1,nc+1} = data;
+    %groups_all{1,nc+1} = groups;
+    %pos_all{1,nc+1} = pos;
+    
+    fclose(fileID);
+    extra = (10*maximum)/100; %take the 10% of the maximum
 
-    for c = 1:segments_classification.nclasses
+    for c = 1:nc
         f = figure;
         set(f,'Visible','off');
         
@@ -79,7 +90,7 @@ function [varargout] = one_group_strategies(total_trials,segments_classification
         lbls = {};
         lbls = arrayfun( @(i) sprintf('%d', i), 1:total_trials, 'UniformOutput', 0);     
         
-        set(faxis, 'XTickLabel', lbls, 'Ylim', [0, max(data_all{1,c})+0.5], 'FontSize', FontSize, 'FontName', FontName);
+        set(faxis, 'XTickLabel', lbls, 'Ylim', [0, max(data_all{1,c})+extra], 'FontSize', FontSize, 'FontName', FontName);
         set(faxis, 'LineWidth', LineWidth);   
                  
         title(segments_classification.classes{1,c}{1,2}, 'FontSize', FontSize, 'FontName', FontName)

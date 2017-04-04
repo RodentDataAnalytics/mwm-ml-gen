@@ -1,4 +1,4 @@
-function error = execute_Mclassification(project_path, classifications, sample, iterations, threshold)
+function error = execute_Mclassification(project_path, classifications, sample, iterations, threshold, varargin)
 %EXECUTE_MCLASSIFICATION merges the classification results of different
 %classifiers
 
@@ -9,7 +9,7 @@ function error = execute_Mclassification(project_path, classifications, sample, 
     end
     
     %if more than one classification groups are selected then we need the
-    %the appropriate segmentation objects.  
+    %appropriate segmentation objects.  
     if length(classifications) > 1
         seg_objs = cell(1,length(classifications));
         c = 0;
@@ -63,7 +63,7 @@ function error = execute_Mclassification(project_path, classifications, sample, 
     if length(classifications) > 1
         error = majority_rule_init(seg_objs{c}, Mclass_folder, class_paths, sample, threshold, iterations, seg_objs);
     else
-        error = majority_rule_init(segmentation_configs, Mclass_folder, class_paths, sample, threshold, iterations);
+        error = majority_rule_init(segmentation_configs, Mclass_folder, class_paths, sample, threshold, iterations, varargin{:});
     end
     if ~error
         error = 0;

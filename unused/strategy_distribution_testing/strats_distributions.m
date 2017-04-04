@@ -3,7 +3,7 @@ function [distr_maps_segs,w,true_length_maps] = strats_distributions(segmentatio
     PRESET = 0;
     REMOVE_DIRECT_FINDING = 1;
     REMOVE_UNDEFINED = 0;
-    HARD_BOUNDS = 0;
+    HARD_BOUNDS = 1;
     EQUATION_LEGACY = 0;
     WEIGHTS_NORMALIZATION = 0;
     WEIGHTS_ONES = 0;
@@ -105,5 +105,5 @@ function [distr_maps_segs,w,true_length_maps] = strats_distributions(segmentatio
     end
 
     % Finally smooth the data by removing orphan strategies
-    [ distr_maps_segs ] = remove_orphan_strategies(distr_maps_segs,true_length_maps,weights);
+    %[ distr_maps_segs ] = remove_orphan_strategies(distr_maps_segs,true_length_maps,weights);
 end

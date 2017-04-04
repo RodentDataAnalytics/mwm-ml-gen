@@ -1,7 +1,7 @@
 function [ w ] = class_weights(distr_maps_segs,length_map,tags)
 %CLASS_WEIGHTS computes the strategies weights
     
-    % Detect the maximum nember of continuous segments for each strategy
+    % Detect the maximum number of continuous segments for each strategy
     maximum_sequences = zeros(4,tags);
     for i = 1:tags %for each strategy   
         max_sequence = 0;

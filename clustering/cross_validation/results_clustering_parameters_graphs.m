@@ -2,7 +2,7 @@ function results_clustering_parameters_graphs(output_path,nc,res1bare,res2bare,r
 %RESULTS_CLUSTERING_PARAMETERS_GRAPHS generates and exports the
 % results_clustering_parameters graphs
 
-    DETAILED_GRAPH = 0;
+    DETAILED_GRAPH = 1;
 
     % get the configurations from the configs file
     [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
@@ -71,7 +71,7 @@ function results_clustering_parameters_graphs(output_path,nc,res1bare,res2bare,r
     %set(gca, 'FontSize', 10, 'LineWidth', 1.5);
     %h3 = gca;
     %box off;
-    %export_figure(1, gcf, strcat(output_dir,'/'), 'clusters_dep_deltan');
-
+    %export_figure(f, output_path, 'final_num_of_clusters', Export, ExportStyle); 
+    %delete(f);
 end
 

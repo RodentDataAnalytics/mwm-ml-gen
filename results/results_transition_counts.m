@@ -8,7 +8,7 @@ function [varargout] = results_transition_counts(segmentation_configs,classifica
     trials_per_session = segmentation_configs.EXPERIMENT_PROPERTIES{30};
     total_trials = sum(trials_per_session);
     % Get the transitions
-    trans = transition_counts(segmentation_configs,classification_configs);
+    trans = animal_transitions(segmentation_configs,classification_configs,varargin{:});
     % Keep only the trajectories with length > 0
     long_trajectories_map = long_trajectories( segmentation_configs );
     % For one group

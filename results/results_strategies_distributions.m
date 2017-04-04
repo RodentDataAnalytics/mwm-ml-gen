@@ -1,9 +1,7 @@
-function [varargout] = test_sigma_results_strategies_distributions_length(segmentation_configs,classification_configs,animals_trajectories_map,figures,output_dir,strat_distr)
-% Computes the average segment lengths for each strategy adopted by 
-% two groups of N animals for a set of M trials The generated plots
-% show the average length in meters that the animals spent in one strategy 
-% during each trial (for S total strategies, were S is defined by the user)
-
+function [varargout] = results_strategies_distributions(segmentation_configs,classification_configs,animals_trajectories_map,figures,output_dir,varargin)
+% Computes the number of segments for each strategy adopted by two groups
+% N animals for a set of M trials.
+    
     % get the configurations from the configs file
     [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
     % Get number of trials
@@ -14,7 +12,9 @@ function [varargout] = test_sigma_results_strategies_distributions_length(segmen
     % Keep only the trajectories with length > 0
     long_trajectories_map = long_trajectories( segmentation_configs ); 
     % Strategies distribution
-    %[strat_distr, ~, ~, ~] = distr_strategies(segmentation_configs, classification_configs);    
+    [strat_distr, ~, ~] = form_class_distr(segmentation_configs,classification_configs,'REMOVE_DIRECT_FINDING',1);
+    %[~,~,strat_distr] = distr_strategies_tiago(segmentation_configs, classification_configs, varargin{:});
+    %strat_distr = distr_strategies_gaussian(segmentation_configs, classification_configs);
     
     % For one animal group
     if length(animals_trajectories_map) == 1
@@ -53,7 +53,7 @@ function [varargout] = test_sigma_results_strategies_distributions_length(segmen
                 pts = [];
                 for i = 1:nanimals
                     if long_trajectories_map(map(t, i)) ~= 0                        
-                        val = 25*sum(strat_distr(long_trajectories_map(map(t, i)), :) == c);
+                        val = sum(strat_distr(long_trajectories_map(map(t, i)), :) == c);
                         pts = [pts, val];
                         mfried((t - 1)*nanimals + i, g) = val;
                     end                                           
@@ -87,27 +87,35 @@ function [varargout] = test_sigma_results_strategies_distributions_length(segmen
             disp('Error on Friedman test. Friedman test is skipped');
             p_table = [p_table;p];
         end   
-        
-        % collect all the data and store maximum data number
-        a = max(data)/1000;
+        % collect all the data and store maximum data number, to be used
+        % for graph visualization purposes
+        a = max(data);
         if a > maximum
             maximum = a;
         end    
-        data_all{1,c} = data./1000;
+        data_all{1,c} = data;
         groups_all{1,c} = groups;
         pos_all{1,c} = pos;  
     end     
-    fclose(fileID);
     
-    %% Generate figures
+    % Do also the direct finding (DF = anu unsegmented trajectory)
+    [~,~,~,~] = friedman_test_DF(total_trials,animals_trajectories_map,long_trajectories_map,nanimals,p_table,fileID);
+    nc = segments_classification.nclasses;
+    %data_all{1,nc+1} = data;
+    %groups_all{1,nc+1} = groups;
+    %pos_all{1,nc+1} = pos;
+    
+    fclose(fileID);
+    extra = (10*maximum)/100; %take the 10% of the maximum
+    
+    %% Generate figures (do not generate graph for DF)
     if figures
-        for c = 1:segments_classification.nclasses
+        for c = 1:nc
             f = figure;
             set(f,'Visible','off');
-            
             boxplot(data_all{1,c}, groups_all{1,c}, 'positions', pos_all{1,c}, 'colors', [0 0 0]);     
             faxis = findobj(f,'type','axes');
-            h = findobj(gca,'Tag','Box');
+            h = findobj(f,'Tag','Box');
             for j=1:2:length(h)
                  patch(get(h(j),'XData'), get(h(j), 'YData'), [0 0 0]);
             end
@@ -127,17 +135,18 @@ function [varargout] = test_sigma_results_strategies_distributions_length(segmen
             lbls = arrayfun( @(i) sprintf('%d', i), 1:total_trials, 'UniformOutput', 0);     
 
             set(faxis, 'XTick', (pos(1:2:2*total_trials - 1) + pos(2:2:2*total_trials)) / 2, 'XTickLabel', lbls, 'FontSize', FontSize, 'FontName', FontName);
-            set(faxis, 'Ylim', [0, max(data_all{1,c})+0.5]);
+            set(faxis, 'Ylim', [0, max(data_all{1,c})+extra]);
             set(faxis, 'LineWidth', LineWidth);   
-
-            ylabel(segments_classification.classes{1,c}{1,2}, 'FontSize', FontSize, 'FontName', FontName);
-            xlabel('trial', 'FontSize', FontSize);  
+            
+            title(segments_classification.classes{1,c}{1,2}, 'FontSize', FontSize, 'FontName', FontName)
+            xlabel('trials', 'FontSize', FontSize, 'FontName', FontName);  
+            ylabel('number of class segments', 'FontSize', FontSize, 'FontName', FontName); 
 
             set(f, 'Color', 'w');
             box off;  
             set(f,'papersize',[8,8], 'paperposition',[0,0,8,8]);
     
-            export_figure(f, output_dir, sprintf('segment_length_strategy_%d', c), Export, ExportStyle);
+            export_figure(f, output_dir, sprintf('animal_strategy_%d', c), Export, ExportStyle);
             close(f)
         end    
     end
@@ -156,3 +165,4 @@ function [varargout] = test_sigma_results_strategies_distributions_length(segmen
     %Note for vals_grps: it holds numbers 1:nanimals and each number is
     %repeated nanimals times
 end
+

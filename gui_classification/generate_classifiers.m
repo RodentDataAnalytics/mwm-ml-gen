@@ -1,4 +1,4 @@
-function er = generate_classifiers(cpath, num_clusters, segmentation_configs, LABELLING_MAP, ALL_TAGS, CLASSIFICATION_TAGS)
+function er = generate_classifiers(cpath, num_clusters, segmentation_configs, LABELLING_MAP, ALL_TAGS, CLASSIFICATION_TAGS, f_unsupervised)
 %GENERATE_CLASSIFIERS generate a series of classifiers and places them
 %inside the specified folder
 
@@ -41,14 +41,19 @@ function er = generate_classifiers(cpath, num_clusters, segmentation_configs, LA
 
     % Generate the classifiers
     h = waitbar(0,'Generating classifiers...');
+    fn = fullfile(cpath,'errorlog.txt');
+    fileID = fopen(fn,'wt');
     for i = 1:length(numbers)
         DEFAULT_NUMBER_OF_CLUSTERS = numbers(i);
-        classification_configs = config_classification(segmentation_configs,DEFAULT_NUMBER_OF_CLUSTERS,LABELLING_MAP,ALL_TAGS,CLASSIFICATION_TAGS);
+        classification_configs = config_classification(segmentation_configs,DEFAULT_NUMBER_OF_CLUSTERS,LABELLING_MAP,ALL_TAGS,CLASSIFICATION_TAGS,f_unsupervised);
         %name and save
         name = generate_name_classifiers(classification_configs);
         name = strcat('classification_configs_',name,'.mat');
         save(fullfile(cpath,name),'classification_configs');
         waitbar(i/length(numbers));
+        if classification_configs.flag == 0
+            fprintf(fileID,'%s\n',num2str(numbers(i)));
+        end
     end   
     er = 0;
     close(h)

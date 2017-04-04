@@ -1,4 +1,4 @@
-function [s,e,step] = cross_validation_clusters
+function [s,e,step,other] = cross_validation_clusters(varargin)
 %CROSS_VALIDATION_CLUSTERS
 
     % General GUI Settings
@@ -8,7 +8,7 @@ function [s,e,step] = cross_validation_clusters
     fontsize = 11;
     fontunits = 'points';
     
-    name = 'Number of Clusters';
+    name = 'K-fold Cross Validation';
 
     %% Create Figure
     h.f = figure('units',units,'position',[100,130,260,80],...
@@ -70,7 +70,14 @@ function [s,e,step] = cross_validation_clusters
     h.step_down = uicontrol('style','pushbutton','units',units,...
              'position',[230,40,20,10],'string','<html>&#x25BC;</html>',...
              'fontname',fontname,'fontsize',5,...
-             'fontunits',fontunits,'callback',{@down_callback,h,3});         
+             'fontunits',fontunits,'callback',{@down_callback,h,3});  
+         
+    %% Create Popup Menu   
+    h.pop = uicontrol('style','popup','units',units,...
+             'String', {'data','labels'},...
+             'position',[10,15,60,18],...
+             'fontname',fontname,'fontsize',fontsize,...
+             'fontunits',fontunits);      
     
     %% Create Exit
     h.ok = uicontrol('style','pushbutton','units',units,...
@@ -165,6 +172,9 @@ function [s,e,step] = cross_validation_clusters
         s = str2num(get(h.text_min,'string'));
         e = str2num(get(h.text_max,'string'));
         step = str2num(get(h.text_step,'string'));
+        idx = get(h.pop,'Value');
+        other = get(h.pop,'string');
+        other = other{idx};
         % close current figure and continue executing
         try 
             close(gcf); 

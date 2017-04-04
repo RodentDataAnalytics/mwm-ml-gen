@@ -275,7 +275,11 @@ function check_labels_Callback(hObject, eventdata, handles)
     [temp, idx] = hide_gui('MWM-ML');
     p = strsplit(lab_name,'.mat');
     p = p{1};
-    output_path = char(fullfile(project_path,'labels',strcat(p,'_check')));
+    [s,e,step,options] = cross_validation_clusters;
+    if e == -1 || s == -1 || step == -1
+        return
+    end
+    output_path = char(fullfile(project_path,'labels',strcat(p,'_check'),options));
     if ~exist(output_path,'dir')
         mkdir(output_path);
     else
@@ -288,9 +292,9 @@ function check_labels_Callback(hObject, eventdata, handles)
         elseif isequal(choice,'Generate graphs only')
         end
     end
-    [s,e,step] = cross_validation_clusters;
-    [nc,res1bare,res2bare,res1,res2,res3,covering] = results_clustering_parameters(segmentation_configs,labels,0,output_path,s,e,step);
-    output_path = char(fullfile(project_path,'results',strcat(p,'_cross_validation')));
+    %[nc,res1bare,res2bare,res1,res2,res3,covering] = results_clustering_parameters(segmentation_configs,labels,0,output_path,s,e,step);
+    [nc,res1bare,res2bare,res1,res2,res3,covering] = cross_validation(segmentation_configs,labels,10,[s,e,step],output_path,options,0);
+    output_path = char(fullfile(project_path,'results',strcat(p,'_cross_validation'),options));
     if exist(output_path,'dir');
         rmdir(output_path,'s');
     end
@@ -432,3 +436,8 @@ function conf_figs_Callback(hObject, eventdata, handles)
     [temp, idx] = hide_gui('MWM-ML');
     figure_configs;
     set(temp(idx),'Visible','on');
+% --------------------------------------------------------------------
+function conf_tags_Callback(hObject, eventdata, handles)
+    [temp, idx] = hide_gui('MWM-ML');
+    tags_config;
+    set(temp(idx),'Visible','on');    

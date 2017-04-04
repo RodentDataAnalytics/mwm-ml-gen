@@ -31,7 +31,7 @@ function error = generate_results(project_path, name, segmentation_configs, clas
     vals_grps_ = cell(1,length(classifications)); 
     %Position of each boxplot in the figure  
     pos_ = cell(1,length(classifications)); 
-    %try
+    try
         switch b_pressed
             case 'Transitions'
                 if length(groups) > 1
@@ -57,7 +57,8 @@ function error = generate_results(project_path, name, segmentation_configs, clas
             case 'Strategies'
                  if length(groups) > 1
                     for i = 1:length(classifications)
-                        [p,mfried,nanimals,vals,vals_grps,pos] = results_strategies_distributions_length(segmentation_configs,classifications{i},animals_trajectories_map,1,dir_list{i});
+                        %[p,mfried,nanimals,vals,vals_grps,pos] = results_strategies_distributions_length(segmentation_configs,classifications{i},animals_trajectories_map,1,dir_list{i});
+                        [p,mfried,nanimals,vals,vals_grps,pos] = results_strategies_distributions(segmentation_configs,classifications{i},animals_trajectories_map,1,dir_list{i});
                         p_{i} = p;
                         mfried_{i} = mfried;
                         nanimals_{i} = nanimals;
@@ -68,7 +69,7 @@ function error = generate_results(project_path, name, segmentation_configs, clas
                     end
                 else
                    for i = 1:length(classifications)
-                        [vals,vals_grps,pos] = results_strategies_distributions_length(segmentation_configs,classifications{i},animals_trajectories_map,1,dir_list{i});
+                        [vals,vals_grps,pos] = results_strategies_distributions(segmentation_configs,classifications{i},animals_trajectories_map,1,dir_list{i});
                         vals_{i} = vals;
                         vals_grps_{i} = vals_grps;
                         pos_{i} = pos;
@@ -90,10 +91,10 @@ function error = generate_results(project_path, name, segmentation_configs, clas
                     end
                 end  
         end
-    %catch
-    %    delete(h);
-    %    return
-    %end
+    catch
+        delete(h);
+        return
+    end
         
     %% Generate a summary of the results
     waitbar(1,h,'Finalizing...');
@@ -124,7 +125,7 @@ function error = generate_results(project_path, name, segmentation_configs, clas
                 errordlg('Cannot create summary file');
             end
             switch b_pressed
-                 case 'Strategies'
+                case 'Strategies'
                     error = create_pvalues_figure(p_,class_tags,dir_list{end});
                 case 'Transitions'    
                     error = create_pvalues_figure(p_,class_tags,dir_list{end},'tag',{''},'xlabel','transitions');

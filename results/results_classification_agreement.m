@@ -183,7 +183,7 @@ function results_classification_agreement(ouput_folder, varargin)
     
     % Export the agreement matrix as image (10x10 grid)
     
-    %split the confusion matrix into 10x10 grids and in case we have
+    %split the agreement matrix into 10x10 grids and in case we have
     %remainder increase the grids by 1
     cmatrix_bk = cmatrix;
     integer = fix(size(cmatrix_bk,1)/10);

@@ -13,6 +13,19 @@ function [error, count, percentage_per_classifier] = class_statistics(ppath, cla
     strats = classification_configs.ALL_TAGS;
     clear classification_configs
     
+    % Create the folder
+    rpath = fullfile(ppath,'results',strcat('statistics-',class_name));
+    try
+        if exist(rpath,'dir')
+            rmdir(rpath,'s');
+        end
+        mkdir(rpath);
+    catch
+        errordlg('Cannot create output folder','Error: Statistics')
+        delete(h);
+        return
+    end
+    
     % Calculate how many segs / strategy
     count = zeros(length(files),length(strats));
     for i = 1:length(files)
@@ -21,6 +34,9 @@ function [error, count, percentage_per_classifier] = class_statistics(ppath, cla
         for j = 1:length(strats)
             count(i,j) = length(find(class_map==strats{j}{3}));
         end
+        % Histogram
+        str = strsplit(files(i).name,'.mat');
+        create_classification_histogram(class_map,strats,rpath,strcat(str{1},'_hist'));
         waitbar(i/length(files));
     end
     average = mean(count,1);
@@ -39,18 +55,7 @@ function [error, count, percentage_per_classifier] = class_statistics(ppath, cla
     %% Export
     count = count'; % cols = classifiers + average, rows = strategies
     percentage_per_classifier = percentage_per_classifier';
-    % Create the folder
-    rpath = fullfile(ppath,'results',strcat('statistics-',class_name));
-    try
-        if exist(rpath,'dir')
-            rmdir(rpath,'s');
-        end
-        mkdir(rpath);
-    catch
-        errordlg('Cannot create output folder','Error: Statistics')
-        delete(h);
-        return
-    end
+
     % Create the tables
     cols = cell(1,length(files)+1);
     for i = 1:length(files)
@@ -81,6 +86,5 @@ function [error, count, percentage_per_classifier] = class_statistics(ppath, cla
     end
     
     error = 0;
-
 end
 

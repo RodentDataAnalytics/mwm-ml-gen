@@ -2,7 +2,7 @@ function [segmentations,labels,classifications] = pick_defaults(ppath)
 %PICK_DEFAULTS 
     
     segmentations = {};
-    labels = {};
+    labels = {'<no labels>'};
     classifications = {};
     ppath = char_project_path(ppath);
     
@@ -17,9 +17,9 @@ function [segmentations,labels,classifications] = pick_defaults(ppath)
     for i = 1:length(files)
         labels = [labels, files(i).name];
     end    
-    if isempty(labels)
-        labels = {''};
-    end
+%     if isempty(labels)
+%         labels = {''};
+%     end
     files = dir(fullfile(ppath,'Mclassification'));
     for i = 3:length(files)
         classifications = [classifications, files(i).name];

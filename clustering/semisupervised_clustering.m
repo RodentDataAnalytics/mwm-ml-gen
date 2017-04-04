@@ -57,6 +57,9 @@ classdef semisupervised_clustering < handle
             % normalize features            
             inst.features = feat ./ repmat( max(feat) - min(feat), size(feat, 1), 1);            
             inst.labels = lbls;
+            if isequal(lbls,-1)
+                return;
+            end
             
             % look for non-empty labels
             for i = 1:length(lbls)
@@ -72,7 +75,7 @@ classdef semisupervised_clustering < handle
             inst.nlabels = length(inst.non_empty_labels_idx); 
         end
         
-        function [res, res1st] = cluster(inst, nclusters, test_p)
+        function [res, res1st, flag] = cluster(inst, nclusters, test_p)
             % run the clustering
             mask = ones(1, length(inst.non_empty_labels_idx));
             
@@ -85,9 +88,9 @@ classdef semisupervised_clustering < handle
             % all of them for validation
             if nargout > 1
                 % get also the results for the 1st stage clustering
-                [res, res1st] = inst.internal_cluster(nclusters, mask, ones(1, inst.nlabels));                
+                [res, res1st, flag] = inst.internal_cluster(nclusters, mask, ones(1, inst.nlabels));                
             else
-                res = inst.internal_cluster(nclusters, mask, ones(1, inst.nlabels));
+                [res,~,flag] = inst.internal_cluster(nclusters, mask, ones(1, inst.nlabels));
             end
         end
         
@@ -154,8 +157,8 @@ classdef semisupervised_clustering < handle
         end
     end            
         
-    methods(Access = private)                                        
-        function [res, res1st] = internal_cluster(inst, nclusters, training_set, test_set)            
+    methods%(Access = private)                                        
+        function [res, res1st, flag] = internal_cluster(inst, nclusters, training_set, test_set)            
             % divide the data into labelled/unlabelled elements
             % move labelled items to the front   
             labels_idx = inst.non_empty_labels_idx(training_set == 1);       
@@ -199,9 +202,9 @@ classdef semisupervised_clustering < handle
             
             %% 1st (main stage): cluster the data
             fprintf('Clustering... (total number of constraints: %d)', size(constr, 1));
-            [cluster_idx, centroids] = mpckmeans(reordered_feat, constr, nclusters);
+            [cluster_idx, centroids, flag] = mpckmeans(reordered_feat, constr, nclusters);
             cluster_idx = cluster_idx + 1; % mpck-means uses zero based indexes (it's Java after all) -> we want them to start at 1
-            % reorder indexes agaion to match the input data
+            % reorder indexes again to match the input data
             cluster_idx = cluster_idx(results_map);   
 
             % map clusters to classes
@@ -277,7 +280,7 @@ classdef semisupervised_clustering < handle
                             for s = nsub:2*nsub
                                 fprintf('**** Partitioning cluster %d into %d sub-clusters... ****\n', i, s);
 
-                                [sub_cluster_idx, sub_centroids] = mpckmeans(reordered_feat, constr, s);
+                                [sub_cluster_idx, sub_centroids, f] = mpckmeans(reordered_feat, constr, s);
                                 sub_cluster_idx = sub_cluster_idx + 1;
                                 % reorder indexes agaion to match the input data
                                 sub_cluster_idx = sub_cluster_idx(results_map);   
@@ -340,6 +343,10 @@ classdef semisupervised_clustering < handle
             end
                                     
             % create return object
+            try % to be skipped if two_stage = 0
+                flag = [flag,f];
+            catch
+            end
             res = clustering_results(inst.segments, length(inst.classes), inst.labels, training_set, test_set, inst.nexternal_labels, [nconstr, nconstr2], class_idx, cluster_idx, cluster_map, centroids, inst.classes);             
         end    
     end

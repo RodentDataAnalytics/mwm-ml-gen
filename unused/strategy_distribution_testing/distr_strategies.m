@@ -1,4 +1,4 @@
-function [major_classes, full_distributions, seg_classes, class_w] = test_sigma_distr_strat(segmentation_configs, classification_configs, output_dir, varargin)
+function [major_classes, full_distributions, seg_classes, class_w] = distr_strategies(segmentation_configs, classification_configs, varargin)
 %DISTR_STRATEGIES computes the prefered strategy for a small time window
 %for each trajectory.
 
@@ -7,7 +7,8 @@ function [major_classes, full_distributions, seg_classes, class_w] = test_sigma_
 %       classes over the swimming paths.
 %-discard_undefined: keep/discard undefined
 %-w: method of computed the weights
-%-tiny_num: used for computed the full_distributions (hidden from user)
+%-norm_method: normalizes the weights (off/OFF/0) to skip
+%-tiny_num: used for computed the full_distributions (data smoothing)
 sigma = 4;
 discard_undefined = 0;
 %w = 'defined';
@@ -17,11 +18,7 @@ hard_bounds = 'on';
 %tiny_num = 1e-6;
 tiny_num = realmin;
 min_seg = 1;
-
-sig = 0.5:0.5:10;
-h = waitbar(0,'Generating distr_strats');
-for ss = 1:length(sig)
-sigma = sig(ss);
+    
     %% INITIALIZE USER INPUT %%
     for i = 1:length(varargin)
         if isequal(varargin{i},'sigma')
@@ -40,6 +37,10 @@ sigma = sig(ss);
             end
         elseif isequal(varargin{i},'weights')   
             w = varargin{i+1};
+        elseif isequal(varargin{i},'norm_method')
+            norm_method = varargin{i+1};
+        elseif isequal(varargin{i},'hard_bounds')
+            hard_bounds = varargin{i+1};
         end
     end     
                       
@@ -67,28 +68,22 @@ sigma = sig(ss);
             end
         case 'computed'
             class_w = computed_weights(segmentation_configs, classification_configs);           
-    end   
-    
+    end      
     %weights normalization
     if ~isequal(norm_method,'off') && ~isequal(norm_method,'OFF') && ~isequal(norm_method,0)
         class_w = normalizations(class_w,norm_method);
     end
     %hard bounds
     if ~isequal(hard_bounds,'off') && ~isequal(hard_bounds,'OFF') && ~isequal(hard_bounds,0);
-        avg_w = max(class_w)/2;
-        avg_w = avg_w-1;
-        avg_w = avg_w/2;
+        avg_w = max(class_w) - min(class_w);
+        avg_w = avg_w / 2;
+        avg_w = avg_w + min(class_w);
         for i = 1:length(class_w)
             if class_w(i) < avg_w
-                class_w(i) = 1;
+                class_w(i) = min(class_w);
             else
                 class_w(i) = max(class_w);
             end
-%             if class_w(i) < 5
-%                 class_w(i) = 1;
-%             else
-%                 class_w(i) = 10;
-%             end
         end
     end
     
@@ -101,7 +96,7 @@ sigma = sig(ss);
     %
     undef = [];
     %for matching segments to trajectory
-    id = [-1, -1, -1];
+    id = [-1, -1, -1, -1, -1];
     %the ith path segment, Si 
     iseg = 0;
 
@@ -113,28 +108,12 @@ sigma = sig(ss);
             id = segment.data_identification;
             %distribute the classes
             if ~isempty(class_distr_traj)
-%                 %full distributions
-%                 tmp = class_distr_traj;
-%                 tmp(tmp(:) == -1) = 0;
-%                 if isempty(undef) %we do not have undefined
-%                     nrm = repmat(sum(tmp,2) + tiny_num, undef', 1, length(classes));
-%                 else
-%                     nrm = repmat(sum(tmp,2) + tiny_num, undef', 1, length(classes)-1);
-%                 end
-%                 nrm(class_distr_traj == -1) = 1;
-%                 class_distr_traj = class_distr_traj ./ nrm;
-%                 full_distributions = [full_distr, class_distr_traj];
-                
                 %take only the most frequent class for each bin and traj
                 traj_distr = zeros(1,nbins);
                 for j = 1:nbins
                     [val,pos] = max(class_distr_traj(j,:));
                     if val > 0
-                        if undefined(j) > val && discard_undefined
-                            traj_distr(j) = 0;
-                        else
-                            traj_distr(j) = pos;
-                        end
+                        traj_distr(j) = pos;
                     else
                         if j > iseg
                             traj_distr(j) = -1;
@@ -153,7 +132,6 @@ sigma = sig(ss);
             else
                 class_distr_traj = ones(nbins,length(classes)-1)*-1;
             end    
-            undefined = zeros(1,nbins);
             iseg = 0;
         end
         iseg = iseg + 1;
@@ -181,8 +159,6 @@ sigma = sig(ss);
                 else
                     class_distr_traj(j,col) = class_distr_traj(j,col) + val;
                 end
-            elseif discard_undefined
-                undefined(j) = undefined(j) + 1;
             end
         end
     end
@@ -215,33 +191,6 @@ sigma = sig(ss);
         end
         major_classes = [major_classes; traj_distr];
         
-        %Extra: remove spurious segments (or "smooth" the data)
-        if min_seg > 1
-            for i = 1:size(major_classes, 1)
-                j = 1;
-                lastc = -1;
-                lasti = 0;
-                while(j <= size(major_classes, 2) && major_classes(i, j) ~= -1)
-                    if lastc == -1
-                        lastc = major_classes(i, j);
-                        lasti = j;
-                    elseif major_classes(i, j) ~= lastc
-                        if (j - lasti) < min_seg && lastc ~= 0                                                       
-                            if lasti > 1
-                                % find middle point
-                                m = floor( (j + lasti) / 2);
-                                major_classes(i, lasti:m) = major_classes(i, lasti - 1);                                
-                                major_classes(i, m + 1:j) = major_classes(i, j);                                
-                            end
-                        end
-                        lastc = major_classes(i, j);
-                        lasti = j;
-                    end                     
-                    j = j + 1;
-                end
-            end     
-        end
-        
         %FINAL SEGMENTS
         %re-map distribution to the flat list of segments
         index = 1;
@@ -252,10 +201,5 @@ sigma = sig(ss);
             index = index + partitions(i);
         end
     end
-strat_distr = major_classes;
-file = fullfile(output_dir,strcat('strat_distr',num2str(sigma),'.mat'));
-save(file,'strat_distr');
-waitbar(ss/length(sig));
-end 
-delete(h);
 end
+

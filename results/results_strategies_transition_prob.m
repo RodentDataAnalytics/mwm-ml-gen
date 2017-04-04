@@ -10,7 +10,8 @@ function varargout = results_strategies_transition_prob(segmentation_configs,cla
     long_trajectories_map = long_trajectories( segmentation_configs );
     
     % Strategies distribution
-    [strat_distr, ~, ~, ~] = distr_strategies(segmentation_configs, classification_configs);
+    %[strat_distr, ~, ~, ~] = distr_strategies(segmentation_configs, classification_configs);
+    strat_distr = distr_strategies_gaussian(segmentation_configs, classification_configs);
     
     count = length(segmentation_configs.TRAJECTORIES.items);
     partitions = segmentation_configs.PARTITION;

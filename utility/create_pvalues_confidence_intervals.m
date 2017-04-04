@@ -40,11 +40,9 @@ function create_pvalues_confidence_intervals(score,sample,class_tags,fpath)
         %plot as errorbar
         errorbar( i, m, l, u, 'black', 'Marker', 'none', 'LineStyle', '-', 'LineWidth', LineWidth);
         
-        %fix lower, mid, upper points and also plot the "correct" mean
-        plot(i,m,'color','black','LineStyle','none','Marker','o','MarkerFaceColor','black');
-        plot(i,pci(1),'color','black','LineStyle','none','Marker','*','MarkerFaceColor','black');
-        plot(i,pci(2),'color','black','LineStyle','none','Marker','*','MarkerFaceColor','black');
-        plot(i,phat,'color','red','LineStyle','none','Marker','d','MarkerFaceColor','none','MarkerEdgeColor','red','LineWidth',1.5);
+        plot([i-0.2,i+0.2],[pci(1),pci(1)],'color','black','LineStyle','-','Marker','none','LineWidth', LineWidth+0.1);
+        plot([i-0.2,i+0.2],[pci(2),pci(2)],'color','black','LineStyle','-','Marker','none','LineWidth', LineWidth+0.1);
+        plot(i,phat,'color','red','LineStyle','none','Marker','square','MarkerFaceColor','none','MarkerEdgeColor','black','LineWidth',1.5);
     end
     fclose(fileID);
     % correct the axis limits

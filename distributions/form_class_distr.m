@@ -11,6 +11,11 @@ function [distr_maps_segs, length_map, segments] = form_class_distr(segmentation
     end     
     
     partitions = segmentation_configs.PARTITION;
+    z = find(partitions == 0); %we are having whole trajectories
+    if length(z) == length(partitions)
+        partitions = ones(1,length(z));
+    end
+    
     segment_length = segmentation_configs.FEATURES_VALUES_SEGMENTS(:,10)';
     length_map = -1.*ones(length(partitions),max(partitions));
     distr_map = -1.*ones(length(partitions),max(partitions));

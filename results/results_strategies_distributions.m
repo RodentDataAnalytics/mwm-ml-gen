@@ -1,6 +1,22 @@
 function [varargout] = results_strategies_distributions(segmentation_configs,classification_configs,animals_trajectories_map,figures,output_dir,varargin)
 % Computes the number of segments for each strategy adopted by two groups
 % N animals for a set of M trials.
+
+% DISTRIBUTION:
+% 1: Tiago original
+% 2: Classification
+% 3: Smoothing
+
+    AVERAGE = 0;
+    DISTRIBUTION = 3;
+    
+    for i = 1:length(varargin)
+        if isequal(varargin{i},'AVERAGE')
+            AVERAGE = varargin{i+1};
+        elseif isequal(varargin{i},'DISTRIBUTION')
+            DISTRIBUTION = varargin{i+1};
+        end
+    end
     
     % get the configurations from the configs file
     [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
@@ -12,10 +28,24 @@ function [varargout] = results_strategies_distributions(segmentation_configs,cla
     % Keep only the trajectories with length > 0
     long_trajectories_map = long_trajectories( segmentation_configs ); 
     % Strategies distribution
-    [strat_distr, ~, ~] = form_class_distr(segmentation_configs,classification_configs,'REMOVE_DIRECT_FINDING',1);
-    %[~,~,strat_distr] = distr_strategies_tiago(segmentation_configs, classification_configs, varargin{:});
-    %strat_distr = distr_strategies_gaussian(segmentation_configs, classification_configs);
+    switch DISTRIBUTION
+        case 1
+            strat_distr = distr_strategies_gaussian(segmentation_configs, classification_configs);
+        case 2
+            [strat_distr, ~, ~] = form_class_distr(segmentation_configs,classification_configs,'REMOVE_DIRECT_FINDING',1);
+        case 3
+            strat_distr = distr_strategies_smoothing(segmentation_configs, classification_configs,varargin{:});
+    end
     
+    % Strategies distribution map
+    strat_distr_map = zeros(size(strat_distr,1),segments_classification.nclasses);
+    for c = 1:segments_classification.nclasses
+        for j = 1:size(strat_distr,1)
+            val = length(find(strat_distr(j,:) == c));
+            strat_distr_map(j,c) = val;
+        end
+    end
+
     % For one animal group
     if length(animals_trajectories_map) == 1
         [data_, groups_all, pos] = one_group_strategies(total_trials,segments_classification,animals_trajectories_map,long_trajectories_map,strat_distr,output_dir);
@@ -35,6 +65,7 @@ function [varargout] = results_strategies_distributions(segmentation_configs,cla
     data_all = cell(1,ncl);
     groups_all = cell(1,ncl);
     pos_all = cell(1,ncl);
+    mfried_all = cell(1,ncl);
     maximum = 0;
     for c = 1:segments_classification.nclasses
         data = [];
@@ -54,6 +85,10 @@ function [varargout] = results_strategies_distributions(segmentation_configs,cla
                 for i = 1:nanimals
                     if long_trajectories_map(map(t, i)) ~= 0                        
                         val = sum(strat_distr(long_trajectories_map(map(t, i)), :) == c);
+                        if AVERAGE
+                            summ = sum(strat_distr_map(long_trajectories_map(map(t, i)),:));
+                            val = val / summ;
+                        end
                         pts = [pts, val];
                         mfried((t - 1)*nanimals + i, g) = val;
                     end                                           
@@ -96,9 +131,10 @@ function [varargout] = results_strategies_distributions(segmentation_configs,cla
         data_all{1,c} = data;
         groups_all{1,c} = groups;
         pos_all{1,c} = pos;  
+        mfried_all{1,c} = mfried;
     end     
     
-    % Do also the direct finding (DF = anu unsegmented trajectory)
+    % Do also the direct finding (DF = unsegmented trajectory)
     [~,~,~,~] = friedman_test_DF(total_trials,animals_trajectories_map,long_trajectories_map,nanimals,p_table,fileID);
     nc = segments_classification.nclasses;
     %data_all{1,nc+1} = data;
@@ -156,11 +192,11 @@ function [varargout] = results_strategies_distributions(segmentation_configs,cla
     
     %% Output
     varargout{1} = p_table; % Friedman's test p-value (-1 if it is skipped)
-    varargout{2} = mfried; % Friedman's test sample data
+    varargout{2} = mfried_all; % Friedman's test sample data
     varargout{3} = nanimals; % Friedman's test num of replicates per cell
     varargout{4} = data_all; % input data (matrix of vectors) [data/1000]
     varargout{5} = groups_all; % grouping variable (length(data_))
-    varargout{6} = pos_all; % position of each boxplot in the figure   
+    varargout{6} = pos_all; % position of each boxplot in the figure  
     
     %Note for vals_grps: it holds numbers 1:nanimals and each number is
     %repeated nanimals times

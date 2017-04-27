@@ -4,11 +4,17 @@ function trans = animal_transitions(segmentation_configs,classification_configs,
 %   Trajectories with no segments will have 0 transitions.
 %   Undefined segments won't count as transitions
 
+% DISTRIBUTION:
+% 1: Tiago original
+% 2: Classification
+% 3: Smoothing
+
     %% INITIALIZE %%
     
     % Default Options
     OPTION = 1;
     DIVIDE = 0;
+    DISTRIBUTION = 3;
     
     % Custom Options
     for i = 1:length(varargin)
@@ -16,11 +22,19 @@ function trans = animal_transitions(segmentation_configs,classification_configs,
             OPTION = varargin{i+1};
         elseif isequal(varargin{i},'DIVIDE')
             DIVIDE = varargin{i+1};
+        elseif isequal(varargin{i},'DISTRIBUTION')
+            DISTRIBUTION = varargin{i+1};
         end
     end
-    %[strat_distr, ~, ~] = form_class_distr(segmentation_configs,classification_configs,'REMOVE_DIRECT_FINDING',1);
-    %[~,~,strat_distr] = distr_strategies_tiago(segmentation_configs, classification_configs, varargin{:});
-    strat_distr = distr_strategies_gaussian(segmentation_configs, classification_configs);
+    % Strategies distribution
+    switch DISTRIBUTION
+        case 1
+            strat_distr = distr_strategies_gaussian(segmentation_configs, classification_configs);
+        case 2
+            [strat_distr, ~, ~] = form_class_distr(segmentation_configs,classification_configs,'REMOVE_DIRECT_FINDING',1);
+        case 3
+            strat_distr = distr_strategies_smoothing(segmentation_configs, classification_configs,varargin{:});
+    end
     
     %% EXECUTE %%
     

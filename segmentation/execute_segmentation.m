@@ -1,4 +1,4 @@
-function error = execute_segmentation(ppath,seg_length,seg_overlap)
+function error = execute_segmentation(ppath,seg_length,seg_overlap,varargin)
 %EXECUTE_SEGMENTATION segments and saves a trajectory
 
     error = 1;
@@ -18,10 +18,20 @@ function error = execute_segmentation(ppath,seg_length,seg_overlap)
         return
     end
     
+    % Extra options
+    extra = '';
+    for i = 1:length(varargin)
+        if isequal(varargin{i},'dummy'); %if we do not want segments
+            extra = 'dummy';
+            seg_length = 0;
+            seg_overlap = 0;
+        end
+    end
+    
     % Execute the segmentation(s)
     for i = 1:length(seg_overlap)
         seg_properties = [seg_length,seg_overlap(i)];
-        segmentation_configs = config_segments(new_properties, seg_properties, trajectory_groups, my_trajectories);
+        segmentation_configs = config_segments(new_properties, seg_properties, trajectory_groups, my_trajectories, extra);
         save_segmentation(segmentation_configs, ppath)
     end   
     

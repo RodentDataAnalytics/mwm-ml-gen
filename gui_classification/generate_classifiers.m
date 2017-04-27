@@ -14,7 +14,7 @@ function er = generate_classifiers(cpath, num_clusters, segmentation_configs, LA
     er = 1;
     % Check the clusters
     tags = length(CLASSIFICATION_TAGS);
-    [error,numbers,removed] = check_num_of_clusters(num_clusters,tags);
+    [error,numbers,removed] = check_num_of_clusters(num_clusters,tags,LABELLING_MAP);
     if error == 1
         %terminate
         errordlg('Wrong input for Clusters');

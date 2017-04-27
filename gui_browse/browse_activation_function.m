@@ -31,6 +31,13 @@ function [ mode, obj, fpath ] = browse_activation_function(varargin)
                 mode = 2;
                 obj = classification_configs;
             end
+        % check if it is trajectories object
+        elseif exist('my_trajectories','var')
+            if isa(my_trajectories,'trajectories')
+                error = 0;
+                mode = 3;
+                obj = my_trajectories;
+            end
         end
     end
 

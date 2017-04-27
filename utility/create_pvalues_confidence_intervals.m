@@ -1,7 +1,20 @@
-function create_pvalues_confidence_intervals(score,sample,class_tags,fpath)
+function create_pvalues_confidence_intervals(score,sample,class_tags,fpath,varargin)
+    
+    TRIAL = 0;
+    
+    for i = 1:length(varargin)
+        if isequal(varargin{i},'trial')
+            TRIAL = varargin{i+1};
+        end
+    end
     
     fpath = fileparts(fpath);
-    fpath = fullfile(fpath,'binomial.txt');
+    if TRIAL
+        fpath = fullfile(fpath,'binomial_trial.txt');
+    else
+        fpath = fullfile(fpath,'binomial.txt');
+    end
+
     fileID = fopen(fpath,'wt');
     
     f = figure;
@@ -42,7 +55,7 @@ function create_pvalues_confidence_intervals(score,sample,class_tags,fpath)
         
         plot([i-0.2,i+0.2],[pci(1),pci(1)],'color','black','LineStyle','-','Marker','none','LineWidth', LineWidth+0.1);
         plot([i-0.2,i+0.2],[pci(2),pci(2)],'color','black','LineStyle','-','Marker','none','LineWidth', LineWidth+0.1);
-        plot(i,phat,'color','red','LineStyle','none','Marker','square','MarkerFaceColor','none','MarkerEdgeColor','black','LineWidth',1.5);
+        plot(i,phat,'color','black','LineStyle','--','Marker','square','MarkerFaceColor','none','MarkerEdgeColor','black','LineWidth',1.5);
     end
     fclose(fileID);
     % correct the axis limits
@@ -58,7 +71,11 @@ function create_pvalues_confidence_intervals(score,sample,class_tags,fpath)
     
     % export
     fpath = fileparts(fpath);
-    export_figure(f, fpath, 'binomial', Export, ExportStyle);
+    if TRIAL
+        export_figure(f, fpath, 'binomial_trial', Export, ExportStyle);
+    else
+        export_figure(f, fpath, 'binomial', Export, ExportStyle);
+    end    
     close(f);
 end
 

@@ -1,11 +1,15 @@
 function varargout = browse(varargin)
 %% GUI holds the UserData which are as follows:
-% plotter:         mode, 1 or 2
+% plotter:         mode, 1 / 2 / 3 / 4
 % trajectory_info: segmentation_configs (mode 1)
-% segment_info:    classifiation_configs (mode 2)
+% segment_info:    classifiation_configs (mode 2) or new_properties (mode 3)
 % tag_box:         user labels, {index,tags} (mode 1)
 % available_tags:  list of tags (mode 1)
 % browse_data:     holds a default path (if called from another function)
+% listbox          full trajectory user labels {index,tags} (mode 1,3)
+%%
+% mode = 4 when we want to covert some full trajectories to segments
+% navigator: store full trajectories
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -29,8 +33,9 @@ end
 
 % --- Executes just before browse is made visible.
 function browse_OpeningFcn(hObject, eventdata, handles, varargin)
+    % the first varargin is the project path
     %load tags and features names
-    [tag_names, features_names] = browse_open_function;    
+    [tag_names, features_names] = browse_open_function(varargin{1}); 
 %%%%%%%% FOR DEBUGGING%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     if tag_names{1} == 0 || features_names{1} == 0 %
 %         disp('Cannot load tags or features');      %
@@ -46,12 +51,13 @@ function browse_OpeningFcn(hObject, eventdata, handles, varargin)
     %update the Segment table
     set(handles.segment_info,'RowName',['#','Offset',features_names]);
     %update the tags
+    tag_names = ['MULTI',tag_names];
     set(handles.available_tags,'String',tag_names);
     %save the tags
     set(handles.available_tags,'UserData',tag_names);
     %update the counting table
     set(handles.counting,'RowName',[tag_names,'total']);
-    data = zeros(length(tag_names)+1,1);
+    data = zeros(length(tag_names),1);
     set(handles.counting,'Data',data);
     % PLAY OPTIONS + Color UNAVAILABLE (for now)
     set(findall(handles.uibuttongroup1, '-property', 'Visible'), 'Visible', 'off');
@@ -60,6 +66,12 @@ function browse_OpeningFcn(hObject, eventdata, handles, varargin)
     if ~isempty(varargin)
         set(handles.browse_data,'UserData',varargin{1});  
     end      
+    % If segmentation object is given load only the remaining full
+    % trajectories and only specific functionalities
+    if length(varargin) > 1
+        segmentation_configs = varargin{2};
+        browse_extra_segments(handles,segmentation_configs);        
+    end
     % Choose default command line output for browse
     handles.output = hObject;
     % Update handles structure
@@ -72,6 +84,7 @@ function browse_OpeningFcn(hObject, eventdata, handles, varargin)
 function varargout = browse_OutputFcn(hObject, eventdata, handles) 
     % Get default command line output from handles structure
     varargout{1} = handles.output;
+    varargout{2} = get(handles.listbox,'UserData');
     % The figure can be deleted now
     if ~isempty(get(handles.browse_data,'UserData'))
         delete(handles.browse_data);
@@ -89,6 +102,7 @@ function browse_data_CloseRequestFcn(hObject, eventdata, handles)
 %Table
 function trajectory_info_CreateFcn(hObject, eventdata, handles)
 function segment_info_CreateFcn(hObject, eventdata, handles)
+
 
 %% ACTIVATION %%
 function load_configuration_Callback(hObject, eventdata, handles)
@@ -109,6 +123,7 @@ function load_configuration_Callback(hObject, eventdata, handles)
         set(handles.trajectory_info,'UserData',obj);
         set(handles.plotter,'UserData',mode);
         set(handles.tag_box,'UserData',[]);
+        set(handles.listbox,'UserData',[]);
     % run with classification configs file    
     elseif mode == 2    
         errordlg('Requires a segmentation file.','Error');
@@ -120,8 +135,19 @@ function load_configuration_Callback(hObject, eventdata, handles)
         %end
         set(handles.segment_info,'UserData',obj);
         set(handles.plotter,'UserData',mode);
+    elseif mode == 3 
+        %check and save the file into the UserData
+        error = browse_mode_trajectories(obj,handles);
+        if error
+            errordlg('Error initializing the GUI','Dev Error');
+            return
+        end        
+        set(handles.trajectory_info,'UserData',obj);
+        set(handles.plotter,'UserData',mode);
+        set(handles.listbox,'UserData',[]);        
     end    
 
+    
 %% PLOTTING %%
 % Plotter
 function plotter_CreateFcn(hObject, eventdata, handles)
@@ -207,7 +233,7 @@ end
 % Export currect plot as picture
 function export_Callback(hObject, eventdata, handles)
     index = get(handles.plotter,'UserData');
-    if isempty(index)
+    if isempty(index) || index == 3
         return;
     end    
     % get project path
@@ -256,7 +282,7 @@ function export_Callback(hObject, eventdata, handles)
 % Export all segments of specific group as pictures
 function export_all_Callback(hObject, eventdata, handles)
     index = get(handles.plotter,'UserData');
-    if isempty(index)
+    if isempty(index) || index == 3
         return;
     end    
     % get project path
@@ -292,8 +318,8 @@ function export_all_Callback(hObject, eventdata, handles)
     for i = 1:length(a{1})
         row = a{2}(i,1:end);
         cells = find(~cellfun(@isempty,row));
-        if isequal(selected_tag,'UD')
-            if length(cells) > 1 || isequal(row{1},'UD')
+        if isequal(selected_tag,'MULTI')
+            if length(cells) > 1 || isequal(row{1},'MULTI')
                 segment = segmentation_configs.SEGMENTS.items(1,a{1}(i));
                 % draw the arena and the segment on the new figure
                 plot_arena(segmentation_configs);
@@ -322,7 +348,7 @@ function export_all_Callback(hObject, eventdata, handles)
 % Export all full trajectories
 function export_full_Callback(hObject, eventdata, handles)
     index = get(handles.plotter,'UserData');
-    if isempty(index)
+    if isempty(index) || index == 3
         return;
     end    
     % get project path

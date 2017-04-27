@@ -1,9 +1,20 @@
 function browse_update_counting(handles)
 %BROWSE_UPDATE_COUNTING recounts the labels
 
+    mode = get(handles.plotter,'UserData');
+    if mode == 1
+        labels = get(handles.tag_box,'UserData');
+        if isempty(labels)
+            return;
+        end
+    elseif mode == 3
+        labels = get(handles.listbox,'UserData');
+    else
+        return;
+    end
+    
     tags = get(handles.available_tags,'String');
     table = zeros(length(tags)+1,1);
-    labels = get(handles.tag_box,'UserData');
     labels = labels{2};%(index,:)
     for i = 1:size(labels,1);
         if ~isempty(labels{i,2})

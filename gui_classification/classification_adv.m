@@ -76,16 +76,11 @@ function refresh_classadv_Callback(hObject, eventdata, handles)
 %%%% Classifiers %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Button
 function generate_classifiers_Callback(hObject, eventdata, handles) 
-    project_path = get(handles.classification_adv,'UserData');
     num_clusters = get(handles.default_clusters,'String'); 
-    %get selected segmentation
-    idx = get(handles.select_segmentation,'Value');
-    selected_seg = get(handles.select_segmentation,'String');
-    selected_seg = selected_seg{idx};
-    %get selected segmentation labels
-    idx = get(handles.select_labels,'Value');
-    selected_labels = get(handles.select_labels,'String');
-    selected_labels = selected_labels{idx};
+    [error,project_path,selected_seg,selected_labels] = initialize_classification(handles,eventdata);
+    if error || isempty(project_path)
+        return
+    end
     %generate the classifiers
     error = execute_classification(project_path,selected_seg,selected_labels,num_clusters);
     refresh_classadv_Callback(hObject, eventdata, handles);
@@ -137,11 +132,15 @@ function rule_options_Callback(hObject, eventdata, handles)
     end
     
 function generate_merge_Callback(hObject, eventdata, handles)
-    project_path = get(handles.classification_adv,'UserData');
+    project_path = char_project_path(get(handles.classification_adv,'UserData'));
     sample = str2double(get(handles.class_per_group,'String'));
     iterations = str2double(get(handles.iterations,'String'));
     if isnan(sample) || isnan(iterations)
         errordlg('Wrong or unspecified input(s) for Classifiers per Group and/or Iterations.','Error');
+        return
+    end
+    if sample < 1 || iterations < 1
+        errordlg('Value of Classifiers per Group and/or Iterations cannot be less than 1.','Error');
         return
     end
     %we have only one rule for now thus the following lines are not needed
@@ -154,6 +153,14 @@ function generate_merge_Callback(hObject, eventdata, handles)
     class = class(idx);
     clusters = get(handles.specified_classifiers,'UserData');
     if isequal(clusters,0) % no specified classifiers
+        clusters = dir(char_project_path(fullfile(project_path,'classification',class,'*.mat')));
+        if length(clusters) < sample
+            errordlg('The number of specified sample is larger than the number of specified classifiers. ','Error')
+            return
+        elseif length(clusters) == sample && iterations > 1
+            warndlg('The number of specified sample and the number of specified classifiers are equal. Only one iteration will be performed','Warning');    
+            iterations = 1;       
+        end        
         error = execute_Mclassification(project_path, class, sample, iterations, extra_options);  
     else
         if length(idx) ~= 1 % cannot have specified classifiers and multiple classifications
@@ -164,11 +171,14 @@ function generate_merge_Callback(hObject, eventdata, handles)
                 return;
             end
         else
-            if length(clusters) > sample
-                errordlg('The number of specified classifiers is larger than the specified sample.','Error');    
-            else
-                error = execute_Mclassification(project_path, class, sample, iterations, extra_options, clusters);
+            if length(clusters) < sample
+                errordlg('The number of specified sample is larger than the number of specified classifiers. ','Error')
+                return
+            elseif length(clusters) == sample && iterations > 1
+                warndlg('The number of specified sample and the number of specified classifiers are equal. Only one iteration will be performed','Warning');    
+                iterations = 1;       
             end
+            error = execute_Mclassification(project_path, class, sample, iterations, extra_options, clusters);
         end 
     end
     if ~error

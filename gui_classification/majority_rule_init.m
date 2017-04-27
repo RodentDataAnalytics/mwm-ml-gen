@@ -35,7 +35,7 @@ function error = majority_rule_init(segmentation_configs, output_folder, class_f
         files{i} = dir(fullfile(char(class_folders{i}),'*.mat'));
         data{i} = 1:length(files{i});
     end
-    % Keep only the name and Sort by name
+    % Keep only the name and sort by name
     for i = 1:length(files)
         a = files{i};
         a = {a.name};
@@ -98,6 +98,5 @@ function error = majority_rule_init(segmentation_configs, output_folder, class_f
     find_similar_unlabelled(segmentation_configs,output_folder);
     close(h)
     error = 0;
-    % Create also a summary 
 end
 

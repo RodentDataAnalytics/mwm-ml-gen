@@ -1,4 +1,4 @@
-function [ indexes, labels ] = browse_read_labels_file(path)
+function [ indexes, labels, s] = browse_read_labels_file(path)
 %BROWSE_OPEN_LABELS_FILE reads a label file and if it is in the old format
 %it automatically fixes it
 
@@ -8,6 +8,7 @@ function [ indexes, labels ] = browse_read_labels_file(path)
     % open file and count the columns
     fid = fopen(path);
     header = fgetl(fid);
+    s = header(1);
     num_cols = length(strsplit(header,','));
     % create a format specifier of the correct size
     fmt = repmat('%s ',[1,num_cols]);
@@ -16,11 +17,13 @@ function [ indexes, labels ] = browse_read_labels_file(path)
     % check if the file is correct
     old_format = 0;
     if ~isequal(header(1),'S')
-        % check if the file has no header (old format)
-        if ~isempty(str2num(header(1)))
-            old_format = 1;
-        else
-            return
+        if ~isequal(header(1),'T')
+            % check if the file has no header (old format)
+            if ~isempty(str2num(header(1)))
+                old_format = 1;
+            else
+                return
+            end
         end
     end
            

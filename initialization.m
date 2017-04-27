@@ -25,6 +25,12 @@ function [main_path] = initialization
         mkdir(main_path);
     end
     
+    %make the folder for storing default tags
+    fpath = fullfile(main_path,'custom_tags');
+    if ~exist(fpath,'dir')
+        mkdir(fpath);
+    end   
+    
     %% Start WEKA
     weka_init;
 end

@@ -1,9 +1,9 @@
 function error = browse_mode_segmentation(obj,handles)
 %BROWSE_MODE_SEGMENTATION
 
-        error = 0;
-        % parse UserData
-        segmentation_configs = obj;
+    error = 0;
+    % parse UserData
+    segmentation_configs = obj;
     try    
         % plot the arena
         cla

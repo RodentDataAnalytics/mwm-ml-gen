@@ -2,6 +2,7 @@ function error = create_pvalues_figure(table,class_tags,output_dir,varargin)
 %CREATE_PVALUES_FIGURE creates a boxplot of the p-values.
 
     error = 1;
+    TRIAL = 0;
     [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
     % default labels
     t = cell(1,length(class_tags));
@@ -18,6 +19,8 @@ function error = create_pvalues_figure(table,class_tags,output_dir,varargin)
             xlabel_ = varargin{i+1};
         elseif isequal(varargin{i},'ylabel')
             ylabel_ = varargin{i+1};
+        elseif isequal(varargin{i},'trial')
+            TRIAL = varargin{i+1};
         end
     end
     % convert to double array and find the mean of the rows
@@ -65,7 +68,11 @@ function error = create_pvalues_figure(table,class_tags,output_dir,varargin)
     hold off
     
     %export
-    export_figure(f, output_dir, 'pvalues_summary', Export, ExportStyle);
+    if TRIAL
+        export_figure(f, output_dir, 'pvalues_trial_summary', Export, ExportStyle);
+    else
+        export_figure(f, output_dir, 'pvalues_summary', Export, ExportStyle);
+    end
     close(f);
     
     %% Generate the focused plot
@@ -109,7 +116,11 @@ function error = create_pvalues_figure(table,class_tags,output_dir,varargin)
     hold off
     
     %export
-    export_figure(f, output_dir, 'pvalues_summary_focus', Export, ExportStyle); 
+    if TRIAL
+        export_figure(f, output_dir, 'pvalues_trial_summary_focus', Export, ExportStyle);
+    else
+        export_figure(f, output_dir, 'pvalues_summary_focus', Export, ExportStyle);
+    end
     close(f);
     
     error = 0;

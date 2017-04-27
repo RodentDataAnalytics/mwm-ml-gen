@@ -2,7 +2,11 @@ function browse_fill_segments_list(segmentation_configs, idx, handles)
 %BROWSE_FILL_SEGMENTATION_LIST 
 
     % get the segments of the trajectory
-    segs = find_segs_of_traj(segmentation_configs.SEGMENTS, idx);
+    if ~isempty(segmentation_configs)
+        segs = find_segs_of_traj(segmentation_configs.SEGMENTS, idx);
+    else
+        segs = '';
+    end
     % if the trajectory has segments
     if ~isempty(segs)
         list_data = cell(1,length(segs)+1);

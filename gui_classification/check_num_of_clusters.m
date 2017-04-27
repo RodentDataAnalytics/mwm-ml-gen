@@ -1,6 +1,9 @@
-function [error,numbers,removed] = check_num_of_clusters(str,tags)
+function [error,numbers,removed] = check_num_of_clusters(str,tags,labels)
 %CHECK_NUM_OF_CLUSTERS
     
+    %see how many of the tags we have really used
+    tags = length(unique(cell2mat(labels)))-1;
+
     error = 1;
     numbers = [];
     removed = [];

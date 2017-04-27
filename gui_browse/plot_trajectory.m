@@ -27,7 +27,7 @@ function plot_trajectory(trajectory, varargin)
     
     plot(trajectory.points(1,2), trajectory.points(1,3), 'r*', 'LineWidth', 2);
     hold on
-    plot(trajectory.points(end,2), trajectory.points(end,3), 'ro', 'LineWidth', 2);
+    plot(trajectory.points(end,2), trajectory.points(end,3), 'rx', 'LineWidth', 2);
     plot(trajectory.points(:,2), trajectory.points(:,3), '-', 'LineWidth', LineWidth, 'Color', Color, 'LineStyle', LineStyle);
     hold off
 end

@@ -19,6 +19,10 @@ function [class_map_detailed,d_points] = distr_strategies_smoothing(segmentation
 % assignement of the interval.
 
 % interval_len: Length of the path intervals 
+    
+    % DEBUG
+    DEBUG = 0;
+    DEBUG_SPEED = 0.5;
 
     % Default values
     R = segmentation_configs.COMMON_PROPERTIES{8}{1};
@@ -141,7 +145,10 @@ function [class_map_detailed,d_points] = distr_strategies_smoothing(segmentation
     end
     class_map_detailed = -1*ones(size(class_map,1),tmp_size);
     
-    f1 = figure;
+    if DEBUG
+        f1 = figure;
+        straj = find(segmentation_configs.PARTITION > 1);
+    end
 
     % For each trajectory (excluding unsegmented ones)
     for i = 1:size(class_map_detailed,1)
@@ -156,48 +163,61 @@ function [class_map_detailed,d_points] = distr_strategies_smoothing(segmentation
         endIndex_traj = length(find(class_map(i,:) ~= -1));
         % For each interval
         for j = 1:endIndex
-            if j==endIndex
-                ff=50;
-            end
             interval_length = d_lengths(i,j);
             interval_offset = d_offsets(i,j);
             interval_cov = interval_length + interval_offset;
             wi = 1; %first segment overlapping the interval
             wf = 1; %final segment overlapping the interval
-            s = 0;
             %find the indexes of the segments overlapping the interval
             for ii = 1:endIndex_traj
                 segment_cov = offsets(i,ii) + length_map(i,ii); 
-                % check if segment is before the interval (skip it)
-                if segment_cov < interval_cov
-                    wi = ii;
-                    s = 1;
-                    continue;
-                end
-                % check if segment is after the interval (end loop)
-                if offsets(i,ii) > interval_cov
-                    wf = ii - 1;
-                    s = 1;
+                if segment_cov == segmentation_configs.FEATURES_VALUES_TRAJECTORIES(i,10);
+                    % if we have reached the last segment
+                    wf = endIndex_traj;
                     break;
+                else
+                    % check if segment is before the interval (skip it)
+                    if segment_cov < interval_cov
+                        wi = ii;
+                        continue;
+                    end
+                    % check if segment is after the interval (end loop)
+                    if offsets(i,ii) > interval_cov
+                        wf = ii - 1;
+                        break;
+                    end
                 end
             end           
             if wf < wi
-                wf = wi;
-            end
-            if s == 0
                 wf = endIndex_traj;
             end
             % For the current segment until all the overlapped ones...
             % after this compute the score of each strategy
-            cla
-            plot_arena(segmentation_configs);
-            hold on
-            for ii = wi:wf
-                plot_trajectory(segmentation_configs.SEGMENTS.items(ii),'LineWidth',2);
+            if DEBUG
+                cla
+                plot_arena(segmentation_configs);
                 hold on
-            end
-            for p = 2:size(d_points{i,j},1)
-                plot(d_points{i,j}(p-1:p,2),d_points{i,j}(p-1:p,3),'r-');
+                plot_trajectory(segmentation_configs.TRAJECTORIES.items(straj(i)));
+                hold on
+                for ii = wi:wf
+                    cm = segmentation_configs.CUM_PARTITIONS;
+                    if classification_configs.CLASSIFICATION.class_map(ii + cm(straj(i))) == 0
+                        plot_trajectory(segmentation_configs.SEGMENTS.items(ii + cm(straj(i))),'LineWidth',2,'Color','magenta');
+                    else
+                        plot_trajectory(segmentation_configs.SEGMENTS.items(ii + cm(straj(i))),'LineWidth',2);
+                    end
+                    hold on
+                end
+                for p = 2:size(d_points{i,j},1)
+                    plot(d_points{i,j}(p-1:p,2),d_points{i,j}(p-1:p,3),'r-','LineWidth',1.5);
+                end
+                str = strcat('traj:',num2str(straj(i)));
+                text(-R-10,R,str);
+                str = strcat('segs=wi:wf==>',num2str(wi),':',num2str(wf),'/',num2str(endIndex_traj));
+                text(-R-10,R-10,str);
+                str = strcat('interval==>',num2str(j),'/',num2str(endIndex));
+                text(-R-10,R-20,str);
+                pause(DEBUG_SPEED);
             end
             for ii = wi:wf
                 if class_map(i,ii) > 0
@@ -213,7 +233,7 @@ function [class_map_detailed,d_points] = distr_strategies_smoothing(segmentation
                         continue;
                     end
                     % Main equation
-                    tmp = exp(-(d^2) / (SIGMA^2));
+                    tmp = exp(-(d^2) / (2*(SIGMA^2)));
                     val = w(col)*tmp; 
                     % Store score of each strategy per interval
                     if class_distr_traj(j,col) == -1

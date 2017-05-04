@@ -23,25 +23,44 @@ end
 
 % --- Executes just before new_tag is made visible.
 function new_tag_OpeningFcn(hObject, eventdata, handles, varargin)
-items = {'Solid','Dashed','Dotted'};
-set(handles.popup,'String',items);
-set(handles.popup,'Value',1);
-%if edit
-if ~isempty(varargin)
-    data = varargin{1,1};
-    set(handles.ab,'String',data{1,1});
-    set(handles.de,'String',data{1,2});
-    set(handles.w,'String',data{1,4});
-    set(handles.color,'BackgroundColor',data{1,5});
-    for i = 1:length(items)
-        if isequal(items{1,i},data{1,6})
-            set(handles.popup,'Value',i);
-            break;
+    set(handles.shortcut_pop, 'Visible', 'off'); %shortcuts
+    set(handles.shortcut, 'Visible', 'off'); %shortcuts
+    n = ('0':'9')';
+    a = ('A':'Z')';
+    items_al = [n;a];
+    set(handles.shortcut_pop,'String',items_al);
+    set(handles.shortcut_pop,'Value',1);
+    pop_items = {'Solid','Dashed','Dotted'};
+    set(handles.popup,'String',pop_items);
+    set(handles.popup,'Value',1);
+    av_items = {'public','trajectory','segment'};
+    set(handles.tag_role,'String',av_items);
+    set(handles.tag_role,'Value',1);
+    set(handles.new_tag, 'UserData', varargin{1,1});
+    set(handles.tag_role, 'UserData', 0);
+    %if edit
+    if length(varargin) > 1
+        data = varargin{1,2};
+        set(handles.ab,'String',data{1,1});
+        set(handles.de,'String',data{1,2});
+        idx1 = strfind(data{1,4},'[');
+        idx2 = strfind(data{1,4},']');
+        data{1,4} = str2num(data{1,4}(idx1:idx2));
+        set(handles.color,'BackgroundColor',data{1,4});
+        for i = 1:length(pop_items)
+            if isequal(pop_items{1,i},data{1,5})
+                set(handles.popup,'Value',i);
+                break;
+            end
+        end 
+        for i = 1:length(av_items)
+            if isequal(av_items{1,i},data{1,6})
+                set(handles.tag_role,'Value',i);
+                break;
+            end
         end
-    end 
-    %keep the txt line
-    set(handles.ab,'UserData',varargin{1,2});
-end    
+        set(handles.tag_role, 'UserData', str2num(data{1,3}));
+    end    
     % Choose default command line output for browse
     handles.output = hObject;
     % Update handles structure
@@ -103,39 +122,49 @@ function color_Callback(hObject, eventdata, handles)
     end    
     
 function ok_Callback(hObject, eventdata, handles)
-    data = parse_tags;
+    ppath = get(handles.new_tag, 'UserData');
+    ppath = char_project_path(ppath);
+    [~, data] = parse_tags(fullfile(ppath,'settings','tags.txt'));     
+    data(1,:) = []; %remove title
     ABBREVIATION = get(handles.ab,'String');
     DESCRIPTION = get(handles.de,'String');
-    WEIGHT = get(handles.w,'String');
     COLOR = get(handles.color,'BackgroundColor');
     switch get(handles.popup,'Value') 
-    case 1
-        LINESTYLE = 'Solid';
-    case 2
-        LINESTYLE = 'Dashed';
-    case 3    
-        LINESTYLE = 'Dotted';
+        case 1
+            LINESTYLE = 'Solid';
+        case 2
+            LINESTYLE = 'Dashed';
+        case 3    
+            LINESTYLE = 'Dotted';
     end
+    switch get(handles.tag_role,'Value') 
+        case 1
+            AVAIL = 'public';
+        case 2
+            AVAIL = 'trajectory';
+        case 3    
+            AVAIL = 'segments';
+    end
+    idx = get(handles.tag_role, 'UserData');
     %check user input
-    correct = check_tags(ABBREVIATION,DESCRIPTION,WEIGHT,data,get(handles.ab,'UserData'));
+    correct = check_tags(ABBREVIATION,DESCRIPTION,data,idx);
     if ~correct
         return
     end    
     %Generate ID
-    if isempty(get(handles.ab,'UserData'))
-        ID = data{end,3}+1;
-        new = {ABBREVIATION,DESCRIPTION,ID,str2num(WEIGHT),COLOR,LINESTYLE};
+    if idx == 0
+        ID = str2num(data{end,3})+1;
+        new = {ABBREVIATION,DESCRIPTION,ID,num2str(COLOR(1)),num2str(COLOR(2)),num2str(COLOR(3)),LINESTYLE,0,AVAIL};
         data = [data;new];
     else
-        pointer = get(handles.ab,'UserData');
-        ID = data{pointer,3};
-        new = {ABBREVIATION,DESCRIPTION,ID,str2num(WEIGHT),COLOR,LINESTYLE};
+        ID = data{idx,3};
+        new = {ABBREVIATION,DESCRIPTION,ID,num2str(COLOR(1)),num2str(COLOR(2)),num2str(COLOR(3)),LINESTYLE,0,AVAIL};
         for i = 1:size(new,2)
-            data{pointer,i} = new{1,i};
+            data{idx,i} = new{1,i};
         end    
     end    
     %Write to file
-    write_tags_to_file(data);
+    write_tags_to_file(data,fullfile(ppath,'settings','tags.txt'));
     close(gcf);
     
 function cancel_Callback(hObject, eventdata, handles)
@@ -146,4 +175,13 @@ function popup_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
+function shortcut_pop_Callback(hObject, eventdata, handles)
+function shortcut_pop_CreateFcn(hObject, eventdata, handles)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+function tag_role_Callback(hObject, eventdata, handles)
+function tag_role_CreateFcn(hObject, eventdata, handles)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

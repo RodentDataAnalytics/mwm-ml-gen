@@ -10,8 +10,10 @@ function [ tags_data ] = read_tags( fn )
         error('read_tags:InvalidFileFormat','The input file is invalid');
     else   
         if ~isequal(line{1,1}{1},'Segment')
-            fclose(file);
-            error('read_tags:InvalidFileFormat','The input file is invalid');
+            if ~isequal(line{1,1}{1},'Trajectory')
+                fclose(file);
+                error('read_tags:InvalidFileFormat','The input file is invalid');
+            end
         end 
     end  
 

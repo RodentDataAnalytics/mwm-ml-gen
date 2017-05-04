@@ -23,21 +23,23 @@ end
 
 % --- Executes just before untitled is made visible.
 function tags_config_OpeningFcn(hObject, eventdata, handles, varargin)
+    %Store the project folder
+    set(handles.tags_config,'UserData',varargin{1});
+    ppath = varargin{1};
+    ppath = char_project_path(ppath);
     %Initialize table
-    contents = parse_tags;
+    [~, contents] = parse_tags(fullfile(ppath,'settings','tags.txt'));
     %Keep the primary file content
     set(handles.table1,'UserData',contents);
-    %format color as: #FFFFFF and text same as color
-    for i = 1:size(contents,1)
-        contents{i,5} = dec2hex(round(contents{i,5}*255),2)'; contents{i,5} = ['#';contents{i,5}(:)]';
-        contents{i,5} = strcat(['<html><body bgcolor="' contents{i,5} '" text="' contents{i,5} '" width="80px">'],contents{i,5});
-    end
-    %fill the table
-    set(handles.table1,'data',contents(4:end,:));
+    % Table size
+    [~,s2] = size(get(handles.table1,'data'));
+    %Create the table graphics and data
+    data = produce_table(contents,s2);
+    %Fill the table
+    set(handles.table1,'data',data);
     %Initialize pop-up
-    count = size(get(handles.table1,'data'),1);
     items = {};
-    for i = 1:count
+    for i = 1:size(data,1)
         items = [items, num2str(i)];
     end
     set(handles.selection,'String',items);
@@ -70,136 +72,38 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 function edit_Callback(hObject, eventdata, handles)
-    pointer = get(handles.selection,'Value')+3;
-    data = parse_tags;
-    temp = findobj('Type','figure');
-    for i = 1:length(temp)
-        name = get(temp(i),'Name');
-        if isequal(name,'Configure Strategies')
-            set(temp(i),'Visible','off'); 
-            idx = i;
-            break;
-        end
-    end     
-    new_tag(data(pointer,:),pointer);
+    [temp, idx] = hide_gui('Configure Strategies');  
+    ppath = get(handles.tags_config,'UserData');
+    ppath = char_project_path(ppath);
+    pointer = get(handles.selection,'Value');
+    data = get(handles.table1,'data');
+    new_tag(ppath,data(pointer,:));
     set(temp(idx),'Visible','on');
     %Re-initialize table
-    contents = parse_tags;
-    %format color as: #FFFFFF and text same as color
-    for i = 1:size(contents,1)
-        contents{i,5} = dec2hex(round(contents{i,5}*255),2)'; contents{i,5} = ['#';contents{i,5}(:)]';
-        contents{i,5} = strcat(['<html><body bgcolor="' contents{i,5} '" text="' contents{i,5} '" width="80px">'],contents{i,5});
-    end
-    %fill the table
-    set(handles.table1,'data',contents(4:end,:));    
+    [~, contents] = parse_tags(fullfile(ppath,'settings','tags.txt'));
+    set(handles.table1,'UserData',contents);
+    % Table size
+    [~,s2] = size(get(handles.table1,'data'));
+    %Create the table graphics and data
+    data = produce_table(contents,s2);
+    %Fill the table
+    set(handles.table1,'data',data); 
     
 function remove_Callback(hObject, eventdata, handles)
-    pointer = get(handles.selection,'Value')+3;
-    data = parse_tags;
-    for j=1:size(data,2)
-        data{pointer,j} = {};
+    ppath = get(handles.tags_config,'UserData');
+    ppath = char_project_path(ppath);
+    pointer = get(handles.selection,'Value');
+    [~, contents] = parse_tags(fullfile(ppath,'settings','tags.txt'));
+    contents(pointer+1,:) = [];
+    for i = 2:size(contents,1)
+        contents{i,3} = i-1;
     end
-    %remove empty rows (thanks to Ben van Oeveren)
-    data(any(cellfun(@isempty,data),2),:) = [];
-    %write to file
-    write_tags_to_file(data);
-    %Re-initialize table
-    contents = parse_tags;
-    %format color as: #FFFFFF and text same as color
-    for i = 1:size(contents,1)
-        contents{i,5} = dec2hex(round(contents{i,5}*255),2)'; contents{i,5} = ['#';contents{i,5}(:)]';
-        contents{i,5} = strcat(['<html><body bgcolor="' contents{i,5} '" text="' contents{i,5} '" width="80px">'],contents{i,5});
-    end
-    %fill the table
-    set(handles.table1,'data',contents(4:end,:));
-    %pop-up
-    count = size(get(handles.table1,'data'),1);
-    items = {};
-    for i = 1:count
-        items = [items, num2str(i)];
-    end
-    set(handles.selection,'String',items);
-    set(handles.selection,'Value',1)
-    
-function new_Callback(hObject, eventdata, handles)
-    temp = findobj('Type','figure');
-    for i = 1:length(temp)
-        name = get(temp(i),'Name');
-        if isequal(name,'Configure Strategies')
-            set(temp(i),'Visible','off'); 
-            idx = i;
-            break;
-        end
-    end 
-    run new_tag;
-    set(temp(idx),'Visible','on');
-    %Re-initialize table
-    contents = parse_tags;
-    %format color as: #FFFFFF and text same as color
-    for i = 1:size(contents,1)
-        contents{i,5} = dec2hex(round(contents{i,5}*255),2)'; contents{i,5} = ['#';contents{i,5}(:)]';
-        contents{i,5} = strcat(['<html><body bgcolor="' contents{i,5} '" text="' contents{i,5} '" width="80px">'],contents{i,5});
-    end
-    %fill the table
-    set(handles.table1,'data',contents(4:end,:));
-    %pop-up
-    count = size(get(handles.table1,'data'),1);
-    items = {};
-    for i = 1:count
-        items = [items, num2str(i)];
-    end
-    set(handles.selection,'String',items);
-    set(handles.selection,'Value',1);
-    
-function default_Callback(hObject, eventdata, handles)
-    contents = parse_tags('tags_default'); % read tags_default.txt;
-    %Write to file
-    write_tags_to_file(contents);
-    %fill the table
-    for i = 1:size(contents,1)
-        contents{i,5} = dec2hex(round(contents{i,5}*255),2)'; contents{i,5} = ['#';contents{i,5}(:)]';
-        contents{i,5} = strcat(['<html><body bgcolor="' contents{i,5} '" text="' contents{i,5} '" width="80px">'],contents{i,5});
-    end
-    set(handles.table1,'data',contents(4:end,:));  
-    %fill pop-up
-    count = size(get(handles.table1,'data'),1);
-    items = {};
-    for i = 1:count
-        items = [items, num2str(i)];
-    end
-    set(handles.selection,'String',items);
-    set(handles.selection,'Value',1);
-    
-function OK_Callback(hObject, eventdata, handles)
-    tags_config_CloseRequestFcn(hObject, eventdata, handles)
-    
-function cancel_Callback(hObject, eventdata, handles)
-    %reset
-    primary = get(handles.table1,'UserData');  
-    %Write to file
-    write_tags_to_file(primary)
-    %close
-    tags_config_CloseRequestFcn(hObject, eventdata, handles)
-
-function load_Callback(hObject, eventdata, handles)
-    [FileName,PathName] = uigetfile('*.txt','Select tags.txt');
-    contents = parse_tags(fullfile(PathName,FileName));
-    %format color as: #FFFFFF and text same as color
-    for i = 1:size(contents,1)
-        contents{i,5} = dec2hex(round(contents{i,5}*255),2)'; contents{i,5} = ['#';contents{i,5}(:)]';
-        contents{i,5} = strcat(['<html><body bgcolor="' contents{i,5} '" text="' contents{i,5} '" width="80px">'],contents{i,5});
-    end
-    try
-        if isequal(contents{4,1},'')
-            errordlg('Wrong file input','Error');
-            return
-        end
-    catch
-        errordlg('Wrong file input','Error');
-        return
-    end
-    %fill the table
-    set(handles.table1,'data',contents(4:end,:));
+    % Table size
+    [~,s2] = size(get(handles.table1,'data'));
+    %Create the table graphics and data
+    data = produce_table(contents,s2);
+    %Fill the table
+    set(handles.table1,'data',data);     
     %Initialize pop-up
     count = size(get(handles.table1,'data'),1);
     items = {};
@@ -208,5 +112,88 @@ function load_Callback(hObject, eventdata, handles)
     end
     set(handles.selection,'String',items);
     set(handles.selection,'Value',1);   
+    data = get(handles.table1,'data');
+    write_tags_to_file(data,fullfile(ppath,'settings','tags.txt'));
+    
+function new_Callback(hObject, eventdata, handles)
+    [temp, idx] = hide_gui('Configure Strategies');  
+    ppath = get(handles.tags_config,'UserData');
+    ppath = char_project_path(ppath);
+    new_tag(ppath);
+    set(temp(idx),'Visible','on');
+    %Re-initialize table
+    [~, contents] = parse_tags(fullfile(ppath,'settings','tags.txt'));
+    set(handles.table1,'UserData',contents);
+    % Table size
+    [~,s2] = size(get(handles.table1,'data'));
+    %Create the table graphics and data
+    data = produce_table(contents,s2);
+    %Fill the table
+    set(handles.table1,'data',data); 
+    %Initialize pop-up
+    count = size(get(handles.table1,'data'),1);
+    items = {};
+    for i = 1:count
+        items = [items, num2str(i)];
+    end
+    set(handles.selection,'String',items);
+    set(handles.selection,'Value',1);   
+    data = get(handles.table1,'data');
+    write_tags_to_file(data,fullfile(ppath,'settings','tags.txt'));    
+       
+function default_Callback(hObject, eventdata, handles)
+    ppath = get(handles.tags_config,'UserData');
+    ppath = char_project_path(ppath);
+    [~, contents] = parse_tags('tags_default'); % read tags_default.txt;
+    % Table size
+    [~,s2] = size(get(handles.table1,'data'));
+    %Create the table graphics and data
+    data = produce_table(contents,s2);
+    %Fill the table
+    set(handles.table1,'data',data);     
+    %Initialize pop-up
+    count = size(get(handles.table1,'data'),1);
+    items = {};
+    for i = 1:count
+        items = [items, num2str(i)];
+    end
+    set(handles.selection,'String',items);
+    set(handles.selection,'Value',1);   
+    data = get(handles.table1,'data');
+    write_tags_to_file(data,fullfile(ppath,'settings','tags.txt'));
+   
+function OK_Callback(hObject, eventdata, handles)
+    tags_config_CloseRequestFcn(hObject, eventdata, handles)
+    
+function cancel_Callback(hObject, eventdata, handles)
+    ppath = get(handles.tags_config,'UserData');
+    ppath = char_project_path(ppath);
+    %reset
     primary = get(handles.table1,'UserData');  
-    write_tags_to_file(primary);   
+    %Write to file
+    write_tags_to_file(primary,ppath)
+    %close
+    tags_config_CloseRequestFcn(hObject, eventdata, handles)
+
+function load_Callback(hObject, eventdata, handles)
+    ppath = get(handles.tags_config,'UserData');
+    ppath = char_project_path(ppath);
+    [FileName,PathName] = uigetfile('*.txt','Select tags.txt');
+    %Re-initialize table
+    [~, contents] = parse_tags(fullfile(PathName,FileName));
+    % Table size
+    [~,s2] = size(get(handles.table1,'data'));
+    %Create the table graphics and data
+    data = produce_table(contents,s2);
+    %Fill the table
+    set(handles.table1,'data',data);     
+    %Initialize pop-up
+    count = size(get(handles.table1,'data'),1);
+    items = {};
+    for i = 1:count
+        items = [items, num2str(i)];
+    end
+    set(handles.selection,'String',items);
+    set(handles.selection,'Value',1);   
+    data = get(handles.table1,'data');
+    write_tags_to_file(data,fullfile(ppath,'settings','tags.txt'));   

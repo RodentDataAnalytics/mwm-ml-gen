@@ -1,11 +1,13 @@
-ABBREVIATION,DESCRIPTION,ID,WEIGHT,COLOR1,COLOR2,COLOR3,LINESTYLE
-!MULTI,MULTIPLE,-1,-1,0.8,0,0.8,Solid
-!UD,UNDEFINED,0,0,0,0,0,Dashed
-TT,thigmotaxis,1,1,0,1,0,Solid
-IC,incursion,2,1,0,1,0,Dotted
-SC,scanning,3,1,0,1,0,Dashed
-FS,focused search,4,10,0,0,1,Solid
-CR,chaining response,5,10,0,0,1,Dotted
-SO,self orienting,6,10,0,0,1,Dashed
-SS,scanning surroundings,7,1,1,0,0,Dashed
-ST,target scanning,8,10,1,0,0,Solid
+ABBREVIATION,DESCRIPTION,ID,COLOR1,COLOR2,COLOR3,LINESTYLE,KEY,SPECIAL
+MULTI,MULTIPLE,-1,0.8,0,0.8,Solid,0,-1
+UNDEF,UNDEFINED,0,1,0,1,Solid,1,-1
+TT,thigmotaxis,1,0,0,0,Solid,2,public
+IC,incursion,2,0,0,0,Dashed,3,public
+SC,scanning,3,0,0,0,Dotted,4,public
+FS,focused search,4,0,1,0,Dotted,5,public
+CR,chaining response,5,0,1,0,Dashed,6,public
+SO,self orienting,6,0,1,0,Solid,7,public
+SS,scanning surroundings,7,1,0,0,Dotted,8,public
+ST,target scanning,8,1,0,0,Solid,9,public
+DF,direct finding,9,0,0,0,Solid,a,trajectory
+AT,approaching target,10,0,0,0,Solid,b,trajectory

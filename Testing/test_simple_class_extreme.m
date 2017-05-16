@@ -1,9 +1,11 @@
-run = 2;
+run = 1;
 DISTRIBUTION = 3;
 
 if run == 1
+    R = 100;
     input_dir = 'D:\Avgoustinos\Documents\MWMGEN\EPFL_original_data'; 
     output_dir = 'D:\Avgoustinos\Documents\MWMGEN\EPFL_original_data\results\test';
+    f_output = output_dir;
     str_seg = {'segmentation_configs_8447_300_07.mat',...
                'segmentation_configs_10388_250_07.mat',...
                'segmentation_configs_29476_250_09.mat',...
@@ -15,14 +17,27 @@ if run == 1
                 'class_995_13283_200_07',...
                 'class_1050_13283_200_07'};
 elseif run == 2
+    R = 75;
     input_dir = 'D:\Avgoustinos\Documents\MWMGEN\Artur_exp1_sameplat';
-    output_dir = 'D:\Avgoustinos\Documents\MWMGEN\Artur_exp1_sameplat\results\test';     
+    output_dir = 'D:\Avgoustinos\Documents\MWMGEN\Artur_exp1_sameplat\results\test';  
+    f_output = output_dir;
     str_seg = {'segmentation_configs_3736_200_07.mat','segmentation_configs_3736_200_07.mat','segmentation_configs_5261_150_07.mat','segmentation_configs_11881_180_09.mat','segmentation_configs_11881_180_09.mat'};    
     str_class = {'class_280_3736_200_07','class_310_3736_200_07','class_532_5261_150_07','class_831_11881_180_09','class_855_11881_180_09'}; 
 end
-
 load(fullfile(input_dir,'animals_trajectories_map.mat'));
 
+intervals = [R/4,R/2,R,(3/2)*R,2*R];
+sigma = intervals;
+
+for il = 1:length(intervals)%INTERVAL
+for s = 1:length(sigma) %SIGMA  
+    fprintf('interval=%d,sigma=%d\n',intervals(il),sigma(s))
+    str_dir = strcat('interval_',num2str(intervals(il)),'_sigma_',num2str(sigma(s)));
+    output_dir = fullfile(f_output,'extreme',str_dir);
+    if ~exist(output_dir,'dir')
+        mkdir(output_dir); bn     
+    end
+    
 for i = 1:length(str_seg)
     % delete previous and make new output subfolder
     output_path = fullfile(output_dir,str_class{i});
@@ -76,9 +91,9 @@ for i = 1:length(str_seg)
     %Position of each boxplot in the figure  
     pos_ = cell(1,length(classifications));     
     
-    h = waitbar(0,'Generating results...','Name','Strategies');
+    %h = waitbar(0,'Generating results...','Name','Strategies');
     for j = 1:N  
-        [p,mfried,nanimals,vals,vals_grps,pos] = results_strategies_distributions(segmentation_configs,classifications{j},animals_trajectories_map,0,dir_list{j},'DISTRIBUTION',DISTRIBUTION);
+        [p,mfried,nanimals,vals,vals_grps,pos] = results_strategies_distributions(segmentation_configs,classifications{j},animals_trajectories_map,0,dir_list{j},'DISTRIBUTION',DISTRIBUTION,'INTERVAL',intervals(il),'SIGMA',sigma(s));
         %p_t = results_avg_strategies_trial(segmentation_configs,classifications{j},mfried,nanimals,dir_list{j});
         %p_trial{j} = p_t;
         p_{j} = p;
@@ -87,10 +102,10 @@ for i = 1:length(str_seg)
         vals_{j} = vals;
         vals_grps_{j} = vals_grps;
         pos_{j} = pos;
-        waitbar(j/length(classifications)); 
+        %waitbar(j/length(classifications)); 
     end
     
-    waitbar(1,h,'Finalizing...');
+    %waitbar(1,h,'Finalizing...');
     save(fullfile(output_path,'values.mat'),'p_','mfried_','nanimals_','vals_','vals_grps_','pos_');
     total_trials = sum(segmentation_configs.EXPERIMENT_PROPERTIES{30});
     class_tags = classifications{1}.CLASSIFICATION_TAGS;
@@ -104,7 +119,7 @@ for i = 1:length(str_seg)
     %fpath = fullfile(dir_list{end},'pvalues_trial_summary.csv');
     %error = create_pvalues_table(p_trial,class_tags,fpath,'trial',1);
     
-    delete(h);
+    %delete(h);
     
     %% Transitions
     
@@ -123,9 +138,9 @@ for i = 1:length(str_seg)
     %Position of each boxplot in the figure  
     pos_ = cell(1,length(classifications));   
     
-    h = waitbar(0,'Generating results...','Name','Transitions');
+    %h = waitbar(0,'Generating results...','Name','Transitions');
     for j = 1:N  
-        [p,mfried,nanimals,vals,vals_grps,pos] = results_transition_counts(segmentation_configs,classifications{j},animals_trajectories_map,0,dir_list_tr{j},'DISTRIBUTION',DISTRIBUTION);
+        [p,mfried,nanimals,vals,vals_grps,pos] = results_transition_counts(segmentation_configs,classifications{j},animals_trajectories_map,0,dir_list_tr{j},'DISTRIBUTION',DISTRIBUTION,'INTERVAL',intervals(il),'SIGMA',sigma(s));
         %p_t = results_avg_strategies_trial(segmentation_configs,classifications{j},mfried,nanimals,dir_list{j});
         %p_trial{j} = p_t;
         p_{j} = p;
@@ -134,10 +149,10 @@ for i = 1:length(str_seg)
         vals_{j} = vals;
         vals_grps_{j} = vals_grps;
         pos_{j} = pos;
-        waitbar(j/length(classifications)); 
+        %waitbar(j/length(classifications)); 
     end
     
-    waitbar(1,h,'Finalizing...');
+    %waitbar(1,h,'Finalizing...');
     save(fullfile(output_path,'transitions.mat'),'p_','mfried_','nanimals_','vals_','vals_grps_','pos_');
     total_trials = sum(segmentation_configs.EXPERIMENT_PROPERTIES{30});
     class_tags = {{'Transitions','Transitions',0,0}};
@@ -148,6 +163,8 @@ for i = 1:length(str_seg)
     fpath = fullfile(dir_list_tr{end},'transitions_summary.csv');
     error = create_pvalues_table(p_,class_tags,fpath);
 
-    delete(h);
+    %delete(h);
 end
-            
+
+end
+end

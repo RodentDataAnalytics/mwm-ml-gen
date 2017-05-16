@@ -15,6 +15,7 @@ function [class_folder,error] = build_classification_folder(ppath,prefix,labels,
         if exist(class_folder,'dir')
             choice = questdlg('Default classifiers already exist would you like to re-generate them?','Folder exists','Yes','No','No');
             if isequal(choice,'Yes')
+                close_opened_files;
                 rmdir(class_folder,'s');
                 mkdir(class_folder);
                 error = 0;

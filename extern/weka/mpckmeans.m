@@ -1,4 +1,4 @@
-function [ distr, centroids ] = mpckmeans( x, constr, k )
+function [ distr, centroids, flag ] = mpckmeans( x, constr, k )
 %MPCKMEANS MPCK clustering algorithm
 %   x is the input data, 
 %   constr is the constraint matrix 
@@ -11,6 +11,7 @@ function [ distr, centroids ] = mpckmeans( x, constr, k )
     import weka.core.*;
 
     d = size(x);
+    flag = 1; % capture any error
             
      % create attributes Cell Array
     attr = {};
@@ -32,6 +33,7 @@ function [ distr, centroids ] = mpckmeans( x, constr, k )
     try
         mpck.buildClusterer(c, data, data, k, data.numInstances())   
     catch
+        flag = 0;
         %disp('error');
     end    
     

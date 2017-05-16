@@ -1,4 +1,4 @@
-function [dir_list] = build_results_tree(project_path, option, name, num, groups)
+function [dir_list,tmp] = build_results_tree(project_path, option, name, num, groups)
 %BUILD_RESULTS_TREE
 
     dir_list = cell(1,num);
@@ -9,6 +9,7 @@ function [dir_list] = build_results_tree(project_path, option, name, num, groups
     f2 = strcat('g',f2,'res_');   
     for i = 1:num
         output_dir = fullfile(project_path,'results',f1,strcat(f2,num2str(i)));
+        tmp = fullfile(project_path,'results',f1);
         try
             % delete the folder if already exists
             if exist(output_dir,'dir');

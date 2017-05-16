@@ -24,7 +24,7 @@ function paper_fig_confidence_intervals(score,sample,class_tags,fpath)
     t{end} = ' ';
     
     % plot the line
-    plot([0,length(class_tags)+1],[0.5,0.5],'color','black','LineStyle','--','LineWidth',1.5);
+    plot([0,length(class_tags)+1],[0.5,0.5],'color','red','LineStyle','--','LineWidth',2);
     hold on
     for i = 1:length(class_tags)    
         %Binomial parameter estimates
@@ -51,7 +51,7 @@ function paper_fig_confidence_intervals(score,sample,class_tags,fpath)
         %plot(i,pci(2),'color','black','LineStyle','none','Marker','*','MarkerFaceColor','black');
         plot([i-0.2,i+0.2],[pci(1),pci(1)],'color','black','LineStyle','-','Marker','none','LineWidth', LineWidth+0.1);
         plot([i-0.2,i+0.2],[pci(2),pci(2)],'color','black','LineStyle','-','Marker','none','LineWidth', LineWidth+0.1);
-        plot(i,phat,'color','red','LineStyle','none','Marker','square','MarkerFaceColor','none','MarkerEdgeColor','black','LineWidth',1.5);
+        plot(i,phat,'color','red','LineStyle','none','Marker','square','MarkerFaceColor','none','MarkerEdgeColor','black','LineWidth',2);
     end
     fclose(fileID);
     % correct the axis limits
@@ -63,6 +63,7 @@ function paper_fig_confidence_intervals(score,sample,class_tags,fpath)
     for i = 1:length(class_tags)+2
         xticks = [xticks, i-1];
     end
+    t = {'','S1','S2','S3','S4','S5','S6','S7','S8','TR'};
     set(faxis, 'XTick', xticks, 'XTickLabel', t, 'FontSize', FontSize, 'FontName', FontName);
     
     % export

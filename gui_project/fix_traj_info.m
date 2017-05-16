@@ -10,6 +10,7 @@ function [trajs,error] = fix_traj_info(trials,number_of_days,trajs)
 
     % Total number of trials
     number_of_trials = sum(trials);
+    trials_bk = trials;
 
     ids = arrayfun( @(t) t.id, trajs.items);
     sessions = arrayfun( @(t) t.session, trajs.items);
@@ -131,19 +132,41 @@ function [trajs,error] = fix_traj_info(trials,number_of_days,trajs)
         end    
     end    
     
+%     % fix days numbering
+%     number_of_sessions = unique(sessions);
+%     days = [];
+%     for i = 1:length(number_of_sessions)
+%         ses = find(sessions == number_of_sessions(i));
+%         days_ = length(ses)/number_of_days;
+%         temp_days = [];
+%         for j = 1:number_of_days
+%             for k = 1:days_
+%                 temp_days(k) = j;
+%             end
+%             days = [days, temp_days];
+%         end  
+%     end
     % fix days numbering
     number_of_sessions = unique(sessions);
     days = [];
     for i = 1:length(number_of_sessions)
         ses = find(sessions == number_of_sessions(i));
-        days_ = length(ses)/number_of_days;
-        temp_days = [];
+        temp_trials = trials(ses);
+        temp_days = -1*ones(1,length(ses));
+        tmp = 0;
         for j = 1:number_of_days
-            for k = 1:days_
-                temp_days(k) = j;
+            d = sum(trials_bk(1:j));
+            if j == 1
+                t = find(temp_trials <= d);
+            else
+                t = find(temp_trials <= d & temp_trials > tmp);
             end
-            days = [days, temp_days];
-        end  
+            for k = 1:length(t)
+                temp_days(t(k)) = j;
+            end
+            tmp = tmp + trials_bk(j);
+        end
+        days = [days,temp_days];
     end
             
     % Assign fixed values

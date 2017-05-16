@@ -8,7 +8,7 @@ function [varargout] = results_strategies_distributions(segmentation_configs,cla
 % 3: Smoothing
 
     AVERAGE = 0;
-    DISTRIBUTION = 3;
+    DISTRIBUTION = 2;
     
     for i = 1:length(varargin)
         if isequal(varargin{i},'AVERAGE')
@@ -20,7 +20,9 @@ function [varargout] = results_strategies_distributions(segmentation_configs,cla
     
     % get the configurations from the configs file
     [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
-    % Get number of trials
+    % Get number of trials n    b
+    %                        b                  b             b  bn   bn b
+    %                                                                       b              b                    b  b  b    b b b    b      bn            b  b b   b            b        bn      b  b  b       b  b      bn  bn    bn     b b b b                   bn   b  bn  bn               b    b  b    b            b    bn  bn  bn  b  bn  b              b   b         bn  b  b  bn     b b  b b bn bn b   b bn bn b      
     trials_per_session = segmentation_configs.EXPERIMENT_PROPERTIES{30};
     total_trials = sum(trials_per_session);
     % Get classification

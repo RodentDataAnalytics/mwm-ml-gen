@@ -88,7 +88,7 @@ function results_latency_speed_length(segmentation_configs,animals_trajectories_
             f = figure;
             set(f,'Visible','off');
             
-            boxplot(data, groups, 'positions', pos, 'colors', [0 0 0; .7 .7 .7]);
+            boxplot(data, groups, 'positions', xpos, 'colors', [0 0 0; .7 .7 .7]);
             faxis = findobj(f,'type','axes');
             set(faxis, 'LineWidth', LineWidth, 'FontSize', FontSize, 'FontName', FontName);
 

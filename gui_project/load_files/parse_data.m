@@ -31,7 +31,7 @@ function [ id, pts, error ] = parse_data(fn, animal_id, rec_time, centre_x, cent
             if isequal(data{i,1},str{j})
                 id = str2double(data{i,2});
                 if isnan(id) % not a number
-                    id_ = double(id); %double array
+                    id_ = double(data{i,2}); %double array
                     id_ = num2str(id_); %char with gaps
                     id_ = regexprep(id_,'[^\w'']',''); %remove gaps
                     id = str2double(id_); %turn to double 

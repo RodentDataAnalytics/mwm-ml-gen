@@ -29,8 +29,8 @@ function [class_map_detailed,d_points] = distr_strategies_smoothing(segmentation
     HARD_BOUNDS = 0;
     WEIGHTS = 'com';
     THRESHOLD = (3/2)*R;
-    SIGMA = (3/2)*R;
-    interval_len = R/2;
+    SIGMA = 100;
+    interval_len = 200;
     % These values specifies the minimum and the maximum possible weights
     min_w = 1/50; % 50%;
     max_w = 1; % 1%

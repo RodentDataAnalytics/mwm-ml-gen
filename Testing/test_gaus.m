@@ -2,28 +2,36 @@
 
 %input_dir = uigetdir('','Specify project folder');
 %output_dir = uigetdir('','Specify output folder');
-run = 1;
+run = 2;
 output_dir = 'D:\Program Test';
-%sigma = 1:10; %not working!
 
 if run == 1
     input_dir = 'D:\Avgoustinos\Documents\MWMGEN\EPFL_original_data'; 
     segs = {'segmentation_configs_8447_300_07.mat',...
             'segmentation_configs_10388_250_07.mat',...
             'segmentation_configs_29476_250_09.mat',...
+            'segmentation_configs_13283_200_07.mat',...
             'segmentation_configs_13283_200_07.mat'}; 
-    classifs = {'class_989_8447_300_07_111_1_mr0',...
-                'class_1301_10388_250_07_111_1_mr0',...
-                'class_2445_29476_250_09_111_1_mr0',...
-                'class_995_13283_200_07_111_1_mr0'};     
-    head = {'CLASS','L300V70','L250V70','L250V90','L200V70'};
+%     classifs = {'class_989_8447_300_07_111_1_mr0',...
+%                 'class_1301_10388_250_07_111_1_mr0',...
+%                 'class_2445_29476_250_09_111_1_mr0',...
+%                 'class_995_13283_200_07_111_1_mr0'};     
+    classifs = {'class_989_8447_300_07_50_1_mr0',...
+                'class_1301_10388_250_07_50_1_mr0',...
+                'class_2445_29476_250_09_50_1_mr0',...
+                'class_995_13283_200_07_40_1_mr0',...
+                'class_1050_13283_200_07_40_1_mr0'};      
+    head = {'CLASS','L300V70','L250V70','L250V90','L200V70','P20070MORE'};
     R = 100;
     intervals = [R/4,R/2,R,(3/2)*R,2*R];
 elseif run == 2   
     input_dir = 'D:\Avgoustinos\Documents\MWMGEN\Artur_exp1_sameplat';
-    segs = {'segmentation_configs_5261_150_07.mat','segmentation_configs_3736_200_07','segmentation_configs_11881_180_09'};    
-    classifs = {'class_532_5261_150_07_111_1_mr0','class_280_3736_200_07_111_1_mr0','class_831_11881_180_09_111_1_mr0'}; 
-    head = {'CLASS','L150V70','L200V70','L180V90'};    
+    %segs = {'segmentation_configs_5261_150_07.mat','segmentation_configs_3736_200_07','segmentation_configs_11881_180_09'};    
+    %classifs = {'class_532_5261_150_07_111_1_mr0','class_280_3736_200_07_111_1_mr0','class_831_11881_180_09_111_1_mr0'}; 
+    segs = {'segmentation_configs_5261_150_07.mat','segmentation_configs_3736_200_07','segmentation_configs_3736_200_07','segmentation_configs_11881_180_09','segmentation_configs_11881_180_09'};
+    classifs = {'class_532_5261_150_07_30_1_mr0','class_310_3736_200_07_30_1_mr0','class_280_3736_200_07_30_1_mr0','class_855_11881_180_09_60_1_mr0','class_855_11881_180_09_30_1_mr0'};
+    head = {'CLASS','L150V70','L200V70','L200V70L','L180V90','L180V90LCLASS'};
+    %head = {'CLASS','L150V70','L200V70','L180V90'};    
     R = 75;
     intervals = [R/4,R/2,R,(3/2)*R,2*R];
 end

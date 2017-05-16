@@ -1,10 +1,11 @@
 project_folder = 'D:\Avgoustinos\Documents\MWMGEN\EPFL_original_data';
-stepi = 5;
+project_folder = 'D:\Avgoustinos\Documents\MWMGEN\Artur_exp1_sameplat';
+stepi = 10;
 
 classifs = dir(fullfile(project_folder,'classification'));
 segmentations = dir(fullfile(project_folder,'segmentation'));
 
-for i = 3:length(classifs)
+for i = 8:8%length(classifs)
     
     % Get classification
     tmp = strsplit(classifs(i).name,'_');

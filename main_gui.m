@@ -29,7 +29,7 @@ function main_gui_OpeningFcn(hObject, eventdata, handles, varargin)
     set(findall(handles.panel_class, '-property', 'enable'), 'enable', 'off');
     set(findall(handles.panel_res, '-property', 'enable'), 'enable', 'off');
     set(handles.res_demo,'Enable','on');
-    set(handles.config_tags,'Visible','off');
+    set(handles.paths_features,'Enable','off');
     % Choose default command line output for main_gui
     handles.output = hObject;
     % Update handles structure
@@ -83,6 +83,7 @@ function new_project_Callback(hObject, eventdata, handles)
         set(findall(handles.panel_lab, '-property', 'enable'), 'enable', 'on');
         set(findall(handles.panel_class, '-property', 'enable'), 'enable', 'on');
         set(findall(handles.panel_res, '-property', 'enable'), 'enable', 'on');
+        set(handles.paths_features,'Enable','on');
         %pick default segmentation, labels, classification
         refresh_seg_Callback(hObject, eventdata, handles);
         refresh_labs_Callback(hObject, eventdata, handles);
@@ -116,87 +117,25 @@ function load_project_Callback(hObject, eventdata, handles)
     set(findall(handles.panel_lab, '-property', 'enable'), 'enable', 'on');
     set(findall(handles.panel_class, '-property', 'enable'), 'enable', 'on');
     set(findall(handles.panel_res, '-property', 'enable'), 'enable', 'on');
+    set(handles.paths_features,'Enable','on');
     %pick default segmentation, labels, classification
     refresh_seg_Callback(hObject, eventdata, handles);
     refresh_labs_Callback(hObject, eventdata, handles);
     refresh_class_Callback(hObject, eventdata, handles);
     
-function config_tags_Callback(hObject, eventdata, handles)  
-%% OLD CODE IT NEEDS TO BE UPDATED
-%     project_path = get(handles.load_project,'UserData');
-%     if isempty(project_path)
-%         errordlg('No project is currently loaded','Error');
-%         return
-%     end
-%     if iscell(project_path)
-%         project_path = char(project_path{1});
-%     end
-%     % config tags GUI
-%     tags_config;
-%     % read the new tags
-%     contents_new = parse_tags;
-%     % check the project tags
-%     if isdeployed
-%         tags_path = fullfile(project_path,'settings','tags.txt');
-%     else
-%         tags_path =  fullfile(project_path,'settings','tags.txt');      
-%     end  
-%     contents_old = parse_tags(tags_path);
-%     % check if abbreviation/name/id/weight has changed
-%     if ~isequal(contents_new(:,1:4),contents_old(:,1:4))
-%         % see if we have classifications or results
-%         class = dir(fullfile(project_path,'classification'));
-%         mclass = dir(fullfile(project_path,'Mclassification'));
-%         res = dir(fullfile(project_path,'results'));
-%         % if we do create a new project
-%         if ~isempty(class) > 2 || ~isempty(mclass) > 2 || length(res) > 2
-%             % keep a copy of settings
-%             settings = fullfile(project_path,'settings');
-%             segmentation = fullfile(project_path,'segmentation');
-%             labels = fullfile(project_path,'labels');
-%             % new project
-%             msgbox('A new project needs to be created with the new tags. Specify project''s path and name');
-%             main_path = fileparts(project_path);
-%             project_path = set_project({main_path});
-%             % if close is pressed take back the old tags
-%             if isempty(project_path)
-%                 if ~isdeployed
-%                     copyfile(tags_path,fullfile(pwd,'configs','tags','tags.txt'));
-%                 else
-%                     copyfile(tags_path,fullfile(ctfroot,'configs','tags','tags.txt'));
-%                 end
-%                 return
-%             else
-%                 % copy the project to the new project
-%                 copyfile(settings,fullfile(project_path,'settings'),'f');
-%                 copyfile(segmentation,fullfile(project_path,'segmentation'),'f');
-%                 copyfile(labels,fullfile(project_path,'labels'),'f');
-%                 % delete all the mat from labels so that the user has to
-%                 % reload and fix them
-%                 delete(fullfile(project_path,'labels','*.mat'));
-%                 % copy the tags.txt also from the program path
-%                 if ~isdeployed
-%                     tags_path = fullfile(pwd,'configs','tags','tags.txt');
-%                 else
-%                     tags_path = fullfile(ctfroot,'configs','tags','tags.txt');
-%                 end  
-%                 copyfile(tags_path,fullfile(project_path,'settings'),'f');
-%                 set(handles.load_project,'UserData',project_path);
-%             end
-%         end
-%     end
-%     % if only the color or the linetype is changed keep the same project    
-%     if isdeployed
-%         tags_path = fullfile(ctfroot,'configs','tags','tags.txt');
-%     else
-%         tags_path =  fullfile(pwd,'configs','tags','tags.txt');      
-%     end   
-%     copyfile(tags_path,fullfile(project_path,'settings'),'f');
-%     %pick default segmentation, labels, classification
-%     refresh_seg_Callback(hObject, eventdata, handles);
-%     refresh_labs_Callback(hObject, eventdata, handles);
-%     refresh_class_Callback(hObject, eventdata, handles);
-
+function paths_features_Callback(hObject, eventdata, handles)  
+    project_path = get(handles.load_project,'UserData');
+    project_path = char_project_path(project_path); 
+    if isempty(project_path)
+        errordlg('No project is currently loaded','Error');
+        return
+    end   
+    [temp, idx] = hide_gui('MWM-ML');
+    error = full_trajectory_features(project_path);
+    set(temp(idx),'Visible','on'); 
+    if ~error
+        msgbox('Operation successfully completed','Success');
+    end   
 %%%% SEGMENTATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function seg_length_Callback(hObject, eventdata, handles)
 function seg_length_CreateFcn(hObject, eventdata, handles)

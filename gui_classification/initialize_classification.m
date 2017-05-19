@@ -28,7 +28,7 @@ function [error,project_path,seg_name,lab_name] = initialize_classification(hand
     if isequal(eventdata.Source.String,'Default')
         project_path = char_project_path(get(handles.classification_adv,'UserData'));
         if isempty(project_path)
-            errordlg('No project is currently loaded','Error');
+            error_messages(8)
             return
         end
         % Load segmentation_config and labels
@@ -39,7 +39,7 @@ function [error,project_path,seg_name,lab_name] = initialize_classification(hand
         idx = get(handles.default_labels,'Value');
         lab_name = lab_name{idx};
         if isempty(lab_name)
-            errordlg('A labels files needs to be selected','Error');
+            error_messages(9)
             return;
         end
         t = strsplit(lab_name,{'_','.mat'});
@@ -54,7 +54,7 @@ function [error,project_path,seg_name,lab_name] = initialize_classification(hand
             end
         else % check if a segmentation is selected
             if isempty(seg_name)
-                errordlg('A segmentation and a labels files need to be selected','Error');
+                error_messages(10);
                 return;
             end
         end
@@ -62,7 +62,7 @@ function [error,project_path,seg_name,lab_name] = initialize_classification(hand
     elseif isequal(eventdata.Source.String,'Generate Classifiers')  
         project_path = char_project_path(get(handles.classification_adv,'UserData'));
         if isempty(project_path)
-            errordlg('No project is currently loaded','Error');
+            error_messages(8);
             return
         end
         %get labels
@@ -70,7 +70,7 @@ function [error,project_path,seg_name,lab_name] = initialize_classification(hand
         lab_name = get(handles.select_labels,'String');
         lab_name = lab_name{idx};    
         if isempty(lab_name)
-            errordlg('A labels files needs to be selected','Error');
+            error_messages(9);
             return;
         end
         t = strsplit(lab_name,{'_','.mat'});
@@ -90,7 +90,7 @@ function [error,project_path,seg_name,lab_name] = initialize_classification(hand
             seg_name = get(handles.select_segmentation,'String');
             seg_name = seg_name{idx};
             if isempty(seg_name)
-                errordlg('A segmentation and a labels files need to be selected','Error');
+                error_messages(10);
                 return;
             end
         end

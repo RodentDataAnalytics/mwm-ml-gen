@@ -13,15 +13,19 @@ function [class_folder,error] = build_classification_folder(ppath,prefix,labels,
     
     try
         if exist(class_folder,'dir')
-            choice = questdlg('Default classifiers already exist would you like to re-generate them?','Folder exists','Yes','No','No');
-            if isequal(choice,'Yes')
-                close_opened_files;
+            choice = questdlg('Default classifiers already exist would you like to re-generate them or add more to the pool?','Folder exists','Add','Re-generate','Cancel','Add');
+            if isequal(choice,'Re-generate')
+                fclose('all');
                 rmdir(class_folder,'s');
                 mkdir(class_folder);
                 error = 0;
                 return
+            elseif isequal(choice,'Add')
+                error = 0;
+                return
+            else
+                error = 2;
             end
-            error = 2;
         else
             mkdir(class_folder);
             error = 0;

@@ -1,36 +1,52 @@
-function [class_map_detailed,d_points] = distr_strategies_smoothing(segmentation_configs, classification_configs, varargin)
+function [class_map_detailed,d_points,store_d] = distr_strategies_smoothing(segmentation_configs, classification_configs, varargin)
 %Maps the segments to the whole trajectories using discrete path intervals
 %that depend on the size of the arena.
 %Equation inspired from Gehring et al.: val = w * exp(-d^2 / (2*SIGMA^2))
 
-% Let TMP = exp( -(d^2) / (SIGMA^2) ), where d is the distance from 
-% the centre of the interval to the centre of the ii-th segment, then:
-%  If d < THRESHOLD (skip segments that have minor intersection with the 
-%  intervals), compute the TMP.
+% Smoothing equation: TMP = exp( -(d^2) / (SIGMA^2) ), where d is the 
+% distance from the centre of the interval to the centre of the ii-th 
+% segment.
 
 %% EXTRA PARAMETERS:
 
+% WEIGHTS: 'ones' ==> all class weights equal to one.
+%          'com'  ==> computed class weights based on probability (default)
+
 % HARD_BOUNDS: Switch. If on then the average class weight [avg(w)] is 
 % computed. Class weights less than the avg(w) are set to min(w) and class
-% weights equal or more than avg(w) are set to max(w).
+% weights equal or more than avg(w) are set to max(w). (default = 'off')
 
 % SIGMA: Specifies the span of the Gaussian. The further we are in the span
 % the less effective is the contribution of the segment to the class
 % assignement of the interval.
+% (default = radius of the arena)
 
-% interval_len: Length of the path intervals 
+% interval_len: Length of the path intervals.
+% (default = radius of the arena)
+
+% THRESHOLD: Skips segments with minor intersection with the intervals.
+% If distance of segment from interval is more than the THRESHOLD, this
+% segment is skipped; if d > THRESHOLD -> skip.
+%(default = -1 , 'off')
+
+% STHRESHOLD: Soft version of THRESHOLD. First compute TMP and if it is
+% less than the STHRESHOLD skip the segment; if TMP < THRESHOLD.
+% (default = 0.14)
     
     % DEBUG
     DEBUG = 0;
     DEBUG_SPEED = 0.5;
-
-    % Default values
+    
+    % Arena radius
     R = segmentation_configs.COMMON_PROPERTIES{8}{1};
-    HARD_BOUNDS = 0;
+    
+    % Default values
     WEIGHTS = 'com';
-    THRESHOLD = (3/2)*R;
-    SIGMA = 100;
-    interval_len = 200;
+    HARD_BOUNDS = 0;
+    interval_len = R;
+    SIGMA = R;
+    THRESHOLD = -1;
+    STHRESHOLD = 0.14;
     % These values specifies the minimum and the maximum possible weights
     min_w = 1/50; % 50%;
     max_w = 1; % 1%
@@ -42,6 +58,8 @@ function [class_map_detailed,d_points] = distr_strategies_smoothing(segmentation
             SIGMA = varargin{i+1};
         elseif isequal(varargin{i},'THRESHOLD')
             THRESHOLD = varargin{i+1};
+        elseif isequal(varargin{i},'STHRESHOLD')
+            STHRESHOLD = varargin{i+1};
         elseif isequal(varargin{i},'INTERVAL')
             interval_len = varargin{i+1};
         elseif isequal(varargin{i},'WEIGHTS')
@@ -49,6 +67,10 @@ function [class_map_detailed,d_points] = distr_strategies_smoothing(segmentation
         end
     end
 
+    if STHRESHOLD >= 0
+        THRESHOLD = -1;
+    end
+        
     % Classes
     classes = unique(classification_configs.CLASSIFICATION.class_map);
     classes = classes(2:end);
@@ -86,9 +108,11 @@ function [class_map_detailed,d_points] = distr_strategies_smoothing(segmentation
                 w(a(n)) = max_w;
             end        
             w = normalizations(w,'one');
-            %w = w*10;
         end
     elseif isequal(WEIGHTS,'ones')
+        w = ones(1,length(classes));
+    else
+        disp('Warning: wrong WEIGHTS option. All class weights will are set to 1');
         w = ones(1,length(classes));
     end
 
@@ -228,12 +252,17 @@ function [class_map_detailed,d_points] = distr_strategies_smoothing(segmentation
                     m_seg = offsets(i,ii) + (length_map(i,ii) / 2);
                     d = m_seg - m_int;
                     % Skip segments that are far away from the
-                    % interval (minor intersection)
-                    if abs(d) > THRESHOLD && THRESHOLD ~= -1
+                    % interval (minor intersection). HARD THRESHOLD
+                    if abs(d) > THRESHOLD && THRESHOLD >= 0
                         continue;
                     end
                     % Main equation
                     tmp = exp(-(d^2) / (2*(SIGMA^2)));
+                    % Skip segments that are far away from the
+                    % interval (minor intersection). SOFT THRESHOLD
+                    if tmp < STHRESHOLD && THRESHOLD < 0
+                        continue;
+                    end
                     val = w(col)*tmp; 
                     % Store score of each strategy per interval
                     if class_distr_traj(j,col) == -1

@@ -8,21 +8,25 @@ function [varargout] = results_strategies_distributions(segmentation_configs,cla
 % 3: Smoothing
 
     AVERAGE = 0;
-    DISTRIBUTION = 2;
+    DISTRIBUTION = 3;
+    SCRIPTS = 1;
+    DISPLAY = 1;
     
     for i = 1:length(varargin)
         if isequal(varargin{i},'AVERAGE')
             AVERAGE = varargin{i+1};
         elseif isequal(varargin{i},'DISTRIBUTION')
             DISTRIBUTION = varargin{i+1};
+        elseif isequal(varargin{i},'SCRIPTS')
+            SCRIPTS = varargin{i+1};
+        elseif isequal(varargin{i},'DISPLAY')
+            SCRIPTS = varargin{i+1};            
         end
     end
     
     % get the configurations from the configs file
     [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
-    % Get number of trials n    b
-    %                        b                  b             b  bn   bn b
-    %                                                                       b              b                    b  b  b    b b b    b      bn            b  b b   b            b        bn      b  b  b       b  b      bn  bn    bn     b b b b                   bn   b  bn  bn               b    b  b    b            b    bn  bn  bn  b  bn  b              b   b         bn  b  b  bn     b b  b b bn bn b   b bn bn b      
+    % Get number of trials
     trials_per_session = segmentation_configs.EXPERIMENT_PROPERTIES{30};
     total_trials = sum(trials_per_session);
     % Get classification
@@ -58,8 +62,10 @@ function [varargout] = results_strategies_distributions(segmentation_configs,cla
     end    
     
     % Generate text file for the p-values
-    fn = fullfile(output_dir,'strategies_p.txt');
-    fileID = fopen(fn,'wt');
+    if SCRIPTS
+        fn = fullfile(output_dir,'strategies_p.txt');
+        fileID = fopen(fn,'wt');
+    end
    
     %% Friedman's test and collect data for plotting
     p_table = []; %for storing the p-values
@@ -116,12 +122,18 @@ function [varargout] = results_strategies_distributions(segmentation_configs,cla
         p = -1;
         try
             p = friedman(mfried, nanimals, 'off');
-            str = sprintf('Class: %s\tp_frdm: %g', segments_classification.classes{1,c}{1,2}, p);            
-            fprintf(fileID,'%s\n',str);
-            disp(str);
             p_table = [p_table;p];
+            str = sprintf('Class: %s\tp_frdm: %g', segments_classification.classes{1,c}{1,2}, p);     
+            if SCRIPTS
+                fprintf(fileID,'%s\n',str);
+            end 
+            if DISPLAY
+                disp(str);
+            end
         catch
-            disp('Error on Friedman test. Friedman test is skipped');
+            if DISPLAY
+                disp('Error on Friedman test. Friedman test is skipped');
+            end
             p_table = [p_table;p];
         end   
         % collect all the data and store maximum data number, to be used

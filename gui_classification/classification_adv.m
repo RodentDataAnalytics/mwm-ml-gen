@@ -27,7 +27,7 @@ function classification_adv_OpeningFcn(hObject, eventdata, handles, varargin)
     set(handles.select_segmentation,'String',segmentations);
     set(handles.select_labels,'String',labels);
     set(handles.classification_adv,'UserData',varargin);
-    set(handles.select_groups, 'Min', 0, 'Max', 5);
+    set(handles.select_groups, 'Min', 0, 'Max', 0);
     set(handles.specified_classifiers,'UserData',0);
     %keep the default button color
     def_color = get(handles.close_button,'BackgroundColor');
@@ -169,6 +169,8 @@ function generate_merge_Callback(hObject, eventdata, handles)
         end        
         error = execute_Mclassification(project_path, class, sample, iterations, extra_options);  
     else
+        % it will never go inside the first 'if' multiple selection has
+        % been disable!
         if length(idx) ~= 1 % cannot have specified classifiers and multiple classifications
             choice = questdlg('Specified classifiers have been selected, proceeding with multiple classifications will erase them. Would you like to continue?','Conflict','Yes','No','No');
             if isequal(choice,'Yes')
@@ -178,13 +180,13 @@ function generate_merge_Callback(hObject, eventdata, handles)
             end
         else
             if length(clusters) < sample
-                errordlg('The number of specified sample is larger than the number of specified classifiers. ','Error')
+                errordlg('The number of specified sample is larger than the number of specified classifiers.','Error')
                 return
             elseif length(clusters) == sample && iterations > 1
                 warndlg('The number of specified sample and the number of specified classifiers are equal. Only one iteration will be performed','Warning');    
                 iterations = 1;       
             end
-            error = execute_Mclassification(project_path, class, sample, iterations, extra_options, clusters);
+            error = execute_Mclassification(project_path, class, sample, iterations, extra_options, 'CLUSTERS', clusters);
         end 
     end
     if ~error

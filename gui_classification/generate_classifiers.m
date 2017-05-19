@@ -1,4 +1,4 @@
-function er = generate_classifiers(cpath, num_clusters, segmentation_configs, LABELLING_MAP, ALL_TAGS, CLASSIFICATION_TAGS, f_unsupervised)
+function er = generate_classifiers(cpath, num_clusters, segmentation_configs, LABELLING_MAP, ALL_TAGS, CLASSIFICATION_TAGS, varargin)
 %GENERATE_CLASSIFIERS generate a series of classifiers and places them
 %inside the specified folder
 
@@ -11,13 +11,20 @@ function er = generate_classifiers(cpath, num_clusters, segmentation_configs, LA
 %Note: LABELLING_MAP, ALL_TAGS, CLASSIFICATION_TAGS can be loaded by using
 %the command: load(strcat(project_path,'labels/',label_name.mat));
 
+    LWAITBAR = 1;
+    
+    for i = 1:length(varargin)
+        if isequal(varargin{i},'LWAITBAR')
+            LWAITBAR = varargin{i+1};         
+        end
+    end
+
     er = 1;
     % Check the clusters
     tags = length(CLASSIFICATION_TAGS);
-    [error,numbers,removed] = check_num_of_clusters(num_clusters,tags,LABELLING_MAP);
+    [error,numbers,removed] = check_num_of_clusters(num_clusters,LABELLING_MAP);
     if error == 1
-        %terminate
-        errordlg('Wrong input for Clusters');
+        error_messages(7)
         return;
     end
     if error == 2
@@ -40,19 +47,23 @@ function er = generate_classifiers(cpath, num_clusters, segmentation_configs, LA
     end   
 
     % Generate the classifiers
-    h = waitbar(0,'Generating classifiers...');
+    if LWAITBAR
+        h = waitbar(0,'Generating classifiers...');
+    end
     fn = fullfile(cpath,'errorlog.txt');
     fileID = fopen(fn,'wt');
     for i = 1:length(numbers)
         DEFAULT_NUMBER_OF_CLUSTERS = numbers(i);
-        classification_configs = config_classification(segmentation_configs,DEFAULT_NUMBER_OF_CLUSTERS,LABELLING_MAP,ALL_TAGS,CLASSIFICATION_TAGS,f_unsupervised);
+        classification_configs = config_classification(segmentation_configs,DEFAULT_NUMBER_OF_CLUSTERS,LABELLING_MAP,ALL_TAGS,CLASSIFICATION_TAGS,varargin{:});
         %name and save
         name = generate_name_classifiers(classification_configs);
         name = strcat('classification_configs_',name,'.mat');
         save(fullfile(cpath,name),'classification_configs');
-        waitbar(i/length(numbers));
         if classification_configs.flag == 0
             fprintf(fileID,'%s\n',num2str(numbers(i)));
+        end
+        if LWAITBAR
+            waitbar(i/length(numbers));
         end
     end   
     er = 0;

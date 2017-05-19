@@ -7,7 +7,7 @@ function majority_rule_report(classifications,cannot_decide,threshold_skip,ppath
 
 %EXAMPLE:
 %----------------------------------------
-%29476_14.105.55.84.30.93.114.89.86.95-
+%29476_14.105.55.84.30.93.114.89.86.95
 %Total: 1886
 %Undecided: 1886
 %139

@@ -1,102 +1,113 @@
-function error = majority_rule_init(segmentation_configs, output_folder, class_folders, sample, threshold, iterations, varargin)
+function error = majority_rule_init(segmentation_configs, output_folder, class_folder, sample, threshold, iterations, varargin)
 %MAJORITY_RULE_INIT runs the majority rule a number of times with the given
 %options.
 
-    h = waitbar(0,'Initializing merging...','Name','Generating classifiers');
-    error = 1;
-    if ~exist(output_folder,'dir')
-        errordlg('The output folder specified does not exist','Error');
-        delete(h);
-        return;
-    end
-    
-    % Sample: always take equal number of classifiers from each group
-    new_sample = sample;
-    for i = 1:length(class_folders)
-        mat_files = dir(fullfile(char(class_folders{i}),'*.mat'));
-        if length(mat_files) < new_sample
-            new_sample = length(mat_files);
+    LWAITBAR = 1;
+    CLUSTERS = 0;
+    REPORT = 1;
+    SUMMARY = 1;
+
+    for i = 1:length(varargin)
+        if isequal(varargin{i},'LWAITBAR')
+            LWAITBAR = varargin{i+1};
+        elseif isequal(varargin{i},'CLUSTERS')
+            CLUSTERS = 1;
+            clusters = varargin{i+1};
+        elseif isequal(varargin{i},'SUMMARY')
+            SUMMARY = varargin{i+1};
+        elseif isequal(varargin{i},'REPORT')
+            REPORT = varargin{i+1};            
         end
     end
-    if new_sample == 0
-        errordlg('A group(s) of classifiers contains 0 classifiers','Error');
-        delete(h);
-        return;
-    end
-    if new_sample ~= sample
-        str = num2str(new_sample);
-        warndlg(strcat('A group(s) contains less classifiers than the sample specified. The new sample value is set to ',str));
+
+    if ~REPORT
+        SUMMARY = 0;
     end
     
-    % Classifiers: pick all the .mat files of the specified folders
-    files = cell(1,length(class_folders));
-    data = cell(1,length(class_folders));
-    for i = 1:length(class_folders)
-        files{i} = dir(fullfile(char(class_folders{i}),'*.mat'));
-        data{i} = 1:length(files{i});
+    % Check if folder exists
+    if LWAITBAR
+        h = waitbar(0,'Initializing merging...','Name','Generating classifiers');
+    end
+    error = 1;
+    if ~exist(output_folder,'dir')
+        error_messages(13);
+        if LWAITBAR
+            delete(h);
+        end
+        return;
+    end
+    
+    % Classifiers: pick all the .mat files of the specified folder
+    files = dir(fullfile(class_folder,'*.mat'));
+    if length(files) == 0
+        error_message(14);
+        return;
+    elseif length(files) <= sample
+        iterations = 1;
+        sample = length(files);
     end
     % Keep only the name and sort by name
-    for i = 1:length(files)
-        a = files{i};
-        a = {a.name};
-        [num,idx] = sort_classifiers(a);
-        a = a(idx);
-        files{i} = a;
+    [num,idx] = sort_classifiers(files);
+    f = cell(1,length(idx));
+    for i = 1:length(files);
+        f{i} = files(idx(i)).name;  
     end
     
     % Pick only the selected classifiers
-    if ~isempty(varargin)
-        sel = varargin{1};
-        indexes = zeros(length(sel),1);
-        for i = 1:length(sel)
-            indexes(i) = find(num == sel(i));
-        end
-        files{1} = files{1}(indexes);
-        data{1} = 1:length(files{1});
+    if CLUSTERS
+        clusters = sort(clusters);
+        files = cell(1,length(clusters));
+        for i = 1:length(clusters)
+            idx = find(num == clusters(i));
+            files{i} = f{idx};
+        end     
+        f = files;
     end
 
     % Run the majority rule ITERATIONS times and each time pick another
     % random sample from the classifiers pool.
-    str_ = strcat('Iteration:','1','/',num2str(iterations));
-    waitbar(0,h,str_);
+    if LWAITBAR
+        str_ = strcat('Iteration:','1','/',num2str(iterations));
+        waitbar(0,h,str_);
+    end
+    tmp = 1:length(f);
     for i = 1:iterations
-        classifications = {};
-        clusters = [];
-        for k = 1:length(class_folders)
-            x = randsample(data{k},new_sample);
-            x = sort(x);
-            classifications_ = cell(1,length(new_sample));
-            clusters_ = 1:length(new_sample);
-            for j = 1:length(x)
-                clear classification_configs;
-                file_path = fullfile(class_folders{k},files{k}{x(j)});
-                load(file_path)
-                classifications_{j} = classification_configs;
-                clusters_(j) = classification_configs.DEFAULT_NUMBER_OF_CLUSTERS;
-            end
-            classifications = [classifications,classifications_];
-            clusters = [clusters,clusters_];
-        end    
-        if ~isempty(varargin) %multiple classifiers
-            [classifications, ~] = majority_rule(output_folder, classifications, threshold, varargin{:});
-        else                    
-            [classifications, ~] = majority_rule(output_folder, classifications, threshold);
-        end    
-        if classifications{1} == 0
-            close(h)
-            errordlg('Error executing the majority rule','Error'); 
-            return
+        %pick random sample of classifiers
+        x = randsample(tmp,sample);
+        x = sort(x);
+        classifications = cell(1,length(x));
+        for j = 1:length(x)
+            try
+                load(fullfile(class_folder,f{x(j)}));
+            catch
+                error_messages(15);
+            end 
+            classifications{j} = classification_configs;   
+            clear classification_configs;
         end
-        str_ = strcat('Iteration:',num2str(i),'/',num2str(iterations));
-        waitbar(i/iterations,h,str_);
-        % save
+        %execute majority voting
+        [classifications, ~] = majority_rule(output_folder, classifications, threshold);
+        if classifications{1} == 0
+            if LWAITBAR
+                delete(h);
+            end
+            error_messages(16); 
+            return
+        end   
+        %save
         classification_configs = classifications{end};
         str = sprintf('merged_%d.mat',i);
         save(fullfile(output_folder,str),'classification_configs');
-    end   
-    % Create a CSV-file for the undecided segments
-    find_similar_unlabelled(segmentation_configs,output_folder);
-    close(h)
-    error = 0;
+        if LWAITBAR
+            str_ = strcat('Iteration:',num2str(i),'/',num2str(iterations));
+            waitbar(i/iterations,h,str_)
+        end
+    end
+    if SUMMARY
+        % Create a CSV-file for the undecided segments
+        find_similar_unlabelled(segmentation_configs,output_folder);
+    end    
+    delete(h)
+    error = 0;    
 end
 

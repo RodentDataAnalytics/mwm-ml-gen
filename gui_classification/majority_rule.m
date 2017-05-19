@@ -41,71 +41,29 @@ function [ class, skipped ] = majority_rule(output_folder, classifications, thre
 %Then: max vote = label 1 and 2 with 2 votes.
 %Thus: 10th segment = no label and skipped = {[10],[]}.
 
-    class = {0}; 
+    REPORT = 1;
+    for i = 1:length(varargin)
+        if isequal(varargin{i},'REPORT')
+            REPORT = varargin{i+1};
+        end
+    end
+
+    class = {0};
     skipped = {0};
     
-    % sort the classifications according to the number of segments
-    maps = zeros(1,length(classifications));
-    for i = 1:length(classifications)
-        maps(i) = length(classifications{i}.CLASSIFICATION.class_map);
-    end
-    [~,indexes] = sort(maps,'descend');
-    classifications_s = cell(1,length(classifications));
-    for i = 1:length(classifications)
-        classifications_s(i) = classifications(indexes(i));
-    end
-    classifications = classifications_s;
-    
-    % take the class_maps. In case of different lengths take only the same
-    % segments and fill the rest with zeros.
-    tags = [];
+    % Get the class_map and the unique tags of every classifier
     class_matrix = [];
+    tags = [];
+    cl = [];
     for i = 1:length(classifications)
-        % collect all the tags
+        class_matrix = [class_matrix;classifications{i}.CLASSIFICATION.class_map];
         tags = [tags,unique(classifications{i}.CLASSIFICATION.class_map)];
-        try 
-            %in case we have the same amount of segments.
-            class_matrix = [class_matrix;classifications{i}.CLASSIFICATION.class_map]; 
-        catch
-            %in case we have the different amount of segments we require
-            %segmentation configs objects.
-            obj = {};
-            k = 1;
-            if length(varargin) == 1
-                for o = 1:length(varargin{1})
-                    if isa(varargin{1}{o},'config_segments')
-                        obj{k} = varargin{1}{o};
-                        k = k+1;
-                    end    
-                end
-            elseif length(varargin) > 1
-                 for o = 1:length(varargin)
-                    if isa(varargin{o},'config_segments')
-                        obj{k} = varargin{o};
-                        k = k+1;
-                    end    
-                 end     
-            end
-            if length(obj) < 2
-                return
-            else
-                new_matrix = zeros(1,size(class_matrix,2));
-                %find matched segments
-                matched = match_segments(obj);
-                %keep only the elements of matched segments from class_map
-                interest = classifications{i}.CLASSIFICATION.class_map(matched(:,2));
-                %assign them to the appropriate slots of the new matrix
-                new_matrix(matched(:,1)) = interest;
-                class_matrix = [class_matrix;new_matrix];
-            end
-        end           
+        cl = [cl,classifications{i}.DEFAULT_NUMBER_OF_CLUSTERS];
     end
-    %find unique tags
     tags = unique(tags);
     %exclude the undefined
     %tags = tags(2:end);
-    if length(tags) <= 1
-        class = {0};
+    if length(tags) <= 1 
         return;
     end    
     
@@ -144,11 +102,14 @@ function [ class, skipped ] = majority_rule(output_folder, classifications, thre
     end    
     
     % generate report file
-    majority_rule_report(classifications,cannot_decide,threshold_skip,output_folder);
+    if REPORT
+        majority_rule_report(classifications,cannot_decide,threshold_skip,output_folder);
+    end
   
     % generate output
     classifications{end+1} = classifications{1};
     classifications{end}.CLASSIFICATION.class_map = class_map;
+    classifications{end}.DEFAULT_NUMBER_OF_CLUSTERS = cl;
     class = classifications;
     skipped = {cannot_decide,threshold_skip};
 end

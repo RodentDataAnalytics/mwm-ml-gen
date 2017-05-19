@@ -20,7 +20,7 @@ classdef config_segments < handle
     
     methods
         %% CONSTRUCTOR %%
-        function inst = config_segments(EXPERIMENT_PROPERTIES,SEGMENTATION_PROPERTIES,TRAJECTORY_GROUPS,TRAJECTORIES,extra)
+        function inst = config_segments(EXPERIMENT_PROPERTIES,SEGMENTATION_PROPERTIES,TRAJECTORY_GROUPS,TRAJECTORIES,TRAJ_FEAT,extra)
             % Known properties
             inst.EXPERIMENT_PROPERTIES = EXPERIMENT_PROPERTIES;
             inst.COMMON_PROPERTIES = EXPERIMENT_PROPERTIES(1:18);
@@ -33,27 +33,26 @@ classdef config_segments < handle
             inst.SEGMENTATION_PROPERTIES = SEGMENTATION_PROPERTIES;
             inst.TRAJECTORY_GROUPS = TRAJECTORY_GROUPS;
             inst.TRAJECTORIES = TRAJECTORIES;
-
-            % Segmentation
+            
+            % Segmentation properties
             segment_length = SEGMENTATION_PROPERTIES(1);
             segment_overlap = SEGMENTATION_PROPERTIES(2);
+            
             if isempty(extra)
+                % Segmentation
                 [inst.SEGMENTS, inst.PARTITION, inst.CUM_PARTITIONS] = inst.TRAJECTORIES.partition(2, 'trajectory_segmentation_constant_len', segment_length, segment_overlap);
+                % Trajectory features
+                inst.FEATURES_VALUES_TRAJECTORIES = TRAJ_FEAT;
+                % Segment features
+                inst.FEATURES_VALUES_SEGMENTS = compute_features(inst.SEGMENTS.items, features_list, inst.COMMON_PROPERTIES);  
             elseif isequal(extra,'dummy')
                 inst.SEGMENTS = TRAJECTORIES;
                 inst.SEGMENTS.parent = TRAJECTORIES;
                 inst.PARTITION = ones(1,length(inst.SEGMENTS.items));
                 inst.CUM_PARTITIONS = inst.PARTITION;
-            end    
-            
-            % Compute Features
-            if isempty(extra)
-                inst.FEATURES_VALUES_TRAJECTORIES = compute_features(inst.TRAJECTORIES.items, features_list, inst.COMMON_PROPERTIES);
-                inst.FEATURES_VALUES_SEGMENTS = compute_features(inst.SEGMENTS.items, features_list, inst.COMMON_PROPERTIES);   
-            elseif isequal(extra,'dummy')
-                inst.FEATURES_VALUES_TRAJECTORIES = compute_features(inst.TRAJECTORIES.items, features_list, inst.COMMON_PROPERTIES);
+                inst.FEATURES_VALUES_TRAJECTORIES = TRAJ_FEAT;
                 inst.FEATURES_VALUES_SEGMENTS = inst.FEATURES_VALUES_TRAJECTORIES;
-            end
+            end    
         end
     end    
 end

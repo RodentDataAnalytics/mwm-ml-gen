@@ -5,19 +5,21 @@ function error = execute_segmentation(ppath,seg_length,seg_overlap,varargin)
     ppath = char_project_path(ppath);
     
     % Load necessary files from 'settings' folder
-    files = fullfile(ppath,'settings','*.mat');
-    if isempty(files)
-        errordlg('No data have been imported for this project');
-    end
     try
         load(fullfile(ppath,'settings','new_properties.mat'));
         load(fullfile(ppath,'settings','animal_groups.mat'));
         load(fullfile(ppath,'settings','my_trajectories.mat'));
     catch
-        errordlg('Cannot load project settings','Error');
+        error_messages(1);
         return
     end
-    
+    try
+        load(fullfile(ppath,'settings','my_trajectories_features.mat'));
+    catch
+        error_messages(2);
+        return;
+    end
+
     % Extra options
     extra = '';
     for i = 1:length(varargin)
@@ -31,7 +33,7 @@ function error = execute_segmentation(ppath,seg_length,seg_overlap,varargin)
     % Execute the segmentation(s)
     for i = 1:length(seg_overlap)
         seg_properties = [seg_length,seg_overlap(i)];
-        segmentation_configs = config_segments(new_properties, seg_properties, trajectory_groups, my_trajectories, extra);
+        segmentation_configs = config_segments(new_properties, seg_properties, trajectory_groups, my_trajectories, my_trajectories_features, extra);
         save_segmentation(segmentation_configs, ppath)
     end   
     

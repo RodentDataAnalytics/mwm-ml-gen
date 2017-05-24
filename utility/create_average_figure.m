@@ -1,9 +1,10 @@
-function create_average_figure(data,groups,positions,output_dir,total_trials,tags)
+function create_average_figure(animals_trajectories_map,data,groups,positions,output_dir,total_trials,tags)
 %CREATE_AVERAGE_STRAT_FIGURES generates one figure for each strategy that
 %illustrates the average segment length of the strategy from all the
 %classifiers
 
     [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
+    nanimals = size(animals_trajectories_map{1,1},2);
     
     sub_data = {};
     for i = 1:length(data)
@@ -16,59 +17,80 @@ function create_average_figure(data,groups,positions,output_dir,total_trials,tag
         avg{i} = strat;
     end
 
-    for i = 1:length(avg)
+    for i = 1:length(avg)-1
         f = figure;
         set(f,'Visible','off');
-        pos = positions{1,i};
-        boxplot(avg{1,i}, groups{1,i}, 'positions', positions{1,i}, 'colors', [0 0 0]); 
+        boxplot(avg{1,i}, groups{1,i}, 'positions', positions, 'colors', [0 0 0]);     
         faxis = findobj(f,'type','axes');
-    
-        h = findobj(faxis,'Tag','Box');
-        for j=1:2:length(h)
-             patch(get(h(j),'XData'), get(h(j), 'YData'), [0 0 0]);
+
+        % Box color
+        h = findobj(f,'Tag','Box');
+        if length(animals_trajectories_map) > 1
+            for j=1:2:length(h)
+                 patch(get(h(j),'XData'), get(h(j), 'YData'), [0 0 0]);
+            end
+        else
+            for j=1:length(h)
+                 patch(get(h(j),'XData'), get(h(j), 'YData'), [0 0 0]);
+            end       
         end
         set(h, 'LineWidth', LineWidth);
 
+        % Median
         h = findobj(faxis, 'Tag', 'Median');
-        for j=1:2:length(h)
-             line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.9 .9 .9], 'LineWidth', LineWidth);
+        if length(animals_trajectories_map) > 1
+            for j=1:2:length(h)
+                 line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.8 .8 .8], 'LineWidth', 2);
+            end
+            for j=2:2:length(h)
+                 line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.0 .0 .0], 'LineWidth', 2);
+            end
+        else
+            for j=1:length(h)
+                 line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.8 .8 .8], 'LineWidth', 2);
+            end                
         end
 
+        % Outliers
         h = findobj(faxis, 'Tag', 'Outliers');
         for j=1:length(h)
             set(h(j), 'MarkerEdgeColor', [0 0 0]);
-        end        
-         
+        end      
+
+        %Axes
         lbls = {};
-        lbls = 1:total_trials;     
-
-        try
-            set(faxis, 'XTick', (pos(1:2:2*total_trials - 1) + pos(2:2:2*total_trials)) / 2, 'XTickLabel', lbls, 'FontSize', FontSize, 'FontName', FontName);
+        lbls = arrayfun( @(i) sprintf('%d', i), 1:total_trials, 'UniformOutput', 0);     
+        if length(animals_trajectories_map) > 1
+            set(faxis, 'XTick', (positions(1:2:2*total_trials - 1) + positions(2:2:2*total_trials)) / 2, 'XTickLabel', lbls, 'FontSize', FontSize, 'FontName', FontName);
             set(faxis, 'Ylim', [0, max(avg{1,i})+0.5]);
-            set(faxis, 'LineWidth', LineWidth);   
-        catch
+        else
             set(faxis, 'XTickLabel', lbls, 'Ylim', [0, max(avg{1,i})+0.5], 'FontSize', FontSize, 'FontName', FontName);
-            set(faxis, 'LineWidth', LineWidth);
         end
-
-        xlabel('trials', 'FontSize', FontSize, 'FontName', FontName);  
-
-        set(f, 'Color', 'w');
-        box off;  
-        set(f,'papersize',[8,8], 'paperposition',[0,0,8,8]);
+        set(faxis, 'LineWidth', LineWidth); 
         
+        xlabel('trials', 'FontSize', FontSize, 'FontName', FontName);  
         if length(tags) == 1
             ylabel('transitions', 'FontSize', FontSize, 'FontName', FontName);
             title('number of transitions', 'FontSize', FontSize, 'FontName', FontName);
-            export_figure(f, output_dir, 'average_transitions', Export, ExportStyle);
         else
-            ylabel('average segment length (m)', 'FontSize', FontSize, 'FontName', FontName);
-            title(tags{i}{2}, 'FontSize', FontSize, 'FontName', FontName)
-            export_figure(f, output_dir, sprintf('average_segment_length_strategy_%d', i), Export, ExportStyle);
-        end
-        close(f)
+            ylabel('number of class segments', 'FontSize', FontSize, 'FontName', FontName);
+            if i > length(tags)
+                title('Direct Finding', 'FontSize', FontSize, 'FontName', FontName)
+            else
+                title(tags{i}{2}, 'FontSize', FontSize, 'FontName', FontName)
+            end
+        end 
+
+        %Overall
+        set(f, 'Color', 'w');
+        box off;  
+        set(f,'papersize',[8,8], 'paperposition',[0,0,8,8]);
+
+        %Export and delete
+        export_figure(f, output_dir, sprintf('average_animal_strategy_%d', i), Export, ExportStyle);
+        delete(f)
     end
     
     %% Export figures data
-    box_plot_data(avg, groups, output_dir);
+    box_plot_data(nanimals, avg, groups, output_dir);
 end

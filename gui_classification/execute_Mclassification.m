@@ -1,4 +1,4 @@
-function error = execute_Mclassification(project_path, classification, sample, iterations, threshold, varargin)
+function [error,Mclass_folder] = execute_Mclassification(project_path, classification, sample, iterations, threshold, varargin)
 %EXECUTE_MCLASSIFICATION merges the classification results of different
 %classifiers
 

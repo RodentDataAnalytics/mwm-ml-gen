@@ -381,6 +381,7 @@ function res_compare_class_Callback(hObject, eventdata, handles)
     
 %%%% MENU %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function options_tab_Callback(hObject, eventdata, handles)
+
 function conf_figs_Callback(hObject, eventdata, handles)
     [temp, idx] = hide_gui('MWM-ML');
     figure_configs;
@@ -395,3 +396,14 @@ function conf_tags_Callback(hObject, eventdata, handles)
     [temp, idx] = hide_gui('MWM-ML');
     tags_config(project_path);
     set(temp(idx),'Visible','on');    
+
+
+% --------------------------------------------------------------------
+function advanced_tab_Callback(hObject, eventdata, handles)
+
+function method_conf_Callback(hObject, eventdata, handles)
+    [temp, idx] = hide_gui('MWM-ML');
+    %[ STR_DISTR, TRANS_DISTR, SIGMA, INTERVAL, R_SIGMA, R_INTERVAL ]
+    ret = advanced_gui; 
+    set(handles.method_conf,'UserData',ret);
+    set(temp(idx),'Visible','on');  

@@ -1,32 +1,24 @@
-function box_plot_data(vals, groups, output_dir, varargin)
+function box_plot_data(nanimals, vals, groups, output_dir, varargin)
 %BOX_PLOT_DATA extracts the values used to form the boxplot and exports
 %them to a CSV file
 
     % for each strategy
     if iscell(vals)
         for i = 1:length(vals)
-            bars = {};
             nums = unique(groups{i});
+            bars = zeros(nanimals,length(nums));
             % output file path and name
             if length(vals) == 1
                 fpath = fullfile(output_dir,'transitions.csv');
             else
-                fpath = fullfile(output_dir,strcat('segment_length_strategy_',num2str(i),'.csv'));
+                fpath = fullfile(output_dir,strcat('animal_strategy_',num2str(i),'.csv'));
             end
             % for each bar
             for j = 1:length(nums)
                 bar = vals{i}(groups{i} == nums(j));
-                bar = num2cell(bar); 
-                % make the bar or the bars cell array bigger if needed
-                if j ~= 1
-                    if length(bar) < size(bars,1)
-                        bar{1,size(bars,1)} = [];
-                    elseif length(bar) > size(bars,1)
-                        bars{length(bar),1} = [];
-                    end
+                for k = 1:length(bar)
+                    bars(k,j) = bar(k);
                 end
-                % append
-                bars = [bars,bar'];
             end
             % form and export bars table
             header = {};
@@ -34,13 +26,14 @@ function box_plot_data(vals, groups, output_dir, varargin)
                 str = strcat('bar',num2str(h));
                 header = [header,str];
             end
+            bars = num2cell(bars);
             bars = [header;bars];
             table = cell2table(bars);
             writetable(table,fpath,'WriteVariableNames',0);
         end
     else
-        bars = {};
         nums = unique(groups);
+        bars = zeros(nanimals,length(nums));
         if isempty(varargin)
             name = 'res1';
         else
@@ -50,18 +43,10 @@ function box_plot_data(vals, groups, output_dir, varargin)
         fpath = fullfile(output_dir,strcat(strcat(name,'.csv')));
         % for each bar
         for j = 1:length(nums)
-            bar = vals(groups == nums(j));
-            bar = num2cell(bar); 
-            % make the bar or the bars cell array bigger if needed
-            if j ~= 1
-                if length(bar) < size(bars,1)
-                    bar{1,size(bars,1)} = [];
-                elseif length(bar) > size(bars,1)
-                    bars{length(bar),1} = [];
-                end
+            bar = vals{i}(groups{i} == nums(j));
+            for k = 1:length(bar)
+                bars(k,j) = bar(k);
             end
-            % append
-            bars = [bars,bar'];
         end
         % form and export bars table
         header = {};
@@ -69,6 +54,7 @@ function box_plot_data(vals, groups, output_dir, varargin)
             str = strcat('bar',num2str(h));
             header = [header,str];
         end
+        bars = num2cell(bars);
         bars = [header;bars];
         table = cell2table(bars);
         writetable(table,fpath,'WriteVariableNames',0);     

@@ -3,6 +3,13 @@ function varargout = results_strategies_transition_prob(segmentation_configs,cla
 % N animals. Rows and columns indicate the starting and ending strategies 
 % respectively. Row values are normalised.
 
+    % Custom Options
+    for i = 1:length(varargin)
+        if isequal(varargin{i},'DISTRIBUTION')
+            DISTRIBUTION = varargin{i+1};
+        end
+    end
+
     % Get classification
     segments_classification = classification_configs.CLASSIFICATION;
     
@@ -10,8 +17,14 @@ function varargout = results_strategies_transition_prob(segmentation_configs,cla
     long_trajectories_map = long_trajectories( segmentation_configs );
     
     % Strategies distribution
-    %[strat_distr, ~, ~, ~] = distr_strategies(segmentation_configs, classification_configs);
-    strat_distr = distr_strategies_gaussian(segmentation_configs, classification_configs);
+    switch DISTRIBUTION
+        case 1
+            strat_distr = distr_strategies_gaussian(segmentation_configs, classification_configs);
+        case 2
+            [strat_distr, ~, ~] = form_class_distr(segmentation_configs,classification_configs,'REMOVE_DIRECT_FINDING',1);
+        case 3
+            strat_distr = distr_strategies_smoothing(segmentation_configs, classification_configs,varargin{:});
+    end    
     
     count = length(segmentation_configs.TRAJECTORIES.items);
     partitions = segmentation_configs.PARTITION;

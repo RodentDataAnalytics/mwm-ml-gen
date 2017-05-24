@@ -28,7 +28,11 @@ function error = create_pvalues_table(table,class_tags,fpath,varargin)
         row{i} = strcat('class',num2str(i-1));
     end
     for i = 1:size(table_,1)
-        column{i+1} = class_tags{i}{2};
+        if i <= length(class_tags)
+            column{i+1} = class_tags{i}{2};
+        else
+            column{i+1} = 'Direct Finding';
+        end
     end    
     table_ = [row;table_];
     table_ = [column',table_];

@@ -48,7 +48,7 @@ function tags_config_OpeningFcn(hObject, eventdata, handles, varargin)
     handles.output = hObject;
     % Update handles structure
     guidata(hObject, handles);
-    % UIWAIT makes browse wait for user response (see UIRESUME)
+    % UIWAIT makes tags_config wait for user response (see UIRESUME)
     uiwait(handles.tags_config);
 % --- Outputs from this function are returned to the command line.
 function varargout = tags_config_OutputFcn(hObject, eventdata, handles) 

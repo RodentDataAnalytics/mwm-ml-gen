@@ -11,7 +11,7 @@ function error_messages(option, varargin)
         case 4
             errordlg('Cannot load labels','Error');
         case 5
-            errordlg('The selected segmentation and labels do not match','Error');
+            errordlg('Selected segmentation and labels do not match','Error');
         case 6
             errordlg('Cannot create classification folder','Error');
         case 7
@@ -34,6 +34,16 @@ function error_messages(option, varargin)
             errordlg('Error loading classifier object','Error');    
         case 16
             errordlg('Error executing the majority rule','Error');
+        case 17
+            errordlg('Selected classification and segmentation do not match','Error');
+        case 18
+            errordlg('Error generating the results (generate_results.m)','Error:Dev');   
+        case 19
+            errordlg('Cannot create summary file','Error');
+        case 20
+            errordlg('Could not create p-values summary file','Error');
+        case 21
+            errordlg('Cannot create summary p-values figure','Error');
     end
             
 

@@ -59,7 +59,11 @@ function error = majority_rule_init(segmentation_configs, output_folder, class_f
         files = cell(1,length(clusters));
         for i = 1:length(clusters)
             idx = find(num == clusters(i));
+            try
             files{i} = f{idx};
+            catch
+                a=1;
+            end
         end     
         f = files;
     end
@@ -107,7 +111,9 @@ function error = majority_rule_init(segmentation_configs, output_folder, class_f
         % Create a CSV-file for the undecided segments
         find_similar_unlabelled(segmentation_configs,output_folder);
     end    
-    delete(h)
+    if LWAITBAR
+        delete(h)
+    end
     error = 0;    
 end
 

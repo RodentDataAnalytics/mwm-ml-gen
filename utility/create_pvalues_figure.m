@@ -1,6 +1,13 @@
 function error = create_pvalues_figure(table,class_tags,output_dir,varargin)
 %CREATE_PVALUES_FIGURE creates a boxplot of the p-values.
 
+    %remove DF
+    if length(table{1,1}) > 1
+        for i = 1:length(table)
+            table{1,i}(end) = [];
+        end
+    end
+
     error = 1;
     TRIAL = 0;
     [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;

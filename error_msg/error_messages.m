@@ -44,6 +44,8 @@ function error_messages(option, varargin)
             errordlg('Could not create p-values summary file','Error');
         case 21
             errordlg('Cannot create summary p-values figure','Error');
+        case 22
+            errordlg('Cannot generate metrics','Error');
     end
             
 

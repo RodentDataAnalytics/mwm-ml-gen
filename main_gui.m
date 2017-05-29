@@ -315,7 +315,9 @@ function refresh_class_Callback(hObject, eventdata, handles)
 
 %%%% RESULT BUTTONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function res_demo_Callback(hObject, eventdata, handles)
-    demo(1);
+    [temp, idx] = hide_gui('MWM-ML');
+    demo_gui;
+    set(temp(idx),'Visible','on');
     
 function res_metrics_Callback(hObject, eventdata, handles)
     [temp, idx] = hide_gui('MWM-ML');

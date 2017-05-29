@@ -1,4 +1,4 @@
-function trans = animal_transitions(segmentation_configs,classification_configs,varargin)
+function [trans,varargout] = animal_transitions(segmentation_configs,classification_configs,varargin)
 %ANIMAL_TRANSITIONS computes the transitions occured within each trajectory
 %   Return a vector with the number of transitions per trajectory.
 %   Trajectories with no segments will have 0 transitions.
@@ -10,11 +10,14 @@ function trans = animal_transitions(segmentation_configs,classification_configs,
 % 3: Smoothing
 
     %% INITIALIZE %%
-    
+
     % Default Options
     OPTION = 1;
     DIVIDE = 0;
     DISTRIBUTION = 3;
+    PROBABILITIES = 0;
+    varargout{1} = 0;
+    varargout{2} = 0;
     
     % Custom Options
     for i = 1:length(varargin)
@@ -24,6 +27,9 @@ function trans = animal_transitions(segmentation_configs,classification_configs,
             DIVIDE = varargin{i+1};
         elseif isequal(varargin{i},'DISTRIBUTION')
             DISTRIBUTION = varargin{i+1};
+        elseif isequal(varargin{i},'PROBABILITIES')
+            PROBABILITIES = 1;
+            groups = varargin{i+1};
         end
     end
     % Strategies distribution
@@ -34,6 +40,16 @@ function trans = animal_transitions(segmentation_configs,classification_configs,
             [strat_distr, ~, ~] = form_class_distr(segmentation_configs,classification_configs,'REMOVE_DIRECT_FINDING',1);
         case 3
             strat_distr = distr_strategies_smoothing(segmentation_configs, classification_configs,varargin{:});
+    end
+    % Transition probabilities
+    if PROBABILITIES
+        if length(groups) == 2
+            groups = [groups,0];
+        end
+        trajectories_groups = arrayfun( @(t) t.group, segmentation_configs.TRAJECTORIES.items);
+        nc = classification_configs.CLASSIFICATION.nclasses;
+        trans_prob1 = zeros(nc, nc);
+        trans_prob2 = zeros(nc, nc);
     end
     
     %% EXECUTE %%
@@ -49,8 +65,16 @@ function trans = animal_transitions(segmentation_configs,classification_configs,
                 idx = find(distr > -1);
                 a = distr(1);
                 for j = 2:length(idx)
-                    if a ~= distr(j) && distr(j) ~= 0;
+                    if a ~= distr(j) && distr(j) ~= 0 && a ~= 0
                         trans(i) = trans(i) + 1;
+                        % probabilities
+                        if PROBABILITIES
+                            if trajectories_groups(i) == groups(1)
+                                trans_prob1(a, distr(j)) = trans_prob1(a, distr(j)) + 1; 
+                            elseif trajectories_groups(i) == groups(2)
+                                trans_prob2(a, distr(j)) = trans_prob1(a, distr(j)) + 1; 
+                            end
+                        end
                     end
                     a = distr(j);
                 end
@@ -58,6 +82,26 @@ function trans = animal_transitions(segmentation_configs,classification_configs,
                     trans(i) = trans(i)/length(idx);
                 end
             end          
+        end
+        if PROBABILITIES
+            % normalize matrices
+            trans_prob1 = trans_prob1 ./ repmat(sum(trans_prob1, 2), 1, nc);
+            trans_prob2 = trans_prob2 ./ repmat(sum(trans_prob2, 2), 1, nc);
+            varargout{1} = trans_prob1;
+            varargout{2} = trans_prob2;
+            % NaN values
+            for i = 1:size(trans_prob1,1)
+                for j = 1:size(trans_prob1,2)
+                    if isnan(trans_prob1)
+                        trans_prob1(i,j) = 0;
+                    end
+                    if isnan(trans_prob2)
+                        trans_prob2(i,j) = 0;
+                    end
+                end
+            end    
+            varargout{1} = trans_prob1;
+            varargout{2} = trans_prob2;
         end
         
 %--Option 2--%         

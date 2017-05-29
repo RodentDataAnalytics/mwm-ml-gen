@@ -6,7 +6,52 @@ function error_all = gui_generate_results(handles,eventdata)
     b_pressed = eventdata.Source.String;
     project_path = char_project_path(get(handles.load_project,'UserData'));
     if isempty(project_path)
-        errordlg('No project is currently loaded','Error');
+        error_messages(8);
+        return
+    end
+    
+    % Load the full trajectories
+    try
+        load(fullfile(project_path,'settings','my_trajectories.mat'));
+        load(fullfile(project_path,'settings','my_trajectories_features.mat'));
+        load(fullfile(project_path,'settings','new_properties.mat'));
+    catch
+        error_messages(1)
+    end
+    
+    % Select groups
+    groups = select_groups(my_trajectories);
+    try
+        if groups == -2
+            return
+        end
+    catch
+    end
+           
+    % Construct the trajectories_map and equalize the groups
+    [exit, animals_trajectories_map] = trajectories_map(my_trajectories,my_trajectories_features,groups,'Friedman');
+    if exit
+        return
+    end
+    
+    % If metrics is pressed
+    if isequal(b_pressed,'Metrics')
+        h = waitbar(0,'Generating metrics...','Name','Results');
+        str = num2str(groups);
+        str = regexprep(str,'[^\w'']',''); %remove gaps
+        str = strcat('group',str);   
+        output_dir = fullfile(project_path,'results','metrics',str);
+        if ~exist(output_dir,'dir')
+            mkdir(output_dir);
+        end
+        try
+            results_latency_speed_length(new_properties,my_trajectories,my_trajectories_features,animals_trajectories_map,1,output_dir);
+            error_all = 0;
+            delete(h);
+        catch
+            delete(h);
+            error_messages(22);
+        end
         return
     end
     
@@ -24,7 +69,7 @@ function error_all = gui_generate_results(handles,eventdata)
     end
     if isequal(b_pressed,'Strategies')
         DISTRIBUTION = ret(1);
-    elseif isequal(b_pressed,'Transitions')
+    elseif isequal(b_pressed,'Transitions') || isequal(b_pressed,'Probabilities')
         DISTRIBUTION = ret(2);
     end
     if ret(3) == 0 %no smooth, equal to R (radius)
@@ -65,43 +110,6 @@ function error_all = gui_generate_results(handles,eventdata)
                     return;
             end            
         end
-    end
-        
-    % Select groups
-    groups = select_groups(segmentation_configs);
-    try
-        if groups == -2
-            return
-        end
-    catch
-    end
-    
-    % Construct the trajectories_map and equalize the groups
-    if ~isequal(b_pressed,'Probabilities'); %probabilities do not use map
-        [exit, animals_trajectories_map] = trajectories_map(segmentation_configs,groups,'Friedman');
-        if exit
-            return
-        end
-    else
-        animals_trajectories_map = [];
-    end
-    
-    % If metrics is pressed
-    if isequal(b_pressed,'Metrics')
-        str = num2str(groups);
-        str = regexprep(str,'[^\w'']',''); %remove gaps
-        str = strcat('group',str);   
-        output_dir = fullfile(project_path,'results','metrics',str);
-        if ~exist(output_dir,'dir')
-            mkdir(output_dir);
-        end
-        try
-            results_latency_speed_length(segmentation_configs,animals_trajectories_map,1,output_dir);
-            error_all = 0;
-        catch
-            errordlg('Cannot generate metrics','Error');
-        end
-        return
     end
     
     % Full trajectories strategies with manual labelling 
@@ -148,7 +156,7 @@ function error_all = gui_generate_results(handles,eventdata)
                 error_all = generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed, groups,...
                     'DISTRIBUTION',DISTRIBUTION,'SIGMA',SIGMA,'INTERVAL',INTERVAL);
         end    
-    else %Transitions...
+    else %Transitions or Probabilities
         error_all = generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed, groups,...
             'DISTRIBUTION',DISTRIBUTION,'SIGMA',SIGMA,'INTERVAL',INTERVAL);
     end

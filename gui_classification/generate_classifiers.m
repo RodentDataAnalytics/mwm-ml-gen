@@ -11,11 +11,11 @@ function er = generate_classifiers(cpath, num_clusters, segmentation_configs, LA
 %Note: LABELLING_MAP, ALL_TAGS, CLASSIFICATION_TAGS can be loaded by using
 %the command: load(strcat(project_path,'labels/',label_name.mat));
 
-    LWAITBAR = 1;
+    WAITBAR = 1;
     
     for i = 1:length(varargin)
-        if isequal(varargin{i},'LWAITBAR')
-            LWAITBAR = varargin{i+1};         
+        if isequal(varargin{i},'WAITBAR')
+            WAITBAR = varargin{i+1};         
         end
     end
 
@@ -47,7 +47,7 @@ function er = generate_classifiers(cpath, num_clusters, segmentation_configs, LA
     end   
 
     % Generate the classifiers
-    if LWAITBAR
+    if WAITBAR
         h = waitbar(0,'Generating classifiers...');
     end
     fn = fullfile(cpath,'errorlog.txt');
@@ -62,7 +62,7 @@ function er = generate_classifiers(cpath, num_clusters, segmentation_configs, LA
         if classification_configs.flag == 0
             fprintf(fileID,'%s\n',num2str(numbers(i)));
         end
-        if LWAITBAR
+        if WAITBAR
             waitbar(i/length(numbers));
         end
     end   

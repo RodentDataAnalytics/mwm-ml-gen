@@ -43,7 +43,7 @@ function box_plot_data(nanimals, vals, groups, output_dir, varargin)
         fpath = fullfile(output_dir,strcat(strcat(name,'.csv')));
         % for each bar
         for j = 1:length(nums)
-            bar = vals{i}(groups{i} == nums(j));
+            bar = vals(groups == nums(j));
             for k = 1:length(bar)
                 bars(k,j) = bar(k);
             end

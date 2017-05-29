@@ -2,14 +2,14 @@ function error = majority_rule_init(segmentation_configs, output_folder, class_f
 %MAJORITY_RULE_INIT runs the majority rule a number of times with the given
 %options.
 
-    LWAITBAR = 1;
+    WAITBAR = 1;
     CLUSTERS = 0;
     REPORT = 1;
     SUMMARY = 1;
 
     for i = 1:length(varargin)
-        if isequal(varargin{i},'LWAITBAR')
-            LWAITBAR = varargin{i+1};
+        if isequal(varargin{i},'WAITBAR')
+            WAITBAR = varargin{i+1};
         elseif isequal(varargin{i},'CLUSTERS')
             CLUSTERS = 1;
             clusters = varargin{i+1};
@@ -25,13 +25,13 @@ function error = majority_rule_init(segmentation_configs, output_folder, class_f
     end
     
     % Check if folder exists
-    if LWAITBAR
+    if WAITBAR
         h = waitbar(0,'Initializing merging...','Name','Generating classifiers');
     end
     error = 1;
     if ~exist(output_folder,'dir')
         error_messages(13);
-        if LWAITBAR
+        if WAITBAR
             delete(h);
         end
         return;
@@ -70,7 +70,7 @@ function error = majority_rule_init(segmentation_configs, output_folder, class_f
 
     % Run the majority rule ITERATIONS times and each time pick another
     % random sample from the classifiers pool.
-    if LWAITBAR
+    if WAITBAR
         str_ = strcat('Iteration:','1','/',num2str(iterations));
         waitbar(0,h,str_);
     end
@@ -92,7 +92,7 @@ function error = majority_rule_init(segmentation_configs, output_folder, class_f
         %execute majority voting
         [classifications, ~] = majority_rule(output_folder, classifications, threshold);
         if classifications{1} == 0
-            if LWAITBAR
+            if WAITBAR
                 delete(h);
             end
             error_messages(16); 
@@ -102,7 +102,7 @@ function error = majority_rule_init(segmentation_configs, output_folder, class_f
         classification_configs = classifications{end};
         str = sprintf('merged_%d.mat',i);
         save(fullfile(output_folder,str),'classification_configs');
-        if LWAITBAR
+        if WAITBAR
             str_ = strcat('Iteration:',num2str(i),'/',num2str(iterations));
             waitbar(i/iterations,h,str_)
         end
@@ -111,7 +111,7 @@ function error = majority_rule_init(segmentation_configs, output_folder, class_f
         % Create a CSV-file for the undecided segments
         find_similar_unlabelled(segmentation_configs,output_folder);
     end    
-    if LWAITBAR
+    if WAITBAR
         delete(h)
     end
     error = 0;    

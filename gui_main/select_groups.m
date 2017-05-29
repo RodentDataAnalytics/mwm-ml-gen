@@ -1,4 +1,4 @@
-function groups = select_groups(segmentation_configs)
+function groups = select_groups(my_trajectories)
 %SELECT_GROUPS allows the user to select which one or two groups he wants
 %in order to generate the results
 
@@ -6,7 +6,7 @@ function groups = select_groups(segmentation_configs)
 % groups = -2: error, wrong input
 
     % find available animal groups
-    groups = arrayfun( @(t) t.group, segmentation_configs.TRAJECTORIES.items);
+    groups = arrayfun( @(t) t.group, my_trajectories.items);
     groups = unique(groups);
     % if we have more than one groups ask which one or two groups
     if length(groups) > 1

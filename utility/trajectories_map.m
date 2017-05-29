@@ -1,23 +1,23 @@
-function [exit,animals_trajectories_map] = trajectories_map(segmentation_configs,user_groups,test,varargin)    
+function [exit,animals_trajectories_map] = trajectories_map(my_trajectories,my_trajectories_features,user_groups,test,varargin)    
 % ANIMAL_STATISTICS constructs a matrix of trajectory indices for each 
 % trial and user's defined group(s) of animals.
 
     exit = 0;
     
-    groups = arrayfun( @(t) t.group, segmentation_configs.TRAJECTORIES.items);
-    trials = arrayfun( @(t) t.trial, segmentation_configs.TRAJECTORIES.items);
-    speed = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,11); 
+    groups = arrayfun( @(t) t.group, my_trajectories.items);
+    trials = arrayfun( @(t) t.trial, my_trajectories.items);
+    speed = my_trajectories_features(:,11); 
     animals_ids = {};
     animals_trajectories_map = {};
 
     for i = 1:length(user_groups)
         % select ids based on first trial
         map = find(groups == user_groups(i) & trials == 1);
-        ids = arrayfun( @(x) x.id, segmentation_configs.TRAJECTORIES.items(map));
+        ids = arrayfun( @(x) x.id, my_trajectories.items(map));
         % do the same for every trial
         for t = 2:length(unique(trials))
             trial_idx = find(groups == user_groups(i) & trials == t);
-            trial_ids = arrayfun( @(x) x.id, segmentation_configs.TRAJECTORIES.items(trial_idx));
+            trial_ids = arrayfun( @(x) x.id, my_trajectories.items(trial_idx));
             map = [map; arrayfun( @(id) trial_idx(trial_ids == id), ids)];
         end
     
@@ -43,7 +43,7 @@ function [exit,animals_trajectories_map] = trajectories_map(segmentation_configs
         case 'Friedman' % we need to have equal number of animals
             if size(animals_trajectories_map,2) > 1
                 if size(animals_trajectories_map{1,1},2)~=size(animals_trajectories_map{1,2},2)
-                    features = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,9:11);
+                    features = my_trajectories_features(:,9:11);
                     [~, animals_trajectories_map] = equalize_groups(user_groups, animals_ids, animals_trajectories_map, features);
                     % if Cancel or X was clicked, return
                     if size(animals_trajectories_map{1,1},2)~=size(animals_trajectories_map{1,2},2)

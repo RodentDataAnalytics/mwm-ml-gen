@@ -3,6 +3,7 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
 %saves them inside the specific folders
     
     error = 1;
+    WAITBAR = 1;
     
     for i = 1:length(varargin)
         if isequal(varargin{i},'extra_segments')
@@ -12,6 +13,8 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
             else
                 [segmentation_configs, classifications] = include_small_trajectories(extra_segments, segmentation_configs, classifications);
             end
+        elseif isequal(varargin{i},'WAITBAR')    
+            WAITBAR = varargin{i+1};
         end
     end
 
@@ -29,7 +32,9 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
         return
     end
 
-    h = waitbar(0,'Generating results...','Name','Results');
+    if WAITBAR
+        h = waitbar(0,'Generating results...','Name','Results');
+    end
     % Variables of interest:
     %Friedman's test p-value (-1 if it is skipped)
     p_ = cell(1,length(classifications));
@@ -51,30 +56,37 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
                     p_{i} = p;
                     vals_{i} = vals;
                     vals_grps_{i} = vals_grps;
-                    waitbar(i/length(classifications)); 
+                    if WAITBAR
+                        waitbar(i/length(classifications)); 
+                    end
                 end
             case 'Strategies'
                 for i = 1:length(classifications)
-                    %[p,mfried,nanimals,vals,vals_grps,pos] = results_strategies_distributions_length(segmentation_configs,classifications{i},animals_trajectories_map,1,dir_list{i});
                     %[mfried_all, p_mfried, mfriedAnimal_all, p_mfriedAnimal, data_all, groups_all, pos, p_days]
                     [~,p,~,~,vals,vals_grps,pos] = results_strategies_distributions(segmentation_configs,classifications{i},animals_trajectories_map,1,dir_list{i},varargin{:});
                     p_{i} = p;
                     vals_{i} = vals;
                     vals_grps_{i} = vals_grps;
-                    waitbar(i/length(classifications)); 
+                    if WAITBAR
+                        waitbar(i/length(classifications)); 
+                    end
                 end 
             case 'Probabilities'
                 if length(groups) > 1
                     for i = 1:length(classifications)
                         [prob1, prob2] = results_strategies_transition_prob(segmentation_configs,classifications{i},groups,1,dir_list{i},varargin{:});
                         vals_{i} = {prob1,prob2};
-                        waitbar(i/length(classifications)); 
+                        if WAITBAR
+                            waitbar(i/length(classifications)); 
+                        end
                     end
                 else
                    for i = 1:length(classifications)
                         [prob1] = results_strategies_transition_prob(segmentation_configs,classifications{i},groups,1,dir_list{i},varargin{:});
                         vals_{i} = {prob1};
-                        waitbar(i/length(classifications)); 
+                        if WAITBAR
+                            waitbar(i/length(classifications)); 
+                        end
                     end
                 end  
         end
@@ -89,7 +101,9 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
     end
         
     %% Generate a summary of the results
-    waitbar(1,h,'Finalizing...');
+    if WAITBAR
+        waitbar(1,h,'Finalizing...');
+    end
     %if only 1 iteration was selected no summary needs to be created
     if length(p_) > 1
         total_trials = sum(segmentation_configs.EXPERIMENT_PROPERTIES{30});
@@ -106,7 +120,9 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
                 if error
                     error_messages(19);
                 end
-                delete(h);
+                if WAITBAR
+                    delete(h);
+                end
                 error = 0;
                 return;
         end
@@ -115,7 +131,9 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
             error = create_pvalues_table(p_,class_tags,fpath);
             if error
                 error_messages(20);
-                delete(h);
+                if WAITBAR
+                    delete(h);
+                end
                 return
             end
             switch b_pressed
@@ -129,7 +147,9 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
             end
         end
     end
-    delete(h);
+    if WAITBAR
+        delete(h);
+    end
     error = 0;
 end
 

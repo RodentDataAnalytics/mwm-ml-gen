@@ -1,152 +1,205 @@
-function results_latency_speed_length(segmentation_configs,animals_trajectories_map,figures,output_dir)
+function [varargout] = results_latency_speed_length(new_properties,my_trajectories,my_trajectories_features,animals_trajectories_map,figures,output_dir,varargin)
 % Comparison of full trajectory metrics for 2 groups of N animals over a 
 % set of M trials. The generated plots show:
-% 1. The escape latency.
-% 2. The average movement speed.
-% 3. The average path length.
+% 1. The escape latency (sec).
+% 2. The average movement speed (cm/sec).
+% 3. The average path length (meters).
 
-    hw = waitbar(0,'Generating results...','Name','Results');
-
+    SCRIPTS = 1;
+    DISPLAY = 1;
+    
     % Get features: latency, length, speed
-    latency = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,9);
-    length_ = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,10);
-    speed = segmentation_configs.FEATURES_VALUES_TRAJECTORIES(:,11);
+    latency = my_trajectories_features(:,9);
+    length_ = my_trajectories_features(:,10);
+    speed = my_trajectories_features(:,11);
     vars = [latency' ; speed' ; length_'/100];
-    % Get properties: days and trials
-    days = segmentation_configs.EXPERIMENT_PROPERTIES{28}; 
-    trials_per_session = segmentation_configs.EXPERIMENT_PROPERTIES{30};
-    total_trials = sum(trials_per_session);
-    % Get output configurations
-    [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
-
-    % For one group:
-    if length(animals_trajectories_map)==1
-        one_group_metrics(animals_trajectories_map,vars,total_trials,days,trials_per_session,FontName,FontSize,LineWidth,Export,ExportStyle,output_dir);
-        delete(hw);
-        return
-    end    
-    
-    % Figure properties
     names = {'latency' , 'speed' , 'length'};
-    ylabels = {'latency [s]', 'speed [cm/s]', 'path length [m]'};
-    log_y = [0, 0, 0];
-    % Generate text file for the p-values
-    fn = fullfile(output_dir,'animals_metrics_p.txt');
-    fileID = fopen(fn,'wt');
+    labels = {'latency [s]', 'speed [cm/s]', 'path length [m]'};
+    % Get properties: days and trials
+    days = new_properties{28}; 
+    trials_per_session = new_properties{30};
+    total_trials = sum(trials_per_session);
     
-    for i = 1:size(vars, 1)
-        values = vars(i, :);
+    % STORAGE
+    % Holds number of strategies per trial per animal
+    %Trial 1 [animal_1...animel_N] , %Trial 2 [animal_1...animal_N]...  
+    mfried_all = cell(1,size(vars,1));
+    p_mfried = []; %stores the p-values
+    % Holds number of strategies per animal per trial
+    %Animal 1 [trial_1...trial_N] , %Animal 2 [trial_1...trial_N]...    
+    mfriedAnimal_all = cell(1,size(vars,1));
+    p_mfriedAnimal = []; %stores the p-values
+    %Boxplot produces a separate box for each set of data_all values that 
+    %share the same groups_all value or values.
+    data_all = cell(1,size(vars,1));
+    groups_all = cell(1,size(vars,1));
+    %visualization purposes:
+    maximum = 0;
+
+    for v = 1:size(vars, 1)
         data = [];
         groups = [];
-        xpos = [];
-        d = .1;
-        idx = 1;
-        pos = zeros(1, 2*total_trials);
-        for s = 1:days
-            for t = 1:trials_per_session
-                for g = 1:2                    
-                    pos(idx) = d;
-                    d = d + 0.1;
-                    idx = idx + 1;
-                end
-                d = d + 0.07;
-            end
-            d = d + 0.15;
-        end
-        
+        grp = 1;
         % Matrix for friedman's multifactor tests
-        [animals_trajectories_map,n] = friedman_test(animals_trajectories_map);
-        fried = zeros(total_trials*n, 2);                        
+        nanimals = size(animals_trajectories_map{1,1},2);
+        mfried = zeros(nanimals*total_trials, 2); 
+        mfriedAnimal = zeros(nanimals*total_trials, 2);      
+        % Iterate over trials
         for t = 1:total_trials
-            for g = 1:2            
+            % Iterate over animal groups
+            for g = 1:length(animals_trajectories_map) 
                 map = animals_trajectories_map{g};
-                tmp = values(map(t, :));                 
-                data = [data, tmp(:)'];
-                xpos = [xpos, repmat(pos(t*2 - 1 + g - 1), 1, length(tmp(:)))];             
-                groups = [groups, repmat(t*2 - 1 + g - 1, 1, length(tmp(:)))];             
-                for j = 1:n
-                    fried((t - 1)*n + j, g) = tmp(j);
+                pts = [];
+                for i = 1:nanimals
+                    val = vars(v,(map(t, i)));
+                    pts = [pts, val];
+                    mfried( (t - 1) * nanimals + i, g) = val;
+                    mfriedAnimal( (i - 1) * total_trials + t, g) = val;
                 end
+                if isempty(pts)
+                    data = [data, 0];
+                    groups = [groups, grp];
+                else
+                    data = [data, pts];
+                    groups = [groups, ones(1, length(pts))*grp];
+                end
+                grp = grp + 1; 
+            end
+        end
+        % Run friedman's test only if we have more than one animal groups
+        if length(animals_trajectories_map) > 1
+            p = friedman(mfried, nanimals, 'off');
+            str = sprintf('%s\tp_frdm: %g', labels{v}, p);   
+            p_mfried = [p_mfried;p];
+            if DISPLAY
+                disp(str);
             end            
+            p = friedman(mfriedAnimal, total_trials, 'off');
+            str = sprintf('%s\tp_frdm: %g', labels{v}, p); 
+            p_mfriedAnimal = [p_mfriedAnimal;p];
+            if DISPLAY
+                %disp(str);
+            end      
+        end
+        % collect all the data
+        data_all{1,v} = data;
+        groups_all{1,v} = groups;
+        mfried_all{1,v} = mfried;
+        mfriedAnimal_all{1,v} = mfriedAnimal; 
+        % store maximum data number (for visualization purposes)
+        a = max(data);
+        if a > maximum
+            maximum = a;
+        end    
+    end
+
+    extra = (10*maximum)/100; %take the 10% of the maximum
+    
+    %% Generate figures
+    if figures
+        % get the configurations from the configs file
+        [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
+        % arrange each bar of the plot to a certain position
+        pos = zeros(1,total_trials*length(animals_trajectories_map));
+        pos(1) = 0.05;
+        j = 1;
+        tmp = 1;
+        for i = 2:length(pos)
+            if mod(i,2) == 0
+                pos(i) = pos(i-1)+0.05; %group = 0.05
+            else
+                if i == trials_per_session(j)*length(animals_trajectories_map) + tmp
+                    pos(i) = pos(i-1)+0.14; %day = 0.14
+                    tmp = i;
+                    j = j+1; 
+                else
+                    pos(i) = pos(i-1)+0.07; %trial = 0.07
+                end
+            end
         end
         
-        % Run friedman's test  
-        try
-            p = friedman(fried, n, 'off');
-            str = sprintf('Friedman p-value (%s): %g', ylabels{i}, p);
-            fprintf(fileID,'%s\n',str);
-            disp(str);          
-        catch
-            disp('Error on Friedman test. Friedman test is skipped');
-        end    
-        
-        % Export figures data
-        box_plot_data(data, groups, output_dir, strcat('animals_',names{i}));
-        
-        % Generate figures
-        if figures
+        for v = 1:size(vars, 1)
             f = figure;
             set(f,'Visible','off');
-            
-            boxplot(data, groups, 'positions', xpos, 'colors', [0 0 0; .7 .7 .7]);
+            boxplot(data_all{1,v}, groups_all{1,v}, 'positions', pos, 'colors', [0 0 0]);     
             faxis = findobj(f,'type','axes');
-            set(faxis, 'LineWidth', LineWidth, 'FontSize', FontSize, 'FontName', FontName);
-
-            lbls = {};
-            lbls = arrayfun( @(i) sprintf('%d', i), 1:total_trials, 'UniformOutput', 0);     
-
-            set(faxis, 'XLim', [0, max(pos) + 0.1], 'XTick', (pos(1:2:2*total_trials - 1) + pos(2:2:2*total_trials)) / 2, 'XTickLabel', lbls, 'Ylim', [0 max(data)+20], 'FontSize', FontSize, 'FontName', FontName);                 
-
-            if log_y(i)
-                set (faxis, 'Yscale', 'log');
+            
+            % Box color
+            h = findobj(f,'Tag','Box');
+            if length(animals_trajectories_map) > 1
+                for j=1:2:length(h)
+                     patch(get(h(j),'XData'), get(h(j), 'YData'), [0 0 0]);
+                end
             else
-                set (faxis, 'Yscale', 'linear');
-            end
-
-            ylabel(ylabels{i}, 'FontSize', FontSize, 'FontName', FontName);
-            xlabel('trial', 'FontSize', FontSize, 'FontName', FontName);
-
-            h = findobj(faxis,'Tag','Box');
-            for j=1:2:length(h)
-                 patch(get(h(j),'XData'), get(h(j), 'YData'), [0 0 0]);
+                for j=1:length(h)
+                     patch(get(h(j),'XData'), get(h(j), 'YData'), [0 0 0]);
+                end       
             end
             set(h, 'LineWidth', LineWidth);
 
+            % Median
             h = findobj(faxis, 'Tag', 'Median');
-            for j=1:2:length(h)
-                 line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.9 .9 .9], 'LineWidth', LineWidth);
+            if length(animals_trajectories_map) > 1
+                for j=1:2:length(h)
+                     line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.8 .8 .8], 'LineWidth', 2);
+                end
+                for j=2:2:length(h)
+                     line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.0 .0 .0], 'LineWidth', 2);
+                end
+            else
+                for j=1:length(h)
+                     line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.8 .8 .8], 'LineWidth', 2);
+                end                
             end
-
+   
+            % Outliers
             h = findobj(faxis, 'Tag', 'Outliers');
             for j=1:length(h)
                 set(h(j), 'MarkerEdgeColor', [0 0 0]);
+            end      
+            
+            %Axes
+            lbls = {};
+            lbls = arrayfun( @(i) sprintf('%d', i), 1:total_trials, 'UniformOutput', 0);     
+            if length(animals_trajectories_map) > 1
+                set(faxis, 'XTick', (pos(1:2:2*total_trials - 1) + pos(2:2:2*total_trials)) / 2, 'XTickLabel', lbls, 'FontSize', FontSize, 'FontName', FontName);
+            else
+                set(faxis, 'XTickLabel', lbls, 'Ylim', [0, max(data_all{1,v})+0.5], 'FontSize', FontSize, 'FontName', FontName);
             end
+            set(faxis, 'Ylim', [0, max(data_all{1,v})+extra]);
+            set(faxis, 'LineWidth', LineWidth);   
+            title(names{v}, 'FontSize', FontSize, 'FontName', FontName);
+            xlabel('trials', 'FontSize', FontSize, 'FontName', FontName);  
+            ylabel(labels{v}, 'FontSize', FontSize, 'FontName', FontName); 
 
-            % check significances
-            for t = 1:total_trials
-                p = ranksum(data(groups == 2*t - 1), data(groups == 2*t));                                
-                if p < 0.05
-                    if p < 0.01
-                        if p < 0.001
-                            alpha = 0.001;
-                        else
-                            alpha = 0.01;
-                        end
-                    else
-                      alpha = 0.05;
-                    end
-                end
-            end
-
+            %Overall
             set(f, 'Color', 'w');
-            box off;        
+            box off;  
             set(f,'papersize',[8,8], 'paperposition',[0,0,8,8]);
-            export_figure(f, output_dir, sprintf('animals_%s', names{i}), Export, ExportStyle);
-            close(f);
+    
+            %Export and delete
+            export_figure(f, output_dir, sprintf('animals_%s', names{v}), Export, ExportStyle);
+            delete(f)
+        end    
+    end    
+    
+    %% Export figures data
+    p_days = {};
+    if SCRIPTS
+        box_plot_data(nanimals, data_all, groups_all, output_dir);
+        if length(animals_trajectories_map) > 1
+            p_days = friedman_test_results(p_mfried,p_mfriedAnimal, mfried_all,nanimals,mfriedAnimal_all,trials_per_session,labels,output_dir,'METRICS',varargin{:});
         end
-        waitbar(i/size(vars, 1));
-    end 
-    fclose(fileID);
-    delete(hw);
+    end    
+    
+    %% Output
+    varargout{1} = mfried_all;
+    varargout{2} = p_mfried;
+    varargout{3} = mfriedAnimal_all;
+    varargout{4} = p_mfriedAnimal;
+    varargout{5} = data_all;
+    varargout{6} = groups_all;
+    varargout{7} = pos;
+    varargout{8} = p_days;
 end
 

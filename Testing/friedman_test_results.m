@@ -4,6 +4,7 @@ function all_p = friedman_test_results(p_mfried,p_mfriedAnimal, mfried_all,nanim
     ANIMALS = 1;
     TRIALS = 0;
     DAYS = 1;   
+    METRICS = 0;
 
     for i = 1:length(varargin)
         if isequal(varargin{i},'ANIMALS')
@@ -16,21 +17,27 @@ function all_p = friedman_test_results(p_mfried,p_mfriedAnimal, mfried_all,nanim
             ANIMALS = 1;
             TRIALS = 1;
             DAYS = 1;
+        elseif isequal(varargin{i},'METRICS')
+            METRICS = 1;
         end
     end
 
     all_p = {};    
     
-    % Strategies column
-    column = {};
-    if isequal(classes,'Transitions')
-        column = {classes};
+    % Strategies / Metrics column
+    if METRICS
+        column = classes;
     else
-        for i = 1:length(mfried_all) - 1
-            c = classes{1,i}{1,2};
-            column = [column,c];
+        column = {};
+        if isequal(classes,'Transitions')
+            column = {classes};
+        else
+            for i = 1:length(mfried_all) - 1
+                c = classes{1,i}{1,2};
+                column = [column,c];
+            end
+            column{end+1} = 'Direct Finding';
         end
-        column{end+1} = 'Direct Finding';
     end
 
     % Header row

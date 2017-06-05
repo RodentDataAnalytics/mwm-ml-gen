@@ -34,7 +34,7 @@ classdef config_classification < handle
 
             % Setup
             segments = segmentation_configs.SEGMENTS;
-            features = segmentation_configs.FEATURES_VALUES_SEGMENTS(:,1:8);
+            features = segmentation_configs.FEATURES_VALUES_SEGMENTS(:,1:end-3);
             inst.FEATURES = segmentation_configs.FEATURES_VALUES_SEGMENTS;
             inst.DEFAULT_NUMBER_OF_CLUSTERS = DEFAULT_NUMBER_OF_CLUSTERS;
             inst.LABELLING_MAP = LABELLING_MAP;

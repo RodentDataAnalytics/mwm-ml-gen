@@ -7,8 +7,10 @@ function [ varargout ] = cross_validation( segmentation_configs, labels_path, fo
     max_num = clusters(2);
     step = clusters(3);
     segments = segmentation_configs.SEGMENTS;
-    features = segmentation_configs.FEATURES_VALUES_SEGMENTS(:,1:8);
-    feature_length = segmentation_configs.FEATURES_VALUES_SEGMENTS(:,10);
+    features = segmentation_configs.FEATURES_VALUES_SEGMENTS(:,1:end-3);
+    feature_length = segmentation_configs.FEATURES_VALUES_SEGMENTS(:,end-1);
+    %feature_latency = segmentation_configs.FEATURES_VALUES_SEGMENTS(:,end-2);
+    %feature_speed = segmentation_configs.FEATURES_VALUES_SEGMENTS(:,end);
     
     % Tag trajectories/segments if data are available
     try

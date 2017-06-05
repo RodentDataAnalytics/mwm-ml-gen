@@ -16,8 +16,14 @@ function create_average_figure(animals_trajectories_map,data,groups,positions,ou
         strat = mean(strat);
         avg{i} = strat;
     end
+    
+    if isequal(tags{1}{2},'Transitions')
+        xx = 0;
+    else
+        xx = 1;
+    end
 
-    for i = 1:length(avg)-1
+    for i = 1:length(avg)-xx
         f = figure;
         set(f,'Visible','off');
         boxplot(avg{1,i}, groups{1,i}, 'positions', positions, 'colors', [0 0 0]);     
@@ -69,11 +75,11 @@ function create_average_figure(animals_trajectories_map,data,groups,positions,ou
         set(faxis, 'LineWidth', LineWidth); 
         
         xlabel('trials', 'FontSize', FontSize, 'FontName', FontName);  
-        if length(tags) == 1
-            ylabel('transitions', 'FontSize', FontSize, 'FontName', FontName);
-            title('number of transitions', 'FontSize', FontSize, 'FontName', FontName);
+        if ~xx
+            ylabel('average transitions', 'FontSize', FontSize, 'FontName', FontName);
+            title('transitions', 'FontSize', FontSize, 'FontName', FontName);
         else
-            ylabel('number of class segments', 'FontSize', FontSize, 'FontName', FontName);
+            ylabel('average number of class segments', 'FontSize', FontSize, 'FontName', FontName);
             if i > length(tags)
                 title('Direct Finding', 'FontSize', FontSize, 'FontName', FontName)
             else
@@ -87,7 +93,11 @@ function create_average_figure(animals_trajectories_map,data,groups,positions,ou
         set(f,'papersize',[8,8], 'paperposition',[0,0,8,8]);
 
         %Export and delete
-        export_figure(f, output_dir, sprintf('average_animal_strategy_%d', i), Export, ExportStyle);
+        if ~xx
+            export_figure(f, output_dir, 'average_animal_transitions', Export, ExportStyle);
+        else
+            export_figure(f, output_dir, sprintf('average_animal_strategy_%d', i), Export, ExportStyle);
+        end
         delete(f)
     end
     

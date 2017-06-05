@@ -409,3 +409,8 @@ function method_conf_Callback(hObject, eventdata, handles)
     ret = advanced_gui; 
     set(handles.method_conf,'UserData',ret);
     set(temp(idx),'Visible','on');  
+
+
+% --------------------------------------------------------------------
+function features_conf_Callback(hObject, eventdata, handles)
+    features_config;

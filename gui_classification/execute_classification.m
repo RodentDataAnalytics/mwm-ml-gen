@@ -1,4 +1,4 @@
-function error = execute_classification(project_path,seg_name,lab_name,num_clusters)
+function error = execute_classification(project_path,seg_name,lab_name,num_clusters, varargin)
 %EXECUTE_CLASSIFICATION 
 
     error = 1;
@@ -55,9 +55,9 @@ function error = execute_classification(project_path,seg_name,lab_name,num_clust
     
     %% Generate the classifiers
     if unsupervised
-        error = generate_classifiers(class_folder, num_clusters, segmentation_configs, LABELLING_MAP, ALL_TAGS, CLASSIFICATION_TAGS,'UNSUPERVISED',1);
+        error = generate_classifiers(class_folder, num_clusters, segmentation_configs, LABELLING_MAP, ALL_TAGS, CLASSIFICATION_TAGS,'UNSUPERVISED',1 , varargin{:});
     else
-        error = generate_classifiers(class_folder, num_clusters, segmentation_configs, LABELLING_MAP, ALL_TAGS, CLASSIFICATION_TAGS);
+        error = generate_classifiers(class_folder, num_clusters, segmentation_configs, LABELLING_MAP, ALL_TAGS, CLASSIFICATION_TAGS, varargin{:});
     end
     
     if error

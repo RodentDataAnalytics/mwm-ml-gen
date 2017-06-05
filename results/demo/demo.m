@@ -6,6 +6,8 @@ function demo(set,user_path,varargin)
     SEGMENTATION = 1;
     CLASSIFICATION = 1;
     MCLASSIFICATION = 1;
+    % Clusters
+    UCLUSTERS = 1;
     % Results
     LABELLING_QUALITY = 0;
     STATISTICS = 1;
@@ -39,14 +41,18 @@ function demo(set,user_path,varargin)
         seg_overlap = [0.7,0.7,0.9,0.7];
         seg_length = [300,250,250,200];
         groups = [1,2];
-        num_clusters = 10:58; %49 classifiers
+        if UCLUSTERS
+            num_clusters = {300,0.7,10:58, 250,0.7,10:80, 250,0.9,10:99, 200,0.7,10:73}; %49,71,90,64 classifiers
+        else
+            num_clusters = 10:58; %49 classifiers
+        end
         sample = 11;
-        iterations = 21;
-        Mclusters = num_clusters;
+        iterations = 15;
+        %Mclusters = num_clusters;
     elseif set == 2
         return
     end
-   
+
     %%
     user_path = char_project_path(user_path);
     if WAITBAR
@@ -149,7 +155,15 @@ function demo(set,user_path,varargin)
                 path_segs = fullfile(project_path,'segmentation',sfiles(j).name);
                 [~,~,seg_length,seg_overlap] = split_segmentation_name(path_segs);
                 if isequal(seg_length,len) && isequal(seg_overlap,ovl)
-                    error = execute_classification(project_path,sfiles(j).name,lfiles(i).name,num2str(num_clusters));
+                    if iscell(num_clusters)
+                        for k = 1:3:length(num_clusters)
+                            if num_clusters{k} == str2num(seg_length) && num_clusters{k+1} == str2num(seg_overlap)/10
+                                error = execute_classification(project_path,sfiles(j).name,lfiles(i).name,num2str(num_clusters{k+2}),varargin);
+                            end
+                        end
+                    else
+                        error = execute_classification(project_path,sfiles(j).name,lfiles(i).name,num2str(num_clusters),varargin);    
+                    end
                 end
             end        
         end
@@ -159,7 +173,8 @@ function demo(set,user_path,varargin)
     if MCLASSIFICATION
         classifs = dir(fullfile(project_path,'classification'));
         for i = 3:length(classifs)
-            execute_Mclassification(project_path, {classifs(i).name}, sample, iterations, 0, 'CLUSTERS', Mclusters)
+            %execute_Mclassification(project_path, {classifs(i).name}, sample, iterations, 0, 'CLUSTERS', Mclusters)
+            execute_Mclassification(project_path, {classifs(i).name}, sample, iterations, 0, varargin{:});
         end
     end   
     

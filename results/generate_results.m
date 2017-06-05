@@ -113,7 +113,7 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
                 create_average_figure(animals_trajectories_map,vals_,vals_grps_{1},pos,dir_list{end},total_trials,class_tags);
             case 'Transitions'
                 class_tags = {{'Transitions','Transitions',0,0}};
-                create_average_figure(animals_trajectories_map,vals_,vals_grps_{1},pos_,dir_list{end},total_trials,class_tags);
+                create_average_figure(animals_trajectories_map,vals_,vals_grps_{1},pos,dir_list{end},total_trials,class_tags);
             case 'Probabilities'
                 fpath = fullfile(dir_list{end},'summary.csv');
                 error = create_average_probs(vals_,class_tags,fpath,groups);

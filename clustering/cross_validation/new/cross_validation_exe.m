@@ -32,7 +32,7 @@ function [ res, res1st ] = cross_validation_exe( classif, segmentation_configs, 
 
         % In case data had been used rebuild the classifier object
         if isequal(options,'data')
-            features = segmentation_configs.FEATURES_VALUES_SEGMENTS(:,1:8);
+            features = segmentation_configs.FEATURES_VALUES_SEGMENTS(:,1:end-3);
             load(labels_path);
             classif = semisupervised_clustering(segments,features,LABELLING_MAP,CLASSIFICATION_TAGS,0);
         end    

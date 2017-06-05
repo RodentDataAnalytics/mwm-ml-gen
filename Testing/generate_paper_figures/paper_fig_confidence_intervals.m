@@ -1,7 +1,7 @@
-function paper_fig_confidence_intervals(score,sample,class_tags,fpath)
+function paper_fig_confidence_intervals(score,sample,class_tags,fpath,ii,ttitle)
     
     %fpath = fileparts(fpath);
-    fpath = fullfile(fpath,'binomial.txt');
+    fpath = fullfile(fpath,sprintf('binomial_%d.txt', ii));
     fileID = fopen(fpath,'wt');
     
     f = figure;
@@ -11,7 +11,7 @@ function paper_fig_confidence_intervals(score,sample,class_tags,fpath)
     %[FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
     FontName = 'Arial';
     FontSize = 12;
-    LineWidth = 0.8;
+    LineWidth = 1.2;
     Export = '.jpg';
     ExportStyle = 'High Quality';
     
@@ -24,7 +24,7 @@ function paper_fig_confidence_intervals(score,sample,class_tags,fpath)
     t{end} = ' ';
     
     % plot the line
-    plot([0,length(class_tags)+1],[0.5,0.5],'color','red','LineStyle','--','LineWidth',2);
+    plot([0,length(class_tags)+1],[0.5,0.5],'color','black','LineStyle','--','LineWidth',2);
     hold on
     for i = 1:length(class_tags)    
         %Binomial parameter estimates
@@ -63,11 +63,11 @@ function paper_fig_confidence_intervals(score,sample,class_tags,fpath)
     for i = 1:length(class_tags)+2
         xticks = [xticks, i-1];
     end
-    t = {'','S1','S2','S3','S4','S5','S6','S7','S8','TR'};
+    %t = {'','S1','S2','S3','S4','S5','S6','S7','S8','TR'};
     set(faxis, 'XTick', xticks, 'XTickLabel', t, 'FontSize', FontSize, 'FontName', FontName);
-    
+    title(ttitle);
     % export
     fpath = fileparts(fpath);
-    export_figure(f, fpath, 'binomial', Export, ExportStyle);
+    export_figure(f, fpath, sprintf('binomial_%d', ii), Export, ExportStyle);
     close(f);
 end

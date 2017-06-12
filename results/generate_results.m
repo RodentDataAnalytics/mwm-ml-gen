@@ -95,7 +95,9 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
         fclose('all'); 
         %delete the results directory and the waitbar
         rmdir(dir_master, 's')
-        delete(h);
+        if WAITBAR
+            delete(h);
+        end
         error_messages(18);
         return
     end

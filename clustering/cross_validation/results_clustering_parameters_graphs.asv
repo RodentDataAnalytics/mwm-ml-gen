@@ -102,11 +102,10 @@ function results_clustering_parameters_graphs(output_path,nc,res1bare,res2bare,r
         y = arrayfun( @(i) res1(i).mean_nclusters - nc(i), 1:length(res1));
         error = arrayfun( @(x) x.sd_nclusters*ci_fac, res1);
         shade_errorbars(nc,y,error,'LineWidth',LineWidth);          
+        
         %errorbar( nc, arrayfun( @(i) res1(i).mean_nclusters - nc(i), 1:length(res1)),  arrayfun( @(x) x.sd_nclusters*ci_fac, res1), 'k-', 'LineWidth', 1.5);                       
         hold on;
-        y = arrayfun( @(i) res2(i).mean_nclusters - nc(i), 1:length(res2));
-        error = arrayfun( @(x) x.sd_nclusters*ci_fac, res2);
-        shade_errorbars(nc,y,error,'LineWidth',LineWidth);         
+        
         %errorbar( nc, arrayfun( @(i) res2(i).mean_nclusters - nc(i), 1:length(res2)),  arrayfun( @(x) x.sd_nclusters*ci_fac, res2), 'k:', 'LineWidth', 1.5);                           
         set(gca, 'Xtick', [50, 100, 150, 200]);  
         title('Final number of clusters');

@@ -25,7 +25,19 @@ function [x] = normalizations(x,option,varargin)
             catch
                 x = x/norm(x,2);
             end    
+        case 'scale'
+            %normalise each column
+            for i = 1:size(x,2)
+                %normalise to [0 1]
+                tmp = (x(:,i)-min(x(:,i))) / (max(x(:,i))-min(x(:,i)));
+                %scale
+                try
+                    range = varargin{2} - varargin{1};
+                    tmp = (tmp*range) + varargin{1};
+                catch
+                end
+                x(:,i) = tmp;
+            end
     end
-
 end
 

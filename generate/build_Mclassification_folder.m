@@ -1,4 +1,4 @@
-function [Mclass_folder,error] = build_Mclassification_folder(class_folder,classifiers,iterations,technique)
+function [Mclass_folder,error] = build_Mclassification_folder(class_folder,classifiers,iterations,technique,varargin)
 %BUILD_MCLASSIFICATION_FOLDER creates the folder of the merged classifiers
 
 %CASE 1 CLASSIFIERS GROUP
@@ -6,6 +6,14 @@ function [Mclass_folder,error] = build_Mclassification_folder(class_folder,class
 %CASE 2 MULTIPLE CLASSIFIERS GROUPS
 % prefix_labels(.)_segs(.)_len(1)_ovl(.)_numClass_iter_tech_note(no gaps)
 
+    SPECIAL = 0;
+    for i = 1:length(varargin)
+        if isequal(varargin{i},'SPECIAL');
+            SPECIAL = 1;
+            SPECIAL_STR = varargin{i+1};
+        end
+    end
+            
     Mclass_folder = {};
     
     if iscell(class_folder)
@@ -65,6 +73,11 @@ function [Mclass_folder,error] = build_Mclassification_folder(class_folder,class
         Mclass_folder = fullfile(ppath,'Mclassification',strcat(prefix,'_',labels,'_',segs,'_',len,'_',ovl,'_',...
             classifiers,'_',iterations,'_',technique));
     end
+    
+    if SPECIAL
+        Mclass_folder = strcat(Mclass_folder,SPECIAL_STR);
+    end
+    
     try
         if exist(Mclass_folder,'dir')
             rmdir(Mclass_folder,'s');

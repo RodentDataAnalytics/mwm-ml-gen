@@ -41,6 +41,23 @@ function [trans,varargout] = animal_transitions(segmentation_configs,classificat
         case 3
             strat_distr = distr_strategies_smoothing(segmentation_configs, classification_configs,varargin{:});
     end
+    
+%     for i = 1:size(strat_distr,1)
+%         tags = unique(strat_distr);
+%         for c = 1:length(tags)
+%             tmp = find(strat_distr(i,:) == tags(c));
+%             if length(tmp) > 0
+%                 if strat_distr(i,tmp(1)) == 2
+%                     strat_distr(i,tmp) = 1;
+%                 elseif strat_distr(i,tmp(1)) == 3 || strat_distr(i,tmp(1)) == 4 || strat_distr(i,tmp(1)) == 5 || strat_distr(i,tmp(1)) == 6
+%                     strat_distr(i,tmp) = 2;
+%                 elseif strat_distr(i,tmp(1)) == 7 || strat_distr(i,tmp(1)) == 8
+%                     strat_distr(i,tmp) = 3;
+%                 end
+%             end
+%         end
+%     end    
+    
     % Transition probabilities
     if PROBABILITIES
         if length(groups) == 2

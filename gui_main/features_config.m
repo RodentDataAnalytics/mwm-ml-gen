@@ -22,7 +22,7 @@ function varargout = features_config(varargin)
 
 % Edit the above text to modify the response to help features_config
 
-% Last Modified by GUIDE v2.5 05-Jun-2017 10:05:58
+% Last Modified by GUIDE v2.5 05-Jun-2017 14:50:16
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -233,8 +233,6 @@ function ok_Callback(hObject, eventdata, handles)
     str = strcat(str,'-feat',num2str(size(matrix,2)-3));
     uisave('segmentation_configs',str);
 
-function cancel_Callback(hObject, eventdata, handles)
-
 % PATH
 function load_seg_Callback(hObject, eventdata, handles)
     [fname, pname] = uigetfile({'*.mat','MATLAB-file (*.mat)'},'Select segmentation object.');
@@ -274,5 +272,3 @@ function path_field_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-

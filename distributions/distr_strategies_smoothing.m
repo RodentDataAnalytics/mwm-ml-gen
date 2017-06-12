@@ -1,4 +1,4 @@
-function [class_map_detailed,d_points,store_d] = distr_strategies_smoothing(segmentation_configs, classification_configs, varargin)
+function [class_map_detailed,d_points,store_d,class_map_detailed_flat] = distr_strategies_smoothing(segmentation_configs, classification_configs, varargin)
 %Maps the segments to the whole trajectories using discrete path intervals
 %that depend on the size of the arena.
 %Equation inspired from Gehring et al.: val = w * exp(-d^2 / (2*SIGMA^2))
@@ -72,8 +72,9 @@ function [class_map_detailed,d_points,store_d] = distr_strategies_smoothing(segm
     end
         
     % Classes
-    classes = unique(classification_configs.CLASSIFICATION.class_map);
-    classes = classes(2:end);
+    %classes = unique(classification_configs.CLASSIFICATION.class_map);
+    %classes = classes(2:end);
+    classes = 1:length(classification_configs.CLASSIFICATION_TAGS);
     
     % Weights
     if isequal(WEIGHTS,'com')    
@@ -283,4 +284,16 @@ function [class_map_detailed,d_points,store_d] = distr_strategies_smoothing(segm
             end
         end
     end
+    
+    %form the flat class map (vector)
+    class_map_detailed_flat = [];
+    for i = 1:size(class_map_detailed,1)
+        idx = length(find(class_map_detailed(i,:) ~= -1));
+        try
+            class_map_detailed_flat = [class_map_detailed_flat,class_map_detailed(i,idx)];
+        catch
+            continue;
+        end
+    end
+    store_d = 0;
 end

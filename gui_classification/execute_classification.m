@@ -13,7 +13,7 @@ function error = execute_classification(project_path,seg_name,lab_name,num_clust
         error_messages(3);
         return
     end
-    
+
     if isequal(lab_name,'<no labels>')
         ALL_TAGS = tags_list;
         CLASSIFICATION_TAGS = ALL_TAGS(1,2:end);
@@ -32,7 +32,7 @@ function error = execute_classification(project_path,seg_name,lab_name,num_clust
      %% Parse the names
     [segs,len,ovl,ppath] = get_segmentation_name(segs);
     if isequal(lab_name,'<no labels>')
-        labs = '-1';
+        labs = '0';
         note = '';
     else
         [labs,lenl,ovll,note,~] = split_labels_name(labels);

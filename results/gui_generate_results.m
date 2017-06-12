@@ -17,6 +17,7 @@ function error_all = gui_generate_results(handles,eventdata)
         load(fullfile(project_path,'settings','new_properties.mat'));
     catch
         error_messages(1)
+        return
     end
     
     % Select groups

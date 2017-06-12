@@ -6,7 +6,7 @@ function [exit,animals_trajectories_map] = trajectories_map(my_trajectories,my_t
     
     groups = arrayfun( @(t) t.group, my_trajectories.items);
     trials = arrayfun( @(t) t.trial, my_trajectories.items);
-    speed = my_trajectories_features(:,11); 
+    speed = my_trajectories_features(:,end); 
     animals_ids = {};
     animals_trajectories_map = {};
 

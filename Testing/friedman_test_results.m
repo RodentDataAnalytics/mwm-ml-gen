@@ -74,7 +74,11 @@ function all_p = friedman_test_results(p_mfried,p_mfriedAnimal, mfried_all,nanim
                         friedm = [friedm;tmp];
                     end
                 end
-                p = friedman(friedm, nanimals, 'off');
+                try
+                    p = friedman(friedm, nanimals, 'off');
+                catch
+                    p = -1;
+                end
                 p_days = [p_days;p];
             end
             p_days = num2cell(p_days);

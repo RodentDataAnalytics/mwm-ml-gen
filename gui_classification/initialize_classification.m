@@ -74,25 +74,29 @@ function [error,project_path,seg_name,lab_name] = initialize_classification(hand
             return;
         end
         t = strsplit(lab_name,{'_','.mat'});
-        if isequal(t{3},'0') && isequal(t{4},'0')
-            % Check if we have dummy segmenation configs file and if not
-            % make it
-            tmp = strcat('segmentation_configs_',t{2},'_',t{3},'_',t{4},'.mat');
-            if exist(fullfile(project_path,'segmentation',tmp),'file')
-                seg_name = tmp;
-            else
-                error = execute_segmentation(project_path,0,0,'dummy');
-                seg_name = tmp;
+        if length(t) > 1
+            if isequal(t{3},'0') && isequal(t{4},'0')
+                % Check if we have dummy segmenation configs file and if not
+                % make it
+                tmp = strcat('segmentation_configs_',t{2},'_',t{3},'_',t{4},'.mat');
+                if exist(fullfile(project_path,'segmentation',tmp),'file')
+                    seg_name = tmp;
+                else
+                    error = execute_segmentation(project_path,0,0,'dummy');
+                    seg_name = tmp;
+                end
+                error = 0;
+                return
             end
-        else % check if a segmentation is selected
-            %get selected segmentation
-            idx = get(handles.select_segmentation,'Value');
-            seg_name = get(handles.select_segmentation,'String');
-            seg_name = seg_name{idx};
-            if isempty(seg_name)
-                error_messages(10);
-                return;
-            end
+        end
+        % check if a segmentation is selected
+        %get selected segmentation
+        idx = get(handles.select_segmentation,'Value');
+        seg_name = get(handles.select_segmentation,'String');
+        seg_name = seg_name{idx};
+        if isempty(seg_name)
+            error_messages(10);
+            return;
         end
         error = 0;
     end

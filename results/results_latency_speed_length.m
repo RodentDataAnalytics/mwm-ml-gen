@@ -9,9 +9,9 @@ function [varargout] = results_latency_speed_length(new_properties,my_trajectori
     DISPLAY = 1;
     
     % Get features: latency, length, speed
-    latency = my_trajectories_features(:,9);
-    length_ = my_trajectories_features(:,10);
-    speed = my_trajectories_features(:,11);
+    latency = my_trajectories_features(:,end-2);
+    length_ = my_trajectories_features(:,end-1);
+    speed = my_trajectories_features(:,end);
     vars = [latency' ; speed' ; length_'/100];
     names = {'latency' , 'speed' , 'length'};
     labels = {'latency [s]', 'speed [cm/s]', 'path length [m]'};

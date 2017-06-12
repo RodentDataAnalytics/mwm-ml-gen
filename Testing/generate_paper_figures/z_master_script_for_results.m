@@ -14,7 +14,6 @@ load(fullfile(project_path,'settings','animal_groups.mat'));
 load(fullfile(project_path,'settings','my_trajectories.mat'));
 load(fullfile(project_path,'settings','my_trajectories_features.mat'));
 
-load(fullfile(project_path,'settings','my_trajectories_features.mat'));
 class_tags = classification_configs.CLASSIFICATION_TAGS;
 class_tags{1,9} = {'tr','Transitions',0,0};
 
@@ -22,7 +21,7 @@ class_tags{1,9} = {'tr','Transitions',0,0};
 for S = 1:length(scenarios)
     switch S
         case 1 %original
-            Mclusters = {10:73, 10:80, 10:99, 10:58};
+            Mclusters = {10:58, 10:80, 10:99, 10:58};
             sample = 11;
             iterations = 21;   
         case 2 %pool 40
@@ -30,16 +29,16 @@ for S = 1:length(scenarios)
             sample = 11;
             iterations = 21;   
         case 3 %sample 5
-            Mclusters = {10:73, 10:80, 10:99, 10:58};
+            Mclusters = {10:58, 10:80, 10:99, 10:58};
             sample = 5;
             iterations = 21;    
         case 4 %ensembles 13
-            Mclusters = {10:73, 10:80, 10:99, 10:58};
+            Mclusters = {10:58, 10:80, 10:99, 10:58};
             sample = 11;
             iterations = 13;  
         case 5 %merge all
-            Mclusters = {10:73, 10:80, 10:99, 10:58};
-            sample = {64,71,90,49};
+            Mclusters = {10:58, 10:80, 10:99, 10:58};
+            sample = {49,71,90,49};
             iterations = 1;    
     end
     %% MCLASSIFICATION
@@ -84,7 +83,7 @@ for S = 1:length(scenarios)
                     end
                 end     
                 % Statistics
-                [error,~,~] = class_statistics(project_path, mclasses(j).name);
+                [error,~,~] = class_statistics(project_path, mclasses(j).name, 'SEGMENTATION', segmentation_configs);
                 if error
                     errordlg('Error: statistics generation','Error');
                 end  

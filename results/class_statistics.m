@@ -1,5 +1,14 @@
-function [error, count, percentage_per_classifier] = class_statistics(ppath, class_name)
+function [error, count, percentage_per_classifier] = class_statistics(ppath, class_name, varargin)
 %CLASS_STATISTICS computes statistics for the mclassification
+
+    SEGMENTATION = 0;
+    
+    for i = 1:length(varargin)
+        if isequal(varargin{i},'SEGMENTATION');
+            SEGMENTATION = 1;
+            segmentation_configs = varargin{i+1};
+        end
+    end
 
     h = waitbar(0,'Computing statistics...');
     error = 1;
@@ -30,7 +39,12 @@ function [error, count, percentage_per_classifier] = class_statistics(ppath, cla
     count = zeros(length(files),length(strats));
     for i = 1:length(files)
         load(fullfile(mcpath,files(i).name));
-        class_map = classification_configs.CLASSIFICATION.class_map;
+        if SEGMENTATION
+            [~,~,~,strat_distr] = distr_strategies_smoothing(segmentation_configs, classification_configs,varargin{:});
+            class_map = strat_distr;
+        else
+            class_map = classification_configs.CLASSIFICATION.class_map;
+        end
         for j = 1:length(strats)
             count(i,j) = length(find(class_map==strats{j}{3}));
         end

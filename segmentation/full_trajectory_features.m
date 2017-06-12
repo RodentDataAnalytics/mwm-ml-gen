@@ -1,7 +1,7 @@
 function error = full_trajectory_features(ppath)
 %FULL_TRAJECTORY_FEATURES computes the features for the whole swimming
 %path of the animal
-
+    error = 0;
     % Load necessary files from 'settings' folder
     try
         load(fullfile(ppath,'settings','new_properties.mat'));

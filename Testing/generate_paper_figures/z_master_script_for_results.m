@@ -21,7 +21,8 @@ class_tags{1,9} = {'tr','Transitions',0,0};
 for S = 1:length(scenarios)
     switch S
         case 1 %original
-            Mclusters = {10:58, 10:80, 10:99, 10:58};
+            %Mclusters = {10:58, 10:80, 10:99, 10:58};
+            Mclusters = {[10:58,61:73,82:85,90,92], [10:80,83,86], 10:99, [10:58,61:67,70:73,79,83,85]};
             sample = 11;
             iterations = 21;   
         case 2 %pool 40
@@ -37,8 +38,10 @@ for S = 1:length(scenarios)
             sample = 11;
             iterations = 13;  
         case 5 %merge all
-            Mclusters = {10:58, 10:80, 10:99, 10:58};
-            sample = {49,71,90,49};
+            %Mclusters = {10:58, 10:80, 10:99, 10:58};
+            Mclusters = {[10:58,61:73,82:85,90,92], [10:80,83,86], 10:99, [10:58,61:67,70:73,79,83,85]};
+            %sample = {49,71,90,49};
+            sample = {68,73,90,63};
             iterations = 1;    
     end
     %% MCLASSIFICATION
@@ -87,7 +90,7 @@ for S = 1:length(scenarios)
                 if error
                     errordlg('Error: statistics generation','Error');
                 end  
-                break;
+                %break;
             end
         end
     end

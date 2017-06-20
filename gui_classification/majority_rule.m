@@ -42,9 +42,12 @@ function [ class, skipped ] = majority_rule(output_folder, classifications, thre
 %Thus: 10th segment = no label and skipped = {[10],[]}.
 
     REPORT = 1;
+    EXCLUDE_UNDEFINED = 1;
     for i = 1:length(varargin)
         if isequal(varargin{i},'REPORT')
             REPORT = varargin{i+1};
+        elseif isequal(varargin{i},'EXCLUDE_UNDEFINED')
+            EXCLUDE_UNDEFINED = varargin{i+1};
         end
     end
 
@@ -61,8 +64,7 @@ function [ class, skipped ] = majority_rule(output_folder, classifications, thre
         cl = [cl,classifications{i}.DEFAULT_NUMBER_OF_CLUSTERS];
     end
     tags = unique(tags);
-    %exclude the undefined
-    %tags = tags(2:end);
+
     if length(tags) <= 1 
         return;
     end    
@@ -74,19 +76,28 @@ function [ class, skipped ] = majority_rule(output_folder, classifications, thre
         threshold = 0;
     end
     
+    if EXCLUDE_UNDEFINED
+        sj = 2;
+    else
+        sj = 1;
+    end
     % perform voting
     class_map = zeros(1,size(class_matrix,2));
     cannot_decide = [];
     threshold_skip = [];
     for i = 1:size(class_matrix,2)
         tmp = zeros(length(tags),1);
-        for j = 2:length(tags)
+        for j = sj:length(tags)
             tmp(j) = sum(class_matrix(:,i)==tags(j));
         end
         [tmp,idx] = sort(tmp,'descend');
-        if tmp(1) == tmp(2)
-            class_map(i) = 0; %cannot decide
-            cannot_decide = [cannot_decide, i];    
+        if length(tmp) > 1
+            if tmp(1) == tmp(2)
+                class_map(i) = 0; %cannot decide
+                cannot_decide = [cannot_decide, i]; 
+            else
+                class_map(i) = tags(idx(1));
+            end
         else
             class_map(i) = tags(idx(1));
         end

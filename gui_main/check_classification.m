@@ -4,6 +4,7 @@ function [error,name,varargout] = check_classification(project_path,segmentation
     error = 1;
     name = {};
     varargout{1} = 0;
+    varargout{2} = 0;
     WAITBAR = 1;
     
     for i = 1:length(varargin)
@@ -14,12 +15,22 @@ function [error,name,varargout] = check_classification(project_path,segmentation
 
     % Test is classification exists and has files
     cpath = fullfile(project_path,'Mclassification',class);
+    cpath2 = fullfile(project_path,'classification',class);
     if exist(cpath,'dir')
+        CLASSIFICATION = 'ENSEMBLE';
         files = dir(fullfile(cpath,'*.mat'));
         if isempty(files)
             errordlg('The specified classification is empty','Error');
             return;        
         end
+    elseif exist(cpath2,'dir')
+        CLASSIFICATION = 'CLASSIFIER';
+        cpath = cpath2;
+        files = dir(fullfile(cpath2,'*.mat'));
+        if isempty(files)
+            errordlg('The specified classification is empty','Error');
+            return;        
+        end       
     else
         errordlg('Cannot find specified classification','Error');
         return;
@@ -39,14 +50,18 @@ function [error,name,varargout] = check_classification(project_path,segmentation
         %test if the classification belongs to the selected segmentation
         a = segmentation_configs.FEATURES_VALUES_SEGMENTS;
         b = classification_configs.FEATURES;
-        if size(a) ~= size(b)
-            continue;
-        end
-        classifications{i} = classification_configs;
-        clear classification_configs;
         if WAITBAR
             waitbar(i/length(files));
         end
+        if size(a,1) ~= size(b,1)
+            errordlg('Selected segmentation and classification do not match','Error');
+            if WAITBAR
+                delete(h);
+            end
+            return;              
+        end
+        classifications{i} = classification_configs;
+        clear classification_configs;
     end
     if WAITBAR
         delete(h);
@@ -60,5 +75,6 @@ function [error,name,varargout] = check_classification(project_path,segmentation
     error = 0;
     name = class;
     varargout{1} = classifications;
+    varargout{2} = CLASSIFICATION;
 end
 

@@ -3,7 +3,7 @@
 if isequal(fname,0)
     return
 end
-mclassification = strcat(pname,fname);
+mclassification = strcat(pname,fname); 
 % Define output file name and path 
 [fname, pname] = uiputfile('*.csv','Output File');
 if isequal(pname,0)

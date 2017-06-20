@@ -63,6 +63,7 @@ function error_all = gui_generate_results(handles,eventdata)
     end
      
     % Get the advanced options:
+    EXTRA_NAME = '';
     ret = get(handles.method_conf,'UserData'); 
     if isempty(ret)
         %[ STR_DISTR, TRANS_DISTR, SIGMA, INTERVAL, R_SIGMA, R_INTERVAL ]
@@ -73,26 +74,24 @@ function error_all = gui_generate_results(handles,eventdata)
     elseif isequal(b_pressed,'Transitions') || isequal(b_pressed,'Probabilities')
         DISTRIBUTION = ret(2);
     end
-    if ret(3) == 0 %no smooth, equal to R (radius)
-        SIGMA = segmentation_configs.COMMON_PROPERTIES{8}{1};
-        INTERVAL = segmentation_configs.COMMON_PROPERTIES{8}{1};
-    else %custom smooth
-        R = ret(5);
-        if R == 0
-            R = 1;
-        else
-            R = segmentation_configs.COMMON_PROPERTIES{8}{1};
-        end    
-        SIGMA = ret(3)*R;
-        R = ret(6);
-        if R == 0;
-            R = 1;
-        else
-            R = segmentation_configs.COMMON_PROPERTIES{8}{1};
-        end         
-        INTERVAL = ret(4)*R;
+    if DISTRIBUTION == 2 %no smooth, skip rest and add indication in the folder name
+        EXTRA_NAME = '_nosmooth';
+        SIGMA = 0;
+        INTERVAL = 0;
+    else
+        SIGMA = ret(3)*ret(5);
+        if SIGMA == 0 %default
+            SIGMA = segmentation_configs.COMMON_PROPERTIES{8}{1}; %equals R
+        end
+        INTERVAL = ret(4)*ret(6);
+        if INTERVAL == 0 %default
+            INTERVAL = segmentation_configs.COMMON_PROPERTIES{8}{1}; %equals R
+        end      
+        if ret(3)*ret(5)~= 0 || ret(4)*ret(6)~= 0 %custom smooth
+            EXTRA_NAME = strcat('_smooth_S',num2str(SIGMA),'_I',num2str(INTERVAL));
+        end
     end
-          
+
     % Full trajectories
     full_traj = 0;
     if length(segmentation_configs.FEATURES_VALUES_TRAJECTORIES) == length(segmentation_configs.FEATURES_VALUES_SEGMENTS)
@@ -132,11 +131,26 @@ function error_all = gui_generate_results(handles,eventdata)
     if isempty(class)
         return
     end
-    [error,name,classifications] = check_classification(project_path,segmentation_configs,class);
+    [error,name,classifications,~] = check_classification(project_path,segmentation_configs,class);
     if error 
         return
     end
     
+    FIGURES = 1;
+    if length(classifications) > 1
+        choice = questdlg('Would you like to generate figures for the interim steps?', ...
+            'Figures', ...
+            'Yes','No','No'); 
+        switch choice
+                case 'Yes'
+                    FIGURES = 1;
+                case 'No'
+                    FIGURES = 0;
+            otherwise
+                    FIGURES = 0;
+        end
+    end
+                
     if isequal(b_pressed,'Strategies')
         % Convert some of the remaining full trajectories to segments?
         choice = questdlg('Would you like to convert any remaining full trajectories to segments?', ...
@@ -149,17 +163,17 @@ function error_all = gui_generate_results(handles,eventdata)
                 end    
                 [~,extra_segments] = browse(tmp_path,segmentation_configs);
                 error_all = generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed, groups,...
-                    'DISTRIBUTION',DISTRIBUTION,'SIGMA',SIGMA,'INTERVAL',INTERVAL,'extra_segments',extra_segments);
+                    'DISTRIBUTION',DISTRIBUTION,'SIGMA',SIGMA,'INTERVAL',INTERVAL,'extra_segments',extra_segments, 'FIGURES', FIGURES, 'EXTRA_NAME', EXTRA_NAME);
             case 'No'
                 error_all = generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed, groups,...
-                    'DISTRIBUTION',DISTRIBUTION,'SIGMA',SIGMA,'INTERVAL',INTERVAL);
+                    'DISTRIBUTION',DISTRIBUTION,'SIGMA',SIGMA,'INTERVAL',INTERVAL,'FIGURES', FIGURES, 'EXTRA_NAME', EXTRA_NAME);
             otherwise
                 error_all = generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed, groups,...
-                    'DISTRIBUTION',DISTRIBUTION,'SIGMA',SIGMA,'INTERVAL',INTERVAL);
+                    'DISTRIBUTION',DISTRIBUTION,'SIGMA',SIGMA,'INTERVAL',INTERVAL,'FIGURES', FIGURES, 'EXTRA_NAME', EXTRA_NAME);
         end    
     else %Transitions or Probabilities
         error_all = generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed, groups,...
-            'DISTRIBUTION',DISTRIBUTION,'SIGMA',SIGMA,'INTERVAL',INTERVAL);
+            'DISTRIBUTION',DISTRIBUTION,'SIGMA',SIGMA,'INTERVAL',INTERVAL,'FIGURES', FIGURES, 'EXTRA_NAME', EXTRA_NAME);
     end
 end
 

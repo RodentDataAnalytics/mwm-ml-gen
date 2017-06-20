@@ -4,6 +4,7 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
     
     error = 1;
     WAITBAR = 1;
+    FIGURES = 1;
     
     for i = 1:length(varargin)
         if isequal(varargin{i},'extra_segments')
@@ -15,10 +16,12 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
             end
         elseif isequal(varargin{i},'WAITBAR')    
             WAITBAR = varargin{i+1};
-        end
+        elseif isequal(varargin{i},'FIGURES')    
+            FIGURES = varargin{i+1};
+        end        
     end
 
-    [dir_list,dir_master] = build_results_tree(project_path, b_pressed, name, length(classifications), groups);
+    [dir_list,dir_master] = build_results_tree(project_path, b_pressed, name, classifications, groups, varargin{:});
     
     % Check if segmentation and classification have the same segments
     segs = size(segmentation_configs.FEATURES_VALUES_SEGMENTS,1);
@@ -52,7 +55,7 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
         switch b_pressed
             case 'Transitions'
                 for i = 1:length(classifications)
-                    [~,p,~,~,vals,vals_grps,pos] = results_transition_counts(segmentation_configs,classifications{i},animals_trajectories_map,1,dir_list{i},varargin{:});
+                    [~,p,~,~,vals,vals_grps,pos] = results_transition_counts(segmentation_configs,classifications{i},animals_trajectories_map,FIGURES,dir_list{i},varargin{:});
                     p_{i} = p;
                     vals_{i} = vals;
                     vals_grps_{i} = vals_grps;
@@ -63,7 +66,7 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
             case 'Strategies'
                 for i = 1:length(classifications)
                     %[mfried_all, p_mfried, mfriedAnimal_all, p_mfriedAnimal, data_all, groups_all, pos, p_days]
-                    [~,p,~,~,vals,vals_grps,pos] = results_strategies_distributions(segmentation_configs,classifications{i},animals_trajectories_map,1,dir_list{i},varargin{:});
+                    [~,p,~,~,vals,vals_grps,pos] = results_strategies_distributions(segmentation_configs,classifications{i},animals_trajectories_map,FIGURES,dir_list{i},varargin{:});
                     p_{i} = p;
                     vals_{i} = vals;
                     vals_grps_{i} = vals_grps;
@@ -74,7 +77,7 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
             case 'Probabilities'
                 if length(groups) > 1
                     for i = 1:length(classifications)
-                        [prob1, prob2] = results_strategies_transition_prob(segmentation_configs,classifications{i},groups,1,dir_list{i},varargin{:});
+                        [prob1, prob2] = results_strategies_transition_prob(segmentation_configs,classifications{i},groups,FIGURES,dir_list{i},varargin{:});
                         vals_{i} = {prob1,prob2};
                         if WAITBAR
                             waitbar(i/length(classifications)); 
@@ -82,7 +85,7 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
                     end
                 else
                    for i = 1:length(classifications)
-                        [prob1] = results_strategies_transition_prob(segmentation_configs,classifications{i},groups,1,dir_list{i},varargin{:});
+                        [prob1] = results_strategies_transition_prob(segmentation_configs,classifications{i},groups,FIGURES,dir_list{i},varargin{:});
                         vals_{i} = {prob1};
                         if WAITBAR
                             waitbar(i/length(classifications)); 

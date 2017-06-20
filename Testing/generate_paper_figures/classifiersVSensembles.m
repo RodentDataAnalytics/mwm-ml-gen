@@ -3,7 +3,9 @@ ppath = 'D:\Avgoustinos\Documents\MWMGEN\demo_original_set_1';
 output_dir = fullfile(ppath,'results');
 cpath = dir(fullfile(ppath,'classification'));
 bcpath = dir(fullfile(ppath,'Mclassification'));
+spath = dir(fullfile(ppath,'segmentation','*.mat'));
 
+for z = 1:2 % classifiers, smoothing
 for i = 3:length(cpath)
     bcfiles = [];
     idx = 0;
@@ -18,15 +20,26 @@ for i = 3:length(cpath)
             break;
         end
     end
+    for j = 1:length(spath)
+        tmp2 = strsplit(spath(j).name,'_');
+        if isequal(tmp1{3},tmp2{3}) && isequal(tmp1{4},tmp2{4})
+            load(fullfile(ppath,'segmentation',spath(j).name));
+            break;
+        end
+    end    
     if isempty(bcfiles)
         continue;
     end
-    
+
     % SIMPLE CLASSIFIERS
     class_maps = [];
     for j = 1:length(cfiles)
         load(fullfile(ppath,'classification',cpath(i).name,cfiles(j).name));
-        class_maps = [class_maps;classification_configs.CLASSIFICATION.class_map];
+        cmaps = classification_configs.CLASSIFICATION.class_map;
+        if z == 2
+            [~,~,~,cmaps] = distr_strategies_smoothing(segmentation_configs, classification_configs);
+        end
+        class_maps = [class_maps;cmaps];
     end
     res = [];
     res_all = [];
@@ -45,7 +58,11 @@ for i = 3:length(cpath)
     ensemble_class_maps = [];
     for j = 1:length(bcfiles)
         load(fullfile(ppath,'Mclassification',bcpath(idx).name,bcfiles(j).name));
-        ensemble_class_maps = [ensemble_class_maps;classification_configs.CLASSIFICATION.class_map];
+        cmaps = classification_configs.CLASSIFICATION.class_map;
+        if z == 2
+            [~,~,~,cmaps] = distr_strategies_smoothing(segmentation_configs, classification_configs);
+        end        
+        ensemble_class_maps = [ensemble_class_maps;cmaps];
     end
     res = [];
     ensemble_res_all = [];
@@ -92,10 +109,10 @@ for i = 3:length(cpath)
     % Median
     h = findobj(faxis, 'Tag', 'Median');
     for j=1:2:length(h)
-         line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.8 .8 .8], 'LineWidth', 2);
+         line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.65 .65 .65], 'LineWidth', 2);
     end
     for j=2:2:length(h)
-         line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.0 .0 .0], 'LineWidth', 2);
+         line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.65 .65 .65], 'LineWidth', 2);
     end
     % Outliers
     h = findobj(faxis, 'Tag', 'Outliers');
@@ -110,7 +127,8 @@ for i = 3:length(cpath)
     box off;  
     set(f,'papersize',[8,8], 'paperposition',[0,0,8,8]);
     %Export and delete
-    export_figure(f, output_dir, sprintf('comp_simple_ensemble_%s_%s_%s_%s',tmp1{2},tmp1{3},tmp1{4},tmp1{5}), Export, ExportStyle);
+    export_figure(f, output_dir, sprintf('z%d_comp_simple_ensemble_%s_%s_%s_%s',z,tmp1{2},tmp1{3},tmp1{4},tmp1{5}), Export, ExportStyle);
     delete(f);
+end
 end
 

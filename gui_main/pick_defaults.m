@@ -24,7 +24,11 @@ function [segmentations,labels,classifications] = pick_defaults(ppath)
     for i = 3:length(files)
         classifications = [classifications, files(i).name];
     end    
-    if isempty(classifications) || length(files) == 2
+    files2 = dir(fullfile(ppath,'classification'));
+    for i = 3:length(files2)
+        classifications = [classifications, files2(i).name];
+    end        
+    if isempty(classifications) %|| length(files) == 2 
         classifications = {''};
     end
 end

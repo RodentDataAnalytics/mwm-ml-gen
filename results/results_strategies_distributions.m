@@ -166,28 +166,27 @@ function [varargout] = results_strategies_distributions(segmentation_configs,cla
     extra = (10*maximum)/100; %take the 10% of the maximum
     
     %% Generate figures
-    if figures
-        % get the configurations from the configs file
-        [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
-        % arrange each bar of the plot to a certain position
-        pos = zeros(1,total_trials*length(animals_trajectories_map));
-        pos(1) = 0.05;
-        j = 1;
-        tmp = 1;
-        for i = 2:length(pos)
-            if mod(i,2) == 0
-                pos(i) = pos(i-1)+0.05; %group = 0.05
+    % get the configurations from the configs file
+    [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
+    % arrange each bar of the plot to a certain position
+    pos = zeros(1,total_trials*length(animals_trajectories_map));
+    pos(1) = 0.05;
+    j = 1;
+    tmp = 1;
+    for i = 2:length(pos)
+        if mod(i,2) == 0
+            pos(i) = pos(i-1)+0.05; %group = 0.05
+        else
+            if i == trials_per_session(j)*length(animals_trajectories_map) + tmp
+                pos(i) = pos(i-1)+0.14; %day = 0.14
+                tmp = i;
+                j = j+1; 
             else
-                if i == trials_per_session(j)*length(animals_trajectories_map) + tmp
-                    pos(i) = pos(i-1)+0.14; %day = 0.14
-                    tmp = i;
-                    j = j+1; 
-                else
-                    pos(i) = pos(i-1)+0.07; %trial = 0.07
-                end
+                pos(i) = pos(i-1)+0.07; %trial = 0.07
             end
         end
-        
+    end
+    if figures
         for c = 1:ncl+1
             f = figure;
             set(f,'Visible','off');

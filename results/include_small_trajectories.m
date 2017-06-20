@@ -54,7 +54,7 @@ function [segmentation_configs, classifications] = include_small_trajectories(ex
             %put another slot in the arrays
             segmentation_configs.SEGMENTS.items = [segmentation_configs.SEGMENTS.items, new_traj];
             segmentation_configs.FEATURES_VALUES_SEGMENTS = [segmentation_configs.FEATURES_VALUES_SEGMENTS; feats];
-            classifications{i}.CLASSIFICATION.class_map = [classifications{i}.CLASSIFICATION.class_map, tag_id];
+            %classifications{i}.CLASSIFICATION.class_map = [classifications{i}.CLASSIFICATION.class_map, tag_id];
             %swift last-1 element to the right until the slot we need to place the new element
             for iter = length(segmentation_configs.SEGMENTS.items)-1 : -1 : s+1
                 segmentation_configs.SEGMENTS.items(iter+1) = segmentation_configs.SEGMENTS.items(iter);

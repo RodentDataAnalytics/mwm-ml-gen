@@ -1,5 +1,23 @@
 function results_classification_agreement(ouput_folder, varargin)
 
+    SEGMENTATION = 0;
+    CLASSIFICATION = 0;
+    WAITBAR = 1;
+    FOLDER = '';
+    
+    for i = 1:length(varargin)
+        if isequal(varargin{i},'SEGMENTATION')
+            SEGMENTATION = 1;
+            segmentation_configs = varargin{i+1};        
+        elseif isequal(varargin{i},'CLASSIFICATION')
+            CLASSIFICATION = varargin{i+1};
+        elseif isequal(varargin{i},'WAITBAR')
+            WAITBAR = varargin{i+1};
+        elseif isequal(varargin{i},'FOLDER')
+            FOLDER = varargin{i+1};            
+        end
+    end
+    
     % Get special folder 'Documents' as char
     if ismac
         doc_path = char(java.lang.System.getProperty('user.home'));
@@ -9,11 +27,11 @@ function results_classification_agreement(ouput_folder, varargin)
     end
 
     % Get merged classifications
-    if isempty(varargin)
+    if isempty(FOLDER)
         folder = uigetdir(doc_path,'Select one Merged Classification folder');
     else
-        if exist(varargin{1},'dir')
-            folder = varargin{1};
+        if exist(FOLDER,'dir')
+            folder = FOLDER;
         else
             folder = uigetdir(doc_path,'Select one Merged Classification folder'); 
         end
@@ -23,13 +41,17 @@ function results_classification_agreement(ouput_folder, varargin)
     end
     files = dir(fullfile(folder,'*.mat'));
     if isempty(files)
-        errordlg('No merged classifiers found.','Error');
+        errordlg('No files were found.','Error');
         return;
     end
+    %sort by classifier number
+    files = extractfield(files,'name')';
+    [~,idx] = sort_classifiers(files);
+    files = files(idx);    
     
     % Check if folder is correct
     try
-        load(fullfile(folder,files(1).name));
+        load(fullfile(folder,files{i}));
     catch
         errordlg('Cannot load merged classifier file','Error');
         return;
@@ -42,8 +64,13 @@ function results_classification_agreement(ouput_folder, varargin)
     % Sort files
     queue = zeros(length(files),1);
     for i = 1:length(files)
-        tmp = strsplit(files(i).name,{'merged_','.mat'});
-        queue(i) = str2double(tmp{2});
+        if CLASSIFICATION
+            tmp = strsplit(files{i},{'_','.mat'});
+            queue(i) = str2double(tmp{5});
+        else
+            tmp = strsplit(files{i},{'merged_','.mat'});
+            queue(i) = str2double(tmp{2});
+        end 
     end
     [~,idx] = sort(queue);
     files = files(idx);
@@ -54,13 +81,16 @@ function results_classification_agreement(ouput_folder, varargin)
     end
     
     %% Compute agreement matrices and statistics 
-    h = waitbar(0,strcat('Computing agreements 1/',num2str(length(files))),'Name','Agreement Matrix');
+    if WAITBAR
+        h = waitbar(0,strcat('Computing agreements 1/',num2str(length(files))),'Name','Agreement Matrix');
+    end
     cmatrix = 100*eye(length(files));
     for iter = 1:length(files)
-        %fprintf('Computing agreements. Iteration %d/%d...\n',iter,length(files));
-        
-        load(fullfile(folder,files(1).name));
+        load(fullfile(folder,files{i}));
         class_map_1 = classification_configs.CLASSIFICATION.class_map;
+        if SEGMENTATION
+            [~,~,~,class_map_1] = distr_strategies_smoothing(segmentation_configs, classification_configs,varargin{:});
+        end
         segs = length(class_map_1);
         collect = {};
         % find number of segs per class (including undefined)
@@ -71,12 +101,16 @@ function results_classification_agreement(ouput_folder, varargin)
         
         % Each loop will find agreement of class_map_1 ---> class_map_x
         for i = 1:length(files)
-            load(fullfile(folder,files(i).name));
+            load(fullfile(folder,files{i}));
             class_map_x = classification_configs.CLASSIFICATION.class_map;
             %we have the same thus move on the next one
-            if isequal(files(1).name,files(i).name)
+            if isequal(files{1},files{i})
                 continue;
-            end       
+            end   
+            
+            if SEGMENTATION
+                [~,~,~,class_map_x] = distr_strategies_smoothing(segmentation_configs, classification_configs,varargin{:});
+            end            
             
             [confusion_matrix,order] = confusionmat(class_map_1,class_map_x,'order',ids);
             
@@ -114,15 +148,19 @@ function results_classification_agreement(ouput_folder, varargin)
         end    
         
         %% Export everything
-        %fprintf('Saving & exporting results...\n');
-        
-        number = strsplit(files(1).name,{'merged_','.mat'});
-        save(fullfile(ouput_folder,strcat('collect_',number{2},'.mat')),'collect');
-        
+        if CLASSIFICATION
+            number = strsplit(files{1},{'_','.mat'});
+            number = number{5};
+        else
+            number = strsplit(files{1},{'merged_','.mat'});
+            number = number{2}; 
+        end         
+        save(fullfile(ouput_folder,strcat('collect_',number,'.mat')),'collect');
+    
         %form the first column
         names = {};
         for i = 1:length(files)
-            fileName = strsplit(files(i).name,'.mat');
+            fileName = strsplit(files{i},'.mat');
             names = [names fileName{1}];
         end
         tags = cell(length(classification_configs.ALL_TAGS),1);
@@ -155,21 +193,25 @@ function results_classification_agreement(ouput_folder, varargin)
         subheader = [names{1}, num2cell(per_strat)];
         table_all = [header ; subheader ; gap_line ; table_all]; 
         table_all = cell2table(table_all);
-        writetable(table_all,fullfile(ouput_folder,strcat('agreement_',number{2},'.csv')),'WriteVariableNames',0);
+        writetable(table_all,fullfile(ouput_folder,strcat('agreement_',number,'.csv')),'WriteVariableNames',0);
         
         %finally move the first element to the last place
         files(end+1) = files(1);
         files(1) = [];
         
-        h = waitbar(iter/length(files),h,strcat('Computing agreements ',num2str(iter+1),'/',num2str(length(files))));
+        if WAITBAR
+            h = waitbar(iter/length(files),h,strcat('Computing agreements ',num2str(iter+1),'/',num2str(length(files))));
+        end
     end
     
-    waitbar(1,h,'Finalizing');
+    if WAITBAR
+        waitbar(1,h,'Finalizing');
+    end
     
     % Export the agreement matrix
     column = {};
     for i = 1:length(files)
-        tmp = strsplit(files(i).name,'.mat');
+        tmp = strsplit(files{i},'.mat');
         column = [column; tmp{1}];
     end
     header = ['Agreement Matrix',column'];
@@ -179,7 +221,9 @@ function results_classification_agreement(ouput_folder, varargin)
     save(fullfile(ouput_folder,'Agreement_matrix.mat'),'cmatrix');
     writetable(table,fullfile(ouput_folder,'Agreement_matrix.csv'),'WriteVariableNames',0);
     
-    delete(h) %if it is not deleted the next figure is not generated
+    if WAITBAR
+        delete(h) %if it is not deleted the next figure is not generated
+    end
     
     % Export the agreement matrix as image (10x10 grid)
     

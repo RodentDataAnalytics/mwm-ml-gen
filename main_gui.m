@@ -352,7 +352,7 @@ function res_probabilities_Callback(hObject, eventdata, handles)
     end     
     
 function res_statistics_Callback(hObject, eventdata, handles)
-    project_path = get(handles.load_project,'UserData');
+    project_path = char_project_path(get(handles.load_project,'UserData'));
     if isempty(project_path)
         errordlg('No project is currently loaded','Error');
         return;
@@ -365,7 +365,26 @@ function res_statistics_Callback(hObject, eventdata, handles)
         return;
     end
     [temp, idx] = hide_gui('MWM-ML');
-    [error,~,~] = class_statistics(project_path, class_name);
+    %post or pre smoothing?
+    choice = questdlg('Would you like to generate the statistics before or after applying the smoothing function?', ...
+        'Statistics','Before','After','Cancel','Before');
+    switch choice
+        case 'Before'
+            [error,~,~] = class_statistics(project_path, class_name);
+        case 'After'
+            try
+                tmp = strsplit(class_name,'_');
+                tmp = strcat('segmentation_configs_',tmp{3},'_',tmp{4},'_',tmp{5},'.mat');
+                load(fullfile(project_path,'segmentation',tmp));
+            catch
+                errordlg('Cannot load segmentation object');
+                set(temp(idx),'Visible','on'); 
+                return
+            end
+            [error,~,~] = class_statistics(project_path, class_name, 'SEGMENTATION', segmentation_configs);
+        case 'Cancel'
+        otherwise
+    end    
     set(temp(idx),'Visible','on'); 
     if ~error
         msgbox('Operation successfully completed','Success');

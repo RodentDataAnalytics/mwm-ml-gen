@@ -98,28 +98,27 @@ function [varargout] = results_transition_counts(segmentation_configs,classifica
     mfriedAnimal_all{1,1} = mfriedAnimal; 
     
     %% Generate figures
-    if figures
-        % get the configurations from the configs file
-        [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
-        % arrange each bar of the plot to a certain position
-        pos = zeros(1,total_trials*length(animals_trajectories_map));
-        pos(1) = 0.05;
-        j = 1;
-        tmp = 1;
-        for i = 2:length(pos)
-            if mod(i,2) == 0
-                pos(i) = pos(i-1)+0.05; %group = 0.05
+    % get the configurations from the configs file
+    [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
+    % arrange each bar of the plot to a certain position
+    pos = zeros(1,total_trials*length(animals_trajectories_map));
+    pos(1) = 0.05;
+    j = 1;
+    tmp = 1;
+    for i = 2:length(pos)
+        if mod(i,2) == 0
+            pos(i) = pos(i-1)+0.05; %group = 0.05
+        else
+            if i == trials_per_session(j)*length(animals_trajectories_map) + tmp
+                pos(i) = pos(i-1)+0.14; %day = 0.14
+                tmp = i;
+                j = j+1; 
             else
-                if i == trials_per_session(j)*length(animals_trajectories_map) + tmp
-                    pos(i) = pos(i-1)+0.14; %day = 0.14
-                    tmp = i;
-                    j = j+1; 
-                else
-                    pos(i) = pos(i-1)+0.07; %trial = 0.07
-                end
+                pos(i) = pos(i-1)+0.07; %trial = 0.07
             end
         end
-        
+    end
+    if figures        
         f = figure;
         set(f,'Visible','off');
         boxplot(data_all{1,1}, groups_all{1,1}, 'positions', pos, 'colors', [0 0 0]);     

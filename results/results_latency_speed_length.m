@@ -13,8 +13,8 @@ function [varargout] = results_latency_speed_length(new_properties,my_trajectori
     length_ = my_trajectories_features(:,end-1);
     speed = my_trajectories_features(:,end);
     vars = [latency' ; speed' ; length_'/100];
-    names = {'latency' , 'speed' , 'length'};
-    labels = {'latency [s]', 'speed [cm/s]', 'path length [m]'};
+    names = {'escape latency' , 'speed' , 'path length'};
+    labels = {'seconds [s]', 'centimeters per second [cm/s]', 'meters [m]'};
     % Get properties: days and trials
     days = new_properties{28}; 
     trials_per_session = new_properties{30};
@@ -69,7 +69,7 @@ function [varargout] = results_latency_speed_length(new_properties,my_trajectori
         % Run friedman's test only if we have more than one animal groups
         if length(animals_trajectories_map) > 1
             p = friedman(mfried, nanimals, 'off');
-            str = sprintf('%s\tp_frdm: %g', labels{v}, p);   
+            str = sprintf('%s\tp_frdm: %g', names{v}, p);   
             p_mfried = [p_mfried;p];
             if DISPLAY
                 disp(str);

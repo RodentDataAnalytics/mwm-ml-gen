@@ -2,28 +2,52 @@ function [error, count, percentage_per_classifier] = class_statistics(ppath, cla
 %CLASS_STATISTICS computes statistics for the mclassification
 
     SEGMENTATION = 0;
+    WAITBAR = 1;
     
     for i = 1:length(varargin)
-        if isequal(varargin{i},'SEGMENTATION');
+        if isequal(varargin{i},'SEGMENTATION')
             SEGMENTATION = 1;
             segmentation_configs = varargin{i+1};
+        elseif isequal(varargin{i},'WAITBAR')
+            WAITBAR = varargin{i+1};
         end
     end
 
-    h = waitbar(0,'Computing statistics...');
+    if WAITBAR
+        h = waitbar(0,'Computing statistics...');
+    end
     error = 1;
     
+    %Classifiers or Ensembles?
+    tmp = strfind(class_name,'_');
+    if length(tmp) == 4
+        CLASSIFICATION = 1;
+    else
+        CLASSIFICATION = 0;
+    end
+
     ppath = char_project_path(ppath);
     mcpath = fullfile(ppath,'Mclassification',class_name);
+    if CLASSIFICATION
+        mcpath = fullfile(ppath,'classification',class_name);
+    end
     files = dir(fullfile(mcpath,'*.mat'));
+    %sort by classifier number
+    files = extractfield(files,'name')';
+    [~,idx] = sort_classifiers(files);
+    files = files(idx);
     
     % Take the tags
-    load(fullfile(mcpath,files(1).name))
+    load(fullfile(mcpath,files{1}))
     strats = classification_configs.ALL_TAGS;
     clear classification_configs
     
     % Create the folder
-    rpath = fullfile(ppath,'results',strcat('statistics-',class_name));
+    if SEGMENTATION
+        rpath = fullfile(ppath,'results',strcat('statistics-',class_name,'_smooth'));
+    else
+        rpath = fullfile(ppath,'results',strcat('statistics-',class_name));
+    end
     try
         if exist(rpath,'dir')
             rmdir(rpath,'s');
@@ -31,32 +55,38 @@ function [error, count, percentage_per_classifier] = class_statistics(ppath, cla
         mkdir(rpath);
     catch
         errordlg('Cannot create output folder','Error: Statistics')
-        delete(h);
+        if WAITBAR
+            delete(h);
+        end
         return
     end
     
     % Calculate how many segs / strategy
     count = zeros(length(files),length(strats));
     for i = 1:length(files)
-        load(fullfile(mcpath,files(i).name));
-        if SEGMENTATION
+        load(fullfile(mcpath,files{i}));
+        if SEGMENTATION %after smoothing
             [~,~,~,strat_distr] = distr_strategies_smoothing(segmentation_configs, classification_configs,varargin{:});
             class_map = strat_distr;
-        else
+        else %pre-smoothing
             class_map = classification_configs.CLASSIFICATION.class_map;
         end
         for j = 1:length(strats)
             count(i,j) = length(find(class_map==strats{j}{3}));
         end
         % Histogram
-        str = strsplit(files(i).name,'.mat');
+        str = strsplit(files{i},'.mat');
         create_classification_histogram(class_map,strats,rpath,strcat(str{1},'_hist'));
-        waitbar(i/length(files));
+        if WAITBAR
+            waitbar(i/length(files));
+        end
     end
     average = mean(count,1);
     count = [count;average];
     
-    waitbar(1,h,'Exporting results...');
+    if WAITBAR
+        waitbar(1,h,'Exporting results...');
+    end
 
     % Calculate the percentages
     percentage_per_classifier = zeros(size(count,1),length(strats));
@@ -66,16 +96,49 @@ function [error, count, percentage_per_classifier] = class_statistics(ppath, cla
         end
     end
     
+    %variance
+    if size(count,1) == 2
+        v1 = zeros(1,size(count,2));
+        v2 = zeros(1,size(count,2));
+    else
+        v1 = var(count(1:end-1,:));
+        v2 = var(percentage_per_classifier(1:end-1,:));
+    end
+    %min-max
+    if size(count,1) == 2
+        mi1 = zeros(1,size(count,2));
+        ma1 = zeros(1,size(count,2));
+        mi2 = zeros(1,size(count,2));
+        ma2 = zeros(1,size(count,2));
+    else    
+        mi1 = min(count(1:end-1,:));
+        ma1 = max(count(1:end-1,:));
+        mi2 = min(percentage_per_classifier(1:end-1,:));
+        ma2 = max(percentage_per_classifier(1:end-1,:));
+    end
+    
+    count = [count;v1;mi1;ma1];
+    percentage_per_classifier = [percentage_per_classifier;v2;mi2;ma2];
+    
     %% Export
     count = count'; % cols = classifiers + average, rows = strategies
     percentage_per_classifier = percentage_per_classifier';
-
+    
     % Create the tables
     cols = cell(1,length(files)+1);
     for i = 1:length(files)
-        cols{i} = strcat('mclass_',num2str(i));
+        if CLASSIFICATION
+            tmp = strsplit(files{i},{'_','.mat'});
+            cols{i} = strcat('class_',tmp{5});
+        else
+            tmp = strsplit(files{i},{'_','.mat'});
+            cols{i} = strcat('ensemble_',tmp{2});
+        end
     end
     cols{end} = 'average';
+    cols{end+1} = 'variance';
+    cols{end+1} = 'min';
+    cols{end+1} = 'max';
     rows = cell(1,length(strats)+1);
     rows{1} = 'stats';
     for i = 1:length(strats)
@@ -92,11 +155,17 @@ function [error, count, percentage_per_classifier] = class_statistics(ppath, cla
     % Export the tables
     writetable(count_,fullfile(rpath,'statistics_numeric.csv'),'WriteVariableNames',0);
     writetable(percentage_per_classifier_,fullfile(rpath,'statistics_percentage.csv'),'WriteVariableNames',0);
-    delete(h);
+    if WAITBAR
+        delete(h);
+    end
  
     % Also create the agreement matrix
-    if length(cols) > 2 % only if we have more than one classifiers
-        results_classification_agreement(rpath,mcpath);
+    if length(cols)-4 > 1 % only if we have more than one classifiers
+        if SEGMENTATION
+            results_classification_agreement(rpath,'FOLDER',mcpath,'CLASSIFICATION',CLASSIFICATION,'SEGMENTATION',segmentation_configs);
+        else
+            results_classification_agreement(rpath,'FOLDER',mcpath,'CLASSIFICATION',CLASSIFICATION);
+        end
     end
     
     error = 0;

@@ -58,11 +58,11 @@ classdef clustering_results < handle
                     inst.non_empty_labels_idx = [inst.non_empty_labels_idx, i];     
                     % in case that we have one label only, and the segment
                     % could not be classified adopt the manual label
-                    if length(tmp) == 1 && tmp(1) > 0
-                        if inst.class_map(i) == 0
-                            inst.class_map(i) = tmp(1);
-                        end
-                    end
+%                     if length(tmp) == 1 && tmp(1) > 0
+%                         if inst.class_map(i) == 0
+%                             inst.class_map(i) = tmp(1);
+%                         end
+%                     end
                 end
             end
             if ~isempty(inst.class_map)
@@ -85,7 +85,8 @@ classdef clustering_results < handle
                 tmp = inst.input_labels{idx};
                 if tmp ~= -1                  
                     n = n + 1;
-                    if inst.class_map(idx) ~= 0 && ~any(tmp == inst.class_map(idx))
+                    %if inst.class_map(idx) ~= 0 && ~any(tmp == inst.class_map(idx))
+                    if ~any(tmp == inst.class_map(idx))
                         inst.errors(i) = 1;  
                     end
                 end

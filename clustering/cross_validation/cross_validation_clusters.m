@@ -1,6 +1,11 @@
 function [s,e,step,other] = cross_validation_clusters(varargin)
 %CROSS_VALIDATION_CLUSTERS
 
+    s = -1;
+    e = -1;
+    step = -1;
+    other = -1;
+        
     % General GUI Settings
     units = 'points';
     resizable = 'off';
@@ -74,7 +79,7 @@ function [s,e,step,other] = cross_validation_clusters(varargin)
          
     %% Create Popup Menu   
     h.pop = uicontrol('style','popup','units',units,...
-             'String', {'data','labels'},...
+             'String', {'labels'},...
              'position',[10,15,60,18],...
              'fontname',fontname,'fontsize',fontsize,...
              'fontunits',fontunits);      
@@ -184,9 +189,6 @@ function [s,e,step,other] = cross_validation_clusters(varargin)
     end
 
     function cancel_callback(varargin)    
-        s = -1;
-        e = -1;
-        step = -1;
         % close current figure and continue executing
         try  
             close(gcf);

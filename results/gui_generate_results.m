@@ -21,7 +21,7 @@ function error_all = gui_generate_results(handles,eventdata)
     end
     
     % Select groups
-    groups = select_groups(my_trajectories);
+    [groups,my_trajectories] = select_groups(my_trajectories);
     try
         if groups == -2
             return

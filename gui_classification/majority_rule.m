@@ -43,31 +43,39 @@ function [ class, skipped ] = majority_rule(output_folder, classifications, thre
 
     REPORT = 1;
     EXCLUDE_UNDEFINED = 1;
+    CROSS_VALIDATE = 0;
     for i = 1:length(varargin)
         if isequal(varargin{i},'REPORT')
             REPORT = varargin{i+1};
         elseif isequal(varargin{i},'EXCLUDE_UNDEFINED')
             EXCLUDE_UNDEFINED = varargin{i+1};
+        elseif isequal(varargin{i},'CROSS_VALIDATE')
+            CROSS_VALIDATE = varargin{i+1};
         end
     end
 
     class = {0};
     skipped = {0};
     
-    % Get the class_map and the unique tags of every classifier
-    class_matrix = [];
-    tags = [];
-    cl = [];
-    for i = 1:length(classifications)
-        class_matrix = [class_matrix;classifications{i}.CLASSIFICATION.class_map];
-        tags = [tags,unique(classifications{i}.CLASSIFICATION.class_map)];
-        cl = [cl,classifications{i}.DEFAULT_NUMBER_OF_CLUSTERS];
-    end
-    tags = unique(tags);
+    if ~CROSS_VALIDATE 
+        % Get the class_map and the unique tags of every classifier
+        class_matrix = [];
+        tags = [];
+        cl = [];
+        for i = 1:length(classifications)
+            class_matrix = [class_matrix;classifications{i}.CLASSIFICATION.class_map];
+            tags = [tags,unique(classifications{i}.CLASSIFICATION.class_map)];
+            cl = [cl,classifications{i}.DEFAULT_NUMBER_OF_CLUSTERS];
+        end
+        tags = unique(tags);
 
-    if length(tags) <= 1 
-        return;
-    end    
+        if length(tags) <= 1 
+            return;
+        end
+    else
+        class_matrix = classifications;
+        tags = unique(class_matrix);
+    end
     
     % threshold has to be in the range of 0 to 100
     if threshold > 100
@@ -81,6 +89,7 @@ function [ class, skipped ] = majority_rule(output_folder, classifications, thre
     else
         sj = 1;
     end
+    
     % perform voting
     class_map = zeros(1,size(class_matrix,2));
     cannot_decide = [];
@@ -112,15 +121,19 @@ function [ class, skipped ] = majority_rule(output_folder, classifications, thre
         end
     end    
     
-    % generate report file
-    if REPORT
-        majority_rule_report(classifications,cannot_decide,threshold_skip,output_folder);
+    if ~CROSS_VALIDATE 
+        % generate report file
+        if REPORT
+            majority_rule_report(classifications,cannot_decide,threshold_skip,output_folder);
+        end
+
+        % generate output
+        classifications{end+1} = classifications{1};
+        classifications{end}.CLASSIFICATION.class_map = class_map;
+        classifications{end}.DEFAULT_NUMBER_OF_CLUSTERS = cl;
+        class = classifications;
+        skipped = {cannot_decide,threshold_skip};
+    else
+        class = class_map;
     end
-  
-    % generate output
-    classifications{end+1} = classifications{1};
-    classifications{end}.CLASSIFICATION.class_map = class_map;
-    classifications{end}.DEFAULT_NUMBER_OF_CLUSTERS = cl;
-    class = classifications;
-    skipped = {cannot_decide,threshold_skip};
 end

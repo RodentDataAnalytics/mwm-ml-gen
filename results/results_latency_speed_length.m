@@ -75,7 +75,7 @@ function [varargout] = results_latency_speed_length(new_properties,my_trajectori
                 disp(str);
             end            
             p = friedman(mfriedAnimal, total_trials, 'off');
-            str = sprintf('%s\tp_frdm: %g', labels{v}, p); 
+            str = sprintf('%s\tp_frdm: %g', names{v}, p); 
             p_mfriedAnimal = [p_mfriedAnimal;p];
             if DISPLAY
                 %disp(str);

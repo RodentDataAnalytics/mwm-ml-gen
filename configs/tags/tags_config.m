@@ -44,7 +44,13 @@ function tags_config_OpeningFcn(hObject, eventdata, handles, varargin)
     end
     set(handles.selection,'String',items);
     set(handles.selection,'Value',1);
-    % Choose default command line output for browse
+    %for the future...
+    %ability to add/remove, save/load tags
+    set(handles.remove,'Visible','off');
+    set(handles.new,'Visible','off');
+    set(handles.load,'Visible','off');
+    set(handles.save,'Visible','off');    
+    % Choose  command line output for browse
     handles.output = hObject;
     % Update handles structure
     guidata(hObject, handles);
@@ -52,7 +58,7 @@ function tags_config_OpeningFcn(hObject, eventdata, handles, varargin)
     uiwait(handles.tags_config);
 % --- Outputs from this function are returned to the command line.
 function varargout = tags_config_OutputFcn(hObject, eventdata, handles) 
-    % Get default command line output from handles structure
+    % Get  command line output from handles structure
     varargout{1} = handles.output;
     % The figure can be deleted now
     delete(handles.tags_config);
@@ -74,7 +80,7 @@ end
 function edit_Callback(hObject, eventdata, handles)
     [temp, idx] = hide_gui('Configure Strategies');  
     ppath = get(handles.tags_config,'UserData');
-    ppath = char_project_path(ppath);
+    %ppath = char_project_path(ppath);
     pointer = get(handles.selection,'Value');
     data = get(handles.table1,'data');
     new_tag(ppath,data(pointer,:));
@@ -113,7 +119,7 @@ function remove_Callback(hObject, eventdata, handles)
     set(handles.selection,'String',items);
     set(handles.selection,'Value',1);   
     data = get(handles.table1,'data');
-    write_tags_to_file(data,fullfile(ppath,'settings','tags.txt'));
+    c(data,fullfile(ppath,'settings','tags.txt'));
     
 function new_Callback(hObject, eventdata, handles)
     [temp, idx] = hide_gui('Configure Strategies');  
@@ -159,8 +165,8 @@ function default_Callback(hObject, eventdata, handles)
     end
     set(handles.selection,'String',items);
     set(handles.selection,'Value',1);   
-    data = get(handles.table1,'data');
-    write_tags_to_file(data,fullfile(ppath,'settings','tags.txt'));
+    %data = get(handles.table1,'data');
+    write_tags_to_file(contents(4:end,:),fullfile(ppath,'settings','tags.txt'));
    
 function OK_Callback(hObject, eventdata, handles)
     tags_config_CloseRequestFcn(hObject, eventdata, handles)
@@ -197,3 +203,10 @@ function load_Callback(hObject, eventdata, handles)
     set(handles.selection,'Value',1);   
     data = get(handles.table1,'data');
     write_tags_to_file(data,fullfile(ppath,'settings','tags.txt'));   
+
+
+% --- Executes on button press in save.
+function save_Callback(hObject, eventdata, handles)
+% hObject    handle to save (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)

@@ -36,7 +36,7 @@ function figure_configs_OpeningFcn(hObject, eventdata, handles, varargin)
     set(handles.fname,'Value',idx);
     % sizes
     sizes = {};
-    for i=1:20
+    for i=1:30
         sizes=[sizes,i];
         if isequal(sizes{1,i},FontSize)
             idx = i;

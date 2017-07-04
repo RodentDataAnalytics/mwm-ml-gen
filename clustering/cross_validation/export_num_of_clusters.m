@@ -10,7 +10,7 @@ function export_num_of_clusters(ppath,data)
     full_ppath =  fullfile(ppath,fname);
     
     % create the header
-    header = {'Clusters','Error%','Undefined%','Coverage%'};
+    header = {'Clusters','Error%','Undefined%','Coverage%', 'Validation_Error%'};
     
     % merge the data with the header into a table
     data2 = num2cell(data); 

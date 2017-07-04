@@ -30,6 +30,7 @@ function main_gui_OpeningFcn(hObject, eventdata, handles, varargin)
     set(findall(handles.panel_res, '-property', 'enable'), 'enable', 'off');
     set(handles.res_demo,'Enable','on');
     set(handles.paths_features,'Enable','off');
+    set(handles.res_compare_class,'Visible','off');
     % Choose default command line output for main_gui
     handles.output = hObject;
     % Update handles structure
@@ -235,6 +236,7 @@ function check_labels_Callback(hObject, eventdata, handles)
     p = p{1};
     [s,e,step,options] = cross_validation_clusters;
     if e == -1 || s == -1 || step == -1
+        set(temp(idx),'Visible','on'); 
         return
     end
     output_path = char(fullfile(project_path,'labels',strcat(p,'_check'),options));
@@ -243,6 +245,7 @@ function check_labels_Callback(hObject, eventdata, handles)
     else
         choice = questdlg('Checking has already been performed would you like to rerun it?','Cross-validation','No','Yes','Generate graphs only','Generate graphs only');
         if isequal(choice,'No')
+            set(temp(idx),'Visible','on'); 
             return;
         elseif isequal(choice,'Yes')
             rmdir(output_path,'s');
@@ -257,8 +260,8 @@ function check_labels_Callback(hObject, eventdata, handles)
         rmdir(output_path,'s');
     end
     mkdir(output_path);
-    [nc,per_errors1,per_undefined1,coverage] = algorithm_statistics(1,1,nc,res1bare,res2bare,res1,res2,res3,covering);
-    data = [nc', per_errors1', per_undefined1', coverage'];
+    [nc,per_errors1,per_undefined1,coverage,per_errors1_true] = algorithm_statistics(1,1,nc,res1bare,res2bare,res1,res2,res3,covering);
+    data = [nc', per_errors1', per_undefined1', coverage', per_errors1_true'];
     % export results to CSV file
     export_num_of_clusters(output_path,data);
     % generate graphs
@@ -424,8 +427,9 @@ function advanced_tab_Callback(hObject, eventdata, handles)
 
 function method_conf_Callback(hObject, eventdata, handles)
     [temp, idx] = hide_gui('MWM-ML');
+    ret = get(handles.method_conf,'UserData');
     %[ STR_DISTR, TRANS_DISTR, SIGMA, INTERVAL, R_SIGMA, R_INTERVAL ]
-    ret = advanced_gui; 
+    ret = advanced_gui(ret); 
     set(handles.method_conf,'UserData',ret);
     set(temp(idx),'Visible','on');  
 

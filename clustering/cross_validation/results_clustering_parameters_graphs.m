@@ -24,8 +24,24 @@ function results_clustering_parameters_graphs(output_path,nc,res1bare,res2bare,r
     export_figure(f, output_path, 'num_of_clusters_error', Export, ExportStyle);
     delete(f);
     
-    % classification errors: phase 1 (cross-validation) 
+    % classification errors (cross-validation true)    
+    f = figure;
+    set(f,'Visible','off');
+    hold on
+    y = arrayfun( @(x) 100*x.mean_perrors_true, res1bare);
+    error = arrayfun( @(x) 100*x.sd_perrors_true*ci_fac, res1bare);
+    shade_errorbars(nc,y,error,'LineWidth',LineWidth);
+    %errorbar( nc, arrayfun( @(x) 100*x.mean_perrors, res1bare),  arrayfun( @(x) 100*x.sd_perrors*ci_fac, res1bare), 'k-', 'LineWidth', LineWidth);                       
+    title('Classification errors');
+    xlabel('N_{clus}', 'FontSize', FontSize, 'FontName', FontName);
+    ylabel('% errors', 'FontSize', FontSize, 'FontName', FontName);            
+    set(f, 'Color', 'w');
+    set(gca, 'FontSize', FontSize, 'LineWidth', LineWidth, 'FontName', FontName);
+    export_figure(f, output_path, 'num_of_clusters_error_true', Export, ExportStyle);
+    delete(f);    
+    
     if DETAILED_GRAPH
+        % classification errors: phase 1 (cross-validation) 
         f = figure;
         set(f,'Visible','off');
         hold on
@@ -42,6 +58,24 @@ function results_clustering_parameters_graphs(output_path,nc,res1bare,res2bare,r
         box off;
         export_figure(f, output_path, 'num_of_clusters_error_phase_1', Export, ExportStyle);
         delete(f);    
+        
+        % classification errors: phase 1 (cross-validation true) 
+        f = figure;
+        set(f,'Visible','off');
+        hold on
+        y = arrayfun( @(x) 100*x.mean_perrors_true, res2bare);
+        error = arrayfun( @(x) 100*x.sd_perrors_true*ci_fac, res2bare);
+        shade_errorbars(nc,y,error,'LineWidth',LineWidth);
+        title('Classification errors (phase 1)');
+        %errorbar( nc, arrayfun( @(x) 100*x.mean_perrors, res2bare),  arrayfun( @(x) 100*x.sd_perrors*ci_fac, res2bare), 'k:', 'LineWidth', LineWidth);                           
+        title('Classification errors (phase 1)');
+        xlabel('N_{clus}', 'FontSize', FontSize, 'FontName', FontName);
+        ylabel('% errors', 'FontSize', FontSize, 'FontName', FontName);            
+        set(f, 'Color', 'w');
+        set(gca, 'FontSize', FontSize, 'LineWidth', LineWidth, 'FontName', FontName);
+        box off;
+        export_figure(f, output_path, 'num_of_clusters_error_phase_1_true', Export, ExportStyle);
+        delete(f);          
     end
     
     % percentage of unknown segments

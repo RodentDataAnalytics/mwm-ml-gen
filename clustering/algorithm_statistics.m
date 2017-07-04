@@ -17,6 +17,7 @@ function [ varargout ] = algorithm_statistics(option,suboption,varargin)
             covering = varargin{7};
             ci_fac = 1.96/sqrt(length(nc));
             per_errors1 = arrayfun( @(x) 100*x.mean_perrors, res1bare);
+            per_errors1_true = arrayfun( @(x) 100*x.mean_perrors_true, res1bare);
             per_errors_ebars1 = arrayfun( @(x) 100*x.sd_perrors*ci_fac, res1bare);
             per_undefined1 = arrayfun( @(x) 100*x.mean_punknown, res1);
             per_clus_ebars1 = arrayfun( @(x) x.sd_nclusters*ci_fac, res1);
@@ -28,6 +29,7 @@ function [ varargout ] = algorithm_statistics(option,suboption,varargin)
                 varargout{2} = per_errors1;
                 varargout{3} = per_undefined1;
                 varargout{4} = coverage;
+                varargout{5} = per_errors1_true;
                 return
             end    
             

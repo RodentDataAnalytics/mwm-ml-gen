@@ -46,14 +46,52 @@ end
 
 % --- Executes just before advanced_gui is made visible.
 function advanced_gui_OpeningFcn(hObject, eventdata, handles, varargin)
-    set(handles.group_strategy,'SelectedObject',handles.r_smooth);
-    set(handles.group_transitions,'SelectedObject',handles.t_smooth);
-    set(handles.sfiltering,'SelectedObject',handles.b_smoothingOFF);
-    set(handles.v_sigma,'Enable','off');
-    set(handles.v_interval,'Enable','off');
-    set(handles.a_sigma,'Enable','off');
-    set(handles.a_interval,'Enable','off');    
-
+    pre_values = varargin{1};
+    if ~isempty(pre_values)
+        if pre_values(1) == 3
+            set(handles.group_strategy,'SelectedObject',handles.r_smooth);
+        elseif pre_values(1) == 2
+            set(handles.group_strategy,'SelectedObject',handles.r_Nsmooth);
+        else
+            set(handles.group_strategy,'SelectedObject',handles.r_smooth);
+        end
+        if pre_values(2) == 3
+            set(handles.group_transitions,'SelectedObject',handles.t_smooth);
+        elseif pre_values(2) == 2
+            set(handles.group_transitions,'SelectedObject',handles.t_Nsmooth);
+        else
+            set(handles.group_transitions,'SelectedObject',handles.t_smooth);
+        end    
+        if pre_values(3) ~= 0 || pre_values(4) ~= 0
+            set(handles.sfiltering,'SelectedObject',handles.b_smoothingON);
+            set(handles.v_sigma,'String',pre_values(3));
+            set(handles.v_interval,'String',pre_values(4));
+            if pre_values(5) == 0
+                set(handles.a_sigma,'Value',0);
+            else
+                set(handles.a_sigma,'Value',1);
+            end
+            if pre_values(6) == 0
+                set(handles.a_interval,'Value',0);
+            else
+                set(handles.a_interval,'Value',1);
+            end                  
+        else
+            set(handles.sfiltering,'SelectedObject',handles.b_smoothingOFF);
+            set(handles.v_sigma,'Enable','off');
+            set(handles.v_interval,'Enable','off');
+            set(handles.a_sigma,'Enable','off');
+            set(handles.a_interval,'Enable','off');    
+        end 
+    else
+        set(handles.group_strategy,'SelectedObject',handles.r_smooth);
+        set(handles.group_transitions,'SelectedObject',handles.t_smooth);
+        set(handles.sfiltering,'SelectedObject',handles.b_smoothingOFF);
+        set(handles.v_sigma,'Enable','off');
+        set(handles.v_interval,'Enable','off');
+        set(handles.a_sigma,'Enable','off');
+        set(handles.a_interval,'Enable','off');        
+    end
     % Choose default command line output for advanced_gui
     handles.output = hObject;
     % Update handles structure
@@ -86,9 +124,19 @@ function varargout = advanced_gui_OutputFcn(hObject, eventdata, handles)
         R_INTERVAL = 0;
     else    
         SIGMA = str2double(get(handles.v_sigma,'String'));
-        INTERVAL = str2doubleget(handles.v_interval,'String');
+        INTERVAL = str2double(get(handles.v_interval,'String'));
         R_SIGMA = get(handles.a_sigma,'Value');
         R_INTERVAL = get(handles.a_interval,'Value');   
+        %unnecessary test
+%         if isnan(SIGMA) || isnan(INTERVAL) || SIGMA <= 0 || INTERVAL <= 0
+%             STR_DISTR = 3;
+%             TRANS_DISTR = 3;
+%             SIGMA = 0;
+%             INTERVAL = 0;
+%             R_SIGMA = 0;
+%             R_INTERVAL = 0;   
+%             warndlg('SIGMA and INTERVAL need to have positive and non-zero values. Default values were assigned.','Warning');
+%         end          
     end
     % Get default command line output from handles structure
     varargout{1} = [STR_DISTR,TRANS_DISTR,SIGMA,INTERVAL,R_SIGMA,R_INTERVAL];
@@ -152,11 +200,19 @@ function bok_Callback(hObject, eventdata, handles)
             errordlg('Wrong input for Sigma. It needs to have a non-zero positive value.','Error');
             return;
         end    
-        txt = get(handles.v_sigma,'String');
+        if txt <= 0
+            errordlg('Wrong input for Sigma. It needs to have a non-zero positive value.','Error');
+            return;            
+        end
+        txt = get(handles.v_interval,'String');
         txt = str2double(txt);
         if isnan(txt) || length(txt) > 1
             errordlg('Wrong input for Interval. It needs to have a non-zero positive value.','Error');
             return;
-        end    
+        end
+        if txt <= 0
+            errordlg('Wrong input for Interval. It needs to have a non-zero positive value.','Error');
+            return;            
+        end        
     end
     advanced_gui_CloseRequestFcn(hObject, eventdata, handles);

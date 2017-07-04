@@ -52,6 +52,9 @@ classdef clustering_cv_results < handle
         function res = perrors(inst)
             res = arrayfun( @(r) r.perrors, inst.results);
         end
+        function res = perrors_true(inst)
+            res = arrayfun( @(r) r.perrors_true, inst.results);
+        end        
         
         function res = punknown_test(inst)
             res = arrayfun( @(r) r.punknown_test, inst.results);
@@ -81,6 +84,9 @@ classdef clustering_cv_results < handle
         function res = mean_perrors(inst)
             res = mean(inst.perrors);
         end
+        function res = mean_perrors_true(inst)
+            res = mean(inst.perrors_true);
+        end
         
         % stddev
         function res = sd_nerrors(inst)
@@ -106,5 +112,8 @@ classdef clustering_cv_results < handle
         function res = sd_perrors(inst)
             res = std(inst.perrors);
         end
+        function res = sd_perrors_true(inst)
+            res = std(inst.perrors_true);
+        end        
     end
 end

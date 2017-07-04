@@ -19,6 +19,9 @@ classdef clustering_results < handle
         errors = [];
         nerrors = 0;
         perrors = 0;
+        errors_true = [];
+        nerrors_true = 0;
+        perrors_true = 0;        
         nexternal_labels = 0;
         punknown = 0;
         punknown_test = 0;
@@ -50,19 +53,20 @@ classdef clustering_results < handle
             if nargin > 10
                 inst.classes = cl;
             end
-                        
+    
             % look for non-empty labels
+            class_map_true = inst.class_map;
             for i = 1:length(inst.input_labels)
                 tmp = inst.input_labels{i};
                 if tmp ~= -1
-                    inst.non_empty_labels_idx = [inst.non_empty_labels_idx, i];     
+                    inst.non_empty_labels_idx = [inst.non_empty_labels_idx, i];   
                     % in case that we have one label only, and the segment
                     % could not be classified adopt the manual label
-%                     if length(tmp) == 1 && tmp(1) > 0
-%                         if inst.class_map(i) == 0
-%                             inst.class_map(i) = tmp(1);
-%                         end
-%                     end
+                    if length(tmp) == 1 && tmp(1) > 0
+                        if inst.class_map(i) == 0
+                            inst.class_map(i) = tmp(1);
+                        end
+                    end
                 end
             end
             if ~isempty(inst.class_map)
@@ -77,6 +81,7 @@ classdef clustering_results < handle
             % show wrongly classified trajectories
             n = 0;
             inst.errors = zeros(1, inst.nlabels);
+            inst.errors_true = zeros(1, inst.nlabels);
             for i = 1:inst.nlabels
                 if tst_set(i) ~= 1
                     continue;
@@ -85,15 +90,19 @@ classdef clustering_results < handle
                 tmp = inst.input_labels{idx};
                 if tmp ~= -1                  
                     n = n + 1;
-                    %if inst.class_map(idx) ~= 0 && ~any(tmp == inst.class_map(idx))
-                    if ~any(tmp == inst.class_map(idx))
+                    if ~any(tmp == class_map_true(idx))
+                        inst.errors_true(i) = 1; 
+                    end                        
+                    if inst.class_map(idx) ~= 0 && ~any(tmp == inst.class_map(idx))
                         inst.errors(i) = 1;  
                     end
                 end
             end     
             inst.nerrors = sum(inst.errors);
+            inst.nerrors_true = sum(inst.errors_true);
             if n > 0
-                inst.perrors = inst.nerrors / n;            
+                inst.perrors = inst.nerrors / n;    
+                inst.perrors_true = inst.nerrors_true / n;  
             end
             
             if inst.nlabels == 0 && inst.nclasses == 0

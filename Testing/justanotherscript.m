@@ -2,7 +2,7 @@ project_path = 'D:\Avgoustinos\Documents\MWMGEN\demo_original_set_1';
 
 ttitle = {'Segmentation I','Segmentation II','Segmentation III','Segmentation IV'};
 %300-0.7, 250-0.7, 250-0.9, 300-0.7
-skip = {'989','2445'};
+skip = {'989','2445','1261'};
 
 WAITBAR = 0;
 DISPLAY = 0;

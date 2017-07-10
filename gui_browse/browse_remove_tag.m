@@ -9,17 +9,17 @@ function [ error ] = browse_remove_tag(handles,varargin)
         return;
     end    
     
-    for i = 1:length(varargin) % runs if mode=1 and trajectory is selected
-        if iequal(varargin{i},'mode')
-            mode = varargin{i+1};
-        end
-    end
+%     for i = 1:length(varargin) % runs if mode=1 and trajectory is selected
+%         if iequal(varargin{i},'mode')
+%             mode = varargin{i+1};
+%         end
+%     end
     
     %% SEGMENTATION OBJECT LOADED
     if mode == 1
         % if it is the trajectory return
         if get(handles.listbox,'Value') == 1;
-            [ error ] = browse_remove_tag(handles,'mode',3);
+            %[ error ] = browse_remove_tag(handles,'mode',3);
             return;
         end  
         % get the # of the segment

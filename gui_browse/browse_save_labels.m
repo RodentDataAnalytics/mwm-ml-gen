@@ -30,6 +30,9 @@ function [error] = browse_save_labels(handles,varargin)
         % store segments and labels
         labels_(:,1) = segs(:,1);
         labels_(:,2:end) = labels{2}(:,1:end);
+        % make sure we do not have emtpy labels
+        tmp = find(cellfun(@isempty,labels_(:,2))==1);
+        labels_(tmp,:) = [];
         % sort by segment number
         labels_ = sortrows(labels_,1);
         % make the header
@@ -89,6 +92,9 @@ function [error] = browse_save_labels(handles,varargin)
         % store segments and labels
         labels_(:,1) = segs(:,1);
         labels_(:,2:end) = labels{2}(:,1:end);
+        % make sure we do not have emtpy labels
+        tmp = find(cellfun(@isempty,labels_(:,2))==1);
+        labels_(tmp,:) = [];        
         % sort by segment number
         labels_ = sortrows(labels_,1);
         % make the header

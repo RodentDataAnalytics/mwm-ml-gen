@@ -1,6 +1,6 @@
 VARIABLE,VALUE,COMMENT
 FontName,Arial,figures and export
-FontSize,14,figures and export
+FontSize,15,figures and export
 LineWidth,1.5,figures and export
 Export,.jpg,export
 ExportStyle,High Quality,export

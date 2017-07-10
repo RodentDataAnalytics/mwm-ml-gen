@@ -2,6 +2,8 @@ function [error, count, percentage_per_classifier] = class_statistics(ppath, cla
 %CLASS_STATISTICS computes statistics for the mclassification
 
     SEGMENTATION = 0;
+    flag = 0;
+    files = {};
     WAITBAR = 1;
     
     for i = 1:length(varargin)
@@ -10,6 +12,9 @@ function [error, count, percentage_per_classifier] = class_statistics(ppath, cla
             segmentation_configs = varargin{i+1};
         elseif isequal(varargin{i},'WAITBAR')
             WAITBAR = varargin{i+1};
+        elseif isequal(varargin{i},'CLASSIFIERS')
+            files = varargin{i+1};    
+            flag = i+1;
         end
     end
 
@@ -18,29 +23,40 @@ function [error, count, percentage_per_classifier] = class_statistics(ppath, cla
     end
     error = 1;
     
-    %Classifiers or Ensembles?
-    tmp = strfind(class_name,'_');
-    if length(tmp) == 4
-        CLASSIFICATION = 1;
-    else
-        CLASSIFICATION = 0;
-    end
+    if isempty(files)
+        %Classifiers or Ensembles?
+        tmp = strfind(class_name,'_');
+        if length(tmp) == 4
+            CLASSIFICATION = 1;
+        else
+            CLASSIFICATION = 0;
+        end
 
-    ppath = char_project_path(ppath);
-    mcpath = fullfile(ppath,'Mclassification',class_name);
-    if CLASSIFICATION
+        ppath = char_project_path(ppath);
+        mcpath = fullfile(ppath,'Mclassification',class_name);
+        if CLASSIFICATION
+            mcpath = fullfile(ppath,'classification',class_name);
+        end
+        files = dir(fullfile(mcpath,'*.mat'));
+        %sort by classifier number
+        files = extractfield(files,'name')';
+        [~,idx] = sort_classifiers(files);
+        files = files(idx);
+
+        % Take the tags
+        load(fullfile(mcpath,files{1}))
+        strats = classification_configs.ALL_TAGS;
+        clear classification_configs
+    else
+        %sort by classifier number
+        files = extractfield(files,'name')';
+        [~,idx] = sort_classifiers(files);
+        files = files(idx);
+        CLASSIFICATION = 1;
         mcpath = fullfile(ppath,'classification',class_name);
+        load(fullfile(mcpath,files{1}))
+        strats = classification_configs.ALL_TAGS;        
     end
-    files = dir(fullfile(mcpath,'*.mat'));
-    %sort by classifier number
-    files = extractfield(files,'name')';
-    [~,idx] = sort_classifiers(files);
-    files = files(idx);
-    
-    % Take the tags
-    load(fullfile(mcpath,files{1}))
-    strats = classification_configs.ALL_TAGS;
-    clear classification_configs
     
     % Create the folder
     if SEGMENTATION
@@ -162,9 +178,17 @@ function [error, count, percentage_per_classifier] = class_statistics(ppath, cla
     % Also create the agreement matrix
     if length(cols)-4 > 1 % only if we have more than one classifiers
         if SEGMENTATION
-            results_classification_agreement(rpath,'FOLDER',mcpath,'CLASSIFICATION',CLASSIFICATION,'SEGMENTATION',segmentation_configs);
+            if flag
+                results_classification_agreement(rpath,'FOLDER',mcpath,'CLASSIFICATION',CLASSIFICATION,'SEGMENTATION',segmentation_configs, 'CLASSIFIERS',varargin{flag});
+            else
+                results_classification_agreement(rpath,'FOLDER',mcpath,'CLASSIFICATION',CLASSIFICATION,'SEGMENTATION',segmentation_configs);
+            end
         else
-            results_classification_agreement(rpath,'FOLDER',mcpath,'CLASSIFICATION',CLASSIFICATION);
+            if flag
+                results_classification_agreement(rpath,'FOLDER',mcpath,'CLASSIFICATION',CLASSIFICATION, 'CLASSIFIERS',varargin{flag});
+            else
+                results_classification_agreement(rpath,'FOLDER',mcpath,'CLASSIFICATION',CLASSIFICATION);
+            end
         end
     end
     

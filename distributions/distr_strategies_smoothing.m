@@ -291,5 +291,5 @@ function [class_map_detailed,d_points,store_d,class_map_detailed_flat] = distr_s
         idx = length(find(class_map_detailed(i,:) ~= -1));
         class_map_detailed_flat = [class_map_detailed_flat,class_map_detailed(i,1:idx)];
     end
-    store_d = 0;
+    store_d = d_rem_points;
 end

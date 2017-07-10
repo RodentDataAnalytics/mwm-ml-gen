@@ -8,7 +8,7 @@ function export_num_of_clusters(ppath,data)
     % full ppath = folder specified by the user + file name
     fname = 'cross_validation.csv';
     full_ppath =  fullfile(ppath,fname);
-    
+
     % create the header
     header = {'Clusters','Error%','Undefined%','Coverage%', 'Validation_Error%'};
     

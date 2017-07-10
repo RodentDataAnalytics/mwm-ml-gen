@@ -66,6 +66,7 @@ function paper_fig_confidence_intervals(score,sample,class_tags,fpath,ii,ttitle)
     %t = {'','S1','S2','S3','S4','S5','S6','S7','S8','TR'};
     set(faxis, 'XTick', xticks, 'XTickLabel', t, 'FontSize', FontSize, 'FontName', FontName);
     title(ttitle);
+    ylabel('percentage','FontSize', FontSize, 'FontName', FontName);
     % export
     fpath = fileparts(fpath);
     export_figure(f, fpath, sprintf('binomial_%d', ii), Export, ExportStyle);

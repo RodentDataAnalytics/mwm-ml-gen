@@ -34,9 +34,11 @@ function [error,labels,segments,seg_length,seg_overlap,merging,iterations,specia
         seg_length = options{4};
         seg_overlap = options{5};
         % for mclassification:
-        %merging = options{6};
-        %iterations = options{7};
-        %special = options{8};
+        if length(options) > 5
+            merging = options{6};
+            iterations = options{7};
+            special = options{8};
+        end
     catch
         disp('Wrong specified path or folder.')
         return

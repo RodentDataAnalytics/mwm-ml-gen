@@ -9,6 +9,9 @@ function browse_update_counting(handles)
         end
     elseif mode == 3
         labels = get(handles.listbox,'UserData');
+        if isempty(labels)
+            return;
+        end        
     else
         return;
     end

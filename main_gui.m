@@ -262,8 +262,10 @@ function check_labels_Callback(hObject, eventdata, handles)
     mkdir(output_path);
     [nc,per_errors1,per_undefined1,coverage,per_errors1_true] = algorithm_statistics(1,1,nc,res1bare,res2bare,res1,res2,res3,covering);
     data = [nc', per_errors1', per_undefined1', coverage', per_errors1_true'];
-    % export results to CSV file
+    % export results to CSV (inside the results and the labels folders
     export_num_of_clusters(output_path,data);
+    output_path2 = char(fullfile(project_path,'labels',strcat(p,'_check'),options));
+    export_num_of_clusters(output_path2,data);
     % generate graphs
     results_clustering_parameters_graphs(output_path,nc,res1bare,res2bare,res1,res2,res3,covering);
     set(temp(idx),'Visible','on'); 
@@ -432,8 +434,14 @@ function method_conf_Callback(hObject, eventdata, handles)
     ret = advanced_gui(ret); 
     set(handles.method_conf,'UserData',ret);
     set(temp(idx),'Visible','on');  
-
-
 % --------------------------------------------------------------------
 function features_conf_Callback(hObject, eventdata, handles)
     features_config;
+% --------------------------------------------------------------------
+function classification_conf_Callback(hObject, eventdata, handles)
+    [temp, idx] = hide_gui('MWM-ML');
+    ret = get(handles.classification_conf,'UserData');
+    %[ STOP_ERROR, STOP_K, PICK_Start, PICK_END, N_CLASS ]
+    ret = classification_configs_adv(ret); 
+    set(handles.classification_conf,'UserData',ret);
+    set(temp(idx),'Visible','on');      

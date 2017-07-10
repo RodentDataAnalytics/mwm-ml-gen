@@ -124,17 +124,21 @@ function load_configuration_Callback(hObject, eventdata, handles)
         set(handles.plotter,'UserData',mode);
         set(handles.tag_box,'UserData',[]);
         set(handles.listbox,'UserData',[]);
+        data = zeros(size(handles.counting.Data,1),1);
+        set(handles.counting,'Data',data);     
+        browse_update_counting(handles);
     % run with classification configs file    
     elseif mode == 2    
-        errordlg('Requires a segmentation file.','Error');
+        errordlg('Requires a my_trajectories or a segmentation file.','Error');
+        return
         %check and save the file into the UserData
         %error = browse_mode_classification(obj,handles);
         %if error
         %    errordlg('Error initializing the GUI','Dev Error');
         %    return
         %end
-        set(handles.segment_info,'UserData',obj);
-        set(handles.plotter,'UserData',mode);
+        %set(handles.segment_info,'UserData',obj);
+        %set(handles.plotter,'UserData',mode);
     elseif mode == 3 
         %check and save the file into the UserData
         error = browse_mode_trajectories(obj,handles);
@@ -144,7 +148,11 @@ function load_configuration_Callback(hObject, eventdata, handles)
         end        
         set(handles.trajectory_info,'UserData',obj);
         set(handles.plotter,'UserData',mode);
-        set(handles.listbox,'UserData',[]);        
+        set(handles.listbox,'UserData',[]);   
+        set(handles.tag_box,'UserData',[]);
+        data = zeros(size(handles.counting.Data,1),1);        
+        set(handles.counting,'Data',data);  
+        browse_update_counting(handles);
     end    
 
     
@@ -331,7 +339,7 @@ function export_all_Callback(hObject, eventdata, handles)
                 clf(f,'reset');
             end
         else
-            if isequal(row{1},selected_tag)
+            if isequal(row{1},selected_tag) && length(cells) == 1
                 segment = segmentation_configs.SEGMENTS.items(1,a{1}(i));
                 % draw the arena and the segment on the new figure
                 plot_arena(segmentation_configs);
@@ -383,3 +391,124 @@ function speed_down_Callback(hObject, eventdata, handles)
 function speed_up_Callback(hObject, eventdata, handles)
 function speed_style_Callback(hObject, eventdata, handles)
 
+
+
+% --------------------------------------------------------------------
+function m_export_Callback(hObject, eventdata, handles)
+% --------------------------------------------------------------------
+function m_export_ud_Callback(hObject, eventdata, handles)
+    index = get(handles.plotter,'UserData');
+    if isempty(index) || index == 3
+        return;
+    end    
+    % get project path
+    ppath = get(handles.browse_data,'UserData');  
+    ppath = char_project_path(ppath);
+    % get user labels
+    a = get(handles.tag_box,'UserData');
+    if ~isempty(a)
+        Lidxs = cell2mat(a(1));
+    else
+        Lidxs = 0;
+    end
+    % export format
+    [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
+    % get segmentation_configs
+    segmentation_configs = get(handles.trajectory_info,'UserData');
+    % make folder
+    segs = size(segmentation_configs.FEATURES_VALUES_SEGMENTS,1);
+    folder = fullfile(ppath,'results',strcat('exported_pics_segmentation_',num2str(segs)));
+    if ~exist(folder,'dir')
+        mkdir(folder);
+    end
+    folder = fullfile(folder,'UD');
+    if exist(folder,'dir')
+        rmdir(folder,'s');
+    end  
+    mkdir(folder);
+    % generate a new figure
+    f = figure;
+    % start exporting
+    for i = 1:segs
+        tmp = find(Lidxs == i);
+        if ~isempty(tmp)
+            continue;
+        end
+        segment = segmentation_configs.SEGMENTS.items(1,i);
+        % draw the arena and the segment on the new figure
+        plot_arena(segmentation_configs);
+        plot_trajectory(segment,'LineWidth',1.5); 
+        % export the figure
+        [traj_id, seg_id] = find_traj_of_seg(segmentation_configs.SEGMENTS, a{1}(i));
+        export_figure(f, folder, strcat(selected_tag,'traj',num2str(traj_id),'seg',num2str(seg_id)), Export, ExportStyle);
+        % refresh the figure
+        clf(f,'reset');
+    end
+    delete(f);    
+% --------------------------------------------------------------------
+function m_export_ev_Callback(hObject, eventdata, handles)
+    index = get(handles.plotter,'UserData');
+    if isempty(index) || index == 3
+        return;
+    end    
+    % get project path
+    ppath = get(handles.browse_data,'UserData');  
+    ppath = char_project_path(ppath);
+    % get user labels
+    a = get(handles.tag_box,'UserData');
+    if isempty(a);
+        return
+    end
+    % export format
+    [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
+    % get segmentation_configs
+    segmentation_configs = get(handles.trajectory_info,'UserData');
+    % make folder
+    segs = num2str(size(segmentation_configs.FEATURES_VALUES_SEGMENTS,1));
+    folder = fullfile(ppath,'results',strcat('exported_pics_segmentation_',segs));
+    if ~exist(folder,'dir')
+        mkdir(folder);
+    end
+    % get tag (iterate)
+    all_tags = get(handles.available_tags,'String'); 
+    for t = 1:length(all_tags)
+        selected_tag = all_tags{t}; 
+        sfolder = fullfile(folder,selected_tag);
+        if exist(sfolder,'dir')
+            rmdir(sfolder,'s');
+        end  
+        mkdir(sfolder);
+        % generate a new figure
+        f = figure;
+        % start exporting
+        for i = 1:length(a{1})
+            row = a{2}(i,1:end);
+            cells = find(~cellfun(@isempty,row));
+            if isequal(selected_tag,'MULTI')
+                if length(cells) > 1 || isequal(row{1},'MULTI')
+                    segment = segmentation_configs.SEGMENTS.items(1,a{1}(i));
+                    % draw the arena and the segment on the new figure
+                    plot_arena(segmentation_configs);
+                    plot_trajectory(segment,'LineWidth',1.5); 
+                    % export the figure
+                    [traj_id, seg_id] = find_traj_of_seg(segmentation_configs.SEGMENTS, a{1}(i));
+                    export_figure(f, sfolder, strcat(selected_tag,'traj',num2str(traj_id),'seg',num2str(seg_id)), Export, ExportStyle);
+                    % refresh the figure
+                    clf(f,'reset');
+                end
+            else
+                if isequal(row{1},selected_tag) && length(cells) == 1
+                    segment = segmentation_configs.SEGMENTS.items(1,a{1}(i));
+                    % draw the arena and the segment on the new figure
+                    plot_arena(segmentation_configs);
+                    plot_trajectory(segment,'LineWidth',1.5); 
+                    % export the figure
+                    [traj_id, seg_id] = find_traj_of_seg(segmentation_configs.SEGMENTS, a{1}(i));
+                    export_figure(f, sfolder, strcat(selected_tag,'traj',num2str(traj_id),'seg',num2str(seg_id)), Export, ExportStyle);
+                    % refresh the figure
+                    clf(f,'reset');
+                end
+            end
+        end
+        delete(f);
+    end

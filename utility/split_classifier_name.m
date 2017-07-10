@@ -19,19 +19,34 @@ function [error,labels,segments,num_of_clusters] = split_classifier_name(classif
         disp('Wrong specified path or folder.')
         return
     end
-    if ~isequal(options{1},'classification')
-        disp('Wrong specified path or folder.')
-        return
+    tmp = 0;
+    if ~isequal(options{1},'classification') 
+        tmp = 1;
+        if ~isequal(options{1},'class') 
+            disp('Wrong specified path or folder.')
+            return
+        end
     end
     
-    try
-        labels = options{4};
-        segments = options{3};
-        num_of_clusters = strsplit(options{5},'.');
-        num_of_clusters = num_of_clusters{1};
-    catch
-        disp('Wrong specified path or folder.')
-        return
+    if tmp == 1
+        try
+            labels = options{2};
+            segments = options{3};
+            num_of_clusters = '';
+        catch
+            disp('Wrong specified path or folder.')
+            return
+        end
+    elseif tmp == 0
+        try
+            labels = options{4};
+            segments = options{3};
+            num_of_clusters = strsplit(options{5},'.');
+            num_of_clusters = num_of_clusters{1};
+        catch
+            disp('Wrong specified path or folder.')
+            return
+        end        
     end
     error = 0;
 end

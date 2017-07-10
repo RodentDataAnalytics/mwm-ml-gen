@@ -10,20 +10,23 @@ if isequal(pname,0)
     return
 end
 output_file = strcat(pname,fname);
+tmp = strsplit(fname,'.csv');
+output_file_ud = strcat(pname,strcat(tmp{1},'_UD.csv'));
 
 
 load(mclassification);
 labels = classification_configs.CLASSIFICATION.class_map';
-segments = 1:length(labels);
-segments = segments';
-table = [num2cell(segments), num2cell(labels)];
+labels_idx = find(labels ~= 0);
+table = [num2cell(labels_idx),num2cell(labels(labels_idx))];
+labels_idx = find(labels == 0);
+table_ud = [num2cell(labels_idx),num2cell(labels(labels_idx))];
 tags = classification_configs.CLASSIFICATION_TAGS;
+
 for i = 1:size(table,1)
-    if table{i,2} > 0
-        table{i,2} = tags{table{i,2}}{1};
-    else
-        table{i,2} = 'UD';
-    end
+    table{i,2} = tags{table{i,2}}{1};
+end
+for i = 1:size(table_ud,1)
+    table_ud{i,2} = 'UD';
 end
 
 VariableNames = cell(1,length(tags)+2);
@@ -34,4 +37,7 @@ end
 table{1,length(VariableNames)} = [];
 table = cell2table(table,'VariableNames',VariableNames);
 writetable(table,output_file,'WriteVariableNames',1);
+table_ud{1,length(VariableNames)} = [];
+table_ud = cell2table(table_ud,'VariableNames',VariableNames);
+writetable(table_ud,output_file_ud,'WriteVariableNames',1);
 

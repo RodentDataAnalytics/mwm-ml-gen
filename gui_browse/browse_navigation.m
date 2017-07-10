@@ -56,9 +56,14 @@ function [ error ] = browse_navigation(handles,navigate)
         %... 
         
     elseif mode == 3    
-    %% MY_TRAJECTORIES OBJECT LOADED    
-        my_trajectories = get(handles.trajectory_info,'UserData');
-        new_properties = get(handles.segment_info,'UserData');
+    %% MY_TRAJECTORIES OBJECT LOADED  
+        try
+            my_trajectories = get(handles.trajectory_info,'UserData');
+            new_properties = get(handles.segment_info,'UserData');
+        catch %fix_trajectories
+            my_trajectories = get(handles.b_load,'UserData');
+            new_properties = get(handles.ok,'UserData');            
+        end
         % get current trajectory number
         idx = get(handles.navigator,'String');
         try
@@ -96,9 +101,14 @@ function [ error ] = browse_navigation(handles,navigate)
         % fill the table for the trajectory
         %set(handles.trajectory_info,'data',browse_table_trajectory(segmentation_configs,idx)); 
         % fill the segments list 
-        browse_fill_segments_list('', idx, handles);
-        % fill the tags list
-        browse_select_segment(handles)
+        try
+            browse_fill_segments_list('', idx, handles);
+            % fill the tags list
+            browse_select_segment(handles)
+        catch%fix_trajectories
+            coords = fill_coordinates_table(my_trajectories, idx);
+            set(handles.coord_table,'data',coords);
+        end
         error = 0;
     
     %% CONVERT TRAJECTORIES TO SEGMENTS

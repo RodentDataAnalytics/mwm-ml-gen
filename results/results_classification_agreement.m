@@ -4,6 +4,7 @@ function results_classification_agreement(ouput_folder, varargin)
     CLASSIFICATION = 0;
     WAITBAR = 1;
     FOLDER = '';
+    files = {};
     
     for i = 1:length(varargin)
         if isequal(varargin{i},'SEGMENTATION')
@@ -15,6 +16,8 @@ function results_classification_agreement(ouput_folder, varargin)
             WAITBAR = varargin{i+1};
         elseif isequal(varargin{i},'FOLDER')
             FOLDER = varargin{i+1};            
+        elseif isequal(varargin{i},'CLASSIFIERS')
+            files = varargin{i+1};          
         end
     end
     
@@ -39,7 +42,9 @@ function results_classification_agreement(ouput_folder, varargin)
     if isnumeric(folder)
         return;
     end
-    files = dir(fullfile(folder,'*.mat'));
+    if isempty(files)
+        files = dir(fullfile(folder,'*.mat'));
+    end
     if isempty(files)
         errordlg('No files were found.','Error');
         return;

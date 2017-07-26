@@ -1,5 +1,7 @@
 # mwm-ml-gen
 
+[![DOI](https://zenodo.org/badge/57398681.svg)](https://zenodo.org/badge/latestdoi/57398681)
+
 **mwm-ml-gen** (**M**orris **W**ater **M**aze - **M**achine **L**earning - **G**eneralized) is a complete set of tools for analysis and classification of rodent trajectories inside the Morris Water Maze. 
 
 For more information about 'how to use' this software visit our [wiki](https://github.com/RodentDataAnalytics/mwm-ml-gen/wiki).

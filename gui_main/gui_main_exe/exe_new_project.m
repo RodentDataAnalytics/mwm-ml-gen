@@ -6,7 +6,7 @@ function exe_new_project(hObject, eventdata, handles)
         return;
     else
         %hide this GUI
-        [temp, idx] = hide_gui('MWM-ML');
+        [temp, idx] = hide_gui('RODA');
         set(handles.load_project,'UserData',project_path);
         %load the new project
         if ~iscell(project_path) 

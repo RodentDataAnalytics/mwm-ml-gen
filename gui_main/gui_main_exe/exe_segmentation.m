@@ -13,7 +13,7 @@ function exe_segmentation(hObject, eventdata, handles)
     end
     seg_length = str2double(seg_length);
     seg_overlap = unique(str2num(seg_overlap));
-    [temp, idx] = hide_gui('MWM-ML');
+    [temp, idx] = hide_gui('RODA');
     error = execute_segmentation(project_path,seg_length,seg_overlap);
     set(temp(idx),'Visible','on'); 
     if ~error

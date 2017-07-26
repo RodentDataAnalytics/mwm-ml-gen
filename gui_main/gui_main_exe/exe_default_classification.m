@@ -4,7 +4,7 @@ function exe_default_classification(hObject, eventdata, handles)
         return;
     end
     % Hide GUI and execute
-    [temp, idx] = hide_gui('MWM-ML');
+    [temp, idx] = hide_gui('RODA');
     seg_name = get(handles.default_segmentation,'String');
     tmp = get(handles.default_segmentation,'Value');
     seg_name = seg_name{tmp};

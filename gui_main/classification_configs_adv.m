@@ -22,7 +22,7 @@ function varargout = classification_configs(varargin)
 
 % Edit the above text to modify the response to help classification_configs_adv
 
-% Last Modified by GUIDE v2.5 09-Jul-2017 10:32:34
+% Last Modified by GUIDE v2.5 24-Jul-2017 17:11:23
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -63,12 +63,13 @@ function classification_configs_adv_OpeningFcn(hObject, eventdata, handles, vara
 
 % --- Outputs from this function are returned to the command line.
 function varargout = classification_configs_adv_OutputFcn(hObject, eventdata, handles) 
-    vector = [0,0,0,0,0];
+    vector = [0,0,0,0,0,0];
     vector(1) = str2double(get(handles.cv_error,'String'));
     vector(2) = str2double(get(handles.cv_k,'String'));    
     vector(3) = str2double(get(handles.pool_start,'String'));
     vector(4) = str2double(get(handles.pool_end,'String'));   
     vector(5) = str2double(get(handles.pool_size,'String'));
+    vector(6) = str2double(get(handles.cv_ks,'String'));
     % Get default command line output from handles structure    
     varargout{1} = vector;
     % The figure can be deleted now
@@ -87,8 +88,9 @@ function CANCEL_Callback(hObject, eventdata, handles)
     set(handles.cv_error,'String','0');
     set(handles.cv_k,'String','100');    
     set(handles.pool_start,'String','0');
-    set(handles.pool_end,'String','20');   
-    set(handles.pool_size,'String','0');   
+    set(handles.pool_end,'String','25');   
+    set(handles.pool_size,'String','40');   
+    set(handles.cv_ks,'String','0');
     classification_configs_adv_CloseRequestFcn(hObject, eventdata, handles);
 function OK_Callback(hObject, eventdata, handles)
     classification_configs_adv_CloseRequestFcn(hObject, eventdata, handles);
@@ -96,8 +98,9 @@ function default_values_Callback(hObject, eventdata, handles)
     set(handles.cv_error,'String','0');
     set(handles.cv_k,'String','100');    
     set(handles.pool_start,'String','0');
-    set(handles.pool_end,'String','20');   
-    set(handles.pool_size,'String','0');    
+    set(handles.pool_end,'String','25');   
+    set(handles.pool_size,'String','40');    
+    set(handles.cv_ks,'String','0');
 %% INCREASE COUNTERS
 function increase(hObject, eventdata, handles)
     tmp = eventdata.Source.Tag;
@@ -111,11 +114,19 @@ function increase(hObject, eventdata, handles)
             set(handles.cv_error,'String',num2str(a));
         case 'cv_k_up'
             a = str2double(get(handles.cv_k,'String'));
-            if a == 200
+            if a == 300
                 return
             end
             a = a + 1;
             set(handles.cv_k,'String',num2str(a));    
+        case 'cv_ks_up'    
+            a = str2double(get(handles.cv_ks,'String'));
+            tmp = str2double(get(handles.cv_k,'String'));
+            if a == tmp
+                return
+            end
+            a = a + 1;
+            set(handles.cv_k,'String',num2str(a));             
         case 'pool_start_up'
             a = str2double(get(handles.pool_start,'String'));
             if a == 100
@@ -157,6 +168,13 @@ function decrease(hObject, eventdata, handles)
             end
             a = a - 1;
             set(handles.cv_k,'String',num2str(a));    
+        case 'cv_ks_down'   
+            a = str2double(get(handles.cv_ks,'String'));
+            if a == 0
+                return
+            end
+            a = a - 1;
+            set(handles.cv_k,'String',num2str(a));             
         case 'pool_start_down'
             a = str2double(get(handles.pool_start,'String'));
             if a == 0
@@ -225,4 +243,13 @@ end
 function cv_k_up_Callback(hObject, eventdata, handles)
     increase(hObject, eventdata, handles)
 function cv_k_down_Callback(hObject, eventdata, handles)
+    decrease(hObject, eventdata, handles)
+function cv_ks_Callback(hObject, eventdata, handles)
+function cv_ks_CreateFcn(hObject, eventdata, handles)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+function cv_ks_up_Callback(hObject, eventdata, handles)
+    increase(hObject, eventdata, handles)
+function cv_ks_down_Callback(hObject, eventdata, handles)
     decrease(hObject, eventdata, handles)

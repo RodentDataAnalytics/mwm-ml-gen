@@ -7,6 +7,11 @@ function [varargout] = results_latency_speed_length(new_properties,my_trajectori
 
     SCRIPTS = 1;
     DISPLAY = 1;
+    for i = 1:length(varargin)
+        if isequal(varargin{i},'DISPLAY')
+            DISPLAY = varargin{i+1};
+        end
+    end
     
     % Get features: latency, length, speed
     latency = my_trajectories_features(:,end-2);
@@ -34,7 +39,7 @@ function [varargout] = results_latency_speed_length(new_properties,my_trajectori
     data_all = cell(1,size(vars,1));
     groups_all = cell(1,size(vars,1));
     %visualization purposes:
-    maximum = 0;
+    maximum = [0,0,0];
 
     for v = 1:size(vars, 1)
         data = [];
@@ -88,12 +93,12 @@ function [varargout] = results_latency_speed_length(new_properties,my_trajectori
         mfriedAnimal_all{1,v} = mfriedAnimal; 
         % store maximum data number (for visualization purposes)
         a = max(data);
-        if a > maximum
-            maximum = a;
-        end    
+        if a > maximum(v)
+            maximum(v) = a;
+        end  
     end
 
-    extra = (10*maximum)/100; %take the 10% of the maximum
+    extra = (10.*maximum)./100; %take the 10% of the maximum
     
     %% Generate figures
     if figures
@@ -166,7 +171,7 @@ function [varargout] = results_latency_speed_length(new_properties,my_trajectori
             else
                 set(faxis, 'XTickLabel', lbls, 'Ylim', [0, max(data_all{1,v})+0.5], 'FontSize', FontSize, 'FontName', FontName);
             end
-            set(faxis, 'Ylim', [0, max(data_all{1,v})+extra]);
+            set(faxis, 'Ylim', [0, max(data_all{1,v})+extra(v)]);
             set(faxis, 'LineWidth', LineWidth);   
             title(names{v}, 'FontSize', FontSize, 'FontName', FontName);
             xlabel('trials', 'FontSize', FontSize, 'FontName', FontName);  
@@ -180,6 +185,59 @@ function [varargout] = results_latency_speed_length(new_properties,my_trajectori
             %Export and delete
             export_figure(f, output_dir, sprintf('animals_%s', names{v}), Export, ExportStyle);
             delete(f)
+            
+            %% Plot as bars
+            if length(animals_trajectories_map) > 1
+                g = 2;
+            else
+                g=1;
+            end
+            %for v = 1:size(vars, 1)
+            tmp_data = data_all{v};
+            tmp_groups = groups_all{v};
+            tmp_uni = unique(tmp_groups);
+            data_plot = zeros(g,length(tmp_uni)/g);
+            k1 = 1;
+            k2 = 1;
+            for j = 1:length(tmp_uni)
+                tmp_sel = find(tmp_uni == tmp_uni(j));
+                if mod(j,2) == 0 && g == 2 %number is even
+                    data_plot(2,k2) = sum(tmp_data(tmp_sel));
+                    k2 = k2+1;
+                else
+                    data_plot(1,k1) = sum(tmp_data(tmp_sel));
+                    k1 = k1+1;
+                end
+            end
+            data_plot = data_plot./size(animals_trajectories_map{1},2);
+            f=figure;
+            set(f,'Visible','off');
+            if g == 1
+                maxv = max(data_plot);
+                extra2 = 5*maxv / 100;
+                ba = bar(data_plot, 'LineWidth',1.5);
+                set(ba(1),'FaceColor','black');
+            else
+                maxv = max(max(data_plot));
+                extra2 = 5*maxv / 100;
+                ba = bar(data_plot', 'LineWidth',1.5);
+                set(ba(1),'FaceColor','white');
+                set(ba(2),'FaceColor','black');
+            end
+            %Axes
+            faxis = findobj(f,'type','axes');
+            set(faxis, 'Xlim', [0, total_trials+0.5], 'Ylim', [0, maxv+extra2], 'LineWidth', LineWidth, 'FontSize', FontSize, 'FontName', FontName);   
+            title(names{v}, 'FontSize', FontSize, 'FontName', FontName);
+            xlabel('trials', 'FontSize', FontSize, 'FontName', FontName);  
+            ylabel(labels{v}, 'FontSize', FontSize, 'FontName', FontName); 
+            %Overall
+            set(f, 'Color', 'w');
+            box off;  
+            set(f,'papersize',[8,8], 'paperposition',[0,0,8,8]);
+            %Export and delete
+            export_figure(f, output_dir, sprintf('animals_bar_%s', names{v}), Export, ExportStyle);
+            delete(f)             
+            %end            
         end    
     end    
     
@@ -188,7 +246,7 @@ function [varargout] = results_latency_speed_length(new_properties,my_trajectori
     if SCRIPTS
         box_plot_data(nanimals, data_all, groups_all, output_dir);
         if length(animals_trajectories_map) > 1
-            p_days = friedman_test_results(p_mfried,p_mfriedAnimal, mfried_all,nanimals,mfriedAnimal_all,trials_per_session,labels,output_dir,'METRICS',varargin{:});
+            p_days = friedman_test_results(p_mfried,p_mfriedAnimal, mfried_all,nanimals,mfriedAnimal_all,trials_per_session,names,output_dir,'METRICS',varargin{:});
         end
     end    
     

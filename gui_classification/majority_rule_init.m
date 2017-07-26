@@ -40,7 +40,7 @@ function error = majority_rule_init(segmentation_configs, output_folder, class_f
     % Classifiers: pick all the .mat files of the specified folder
     files = dir(fullfile(class_folder,'*.mat'));
     if length(files) == 0
-        error_message(14);
+        error_messages(14);
         return;
     elseif length(files) <= sample
         iterations = 1;

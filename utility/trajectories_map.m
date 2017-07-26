@@ -1,4 +1,4 @@
-function [exit,animals_trajectories_map] = trajectories_map(my_trajectories,my_trajectories_features,user_groups,test,varargin)    
+function [exit,animals_trajectories_map,animals_ids] = trajectories_map(my_trajectories,my_trajectories_features,user_groups,test,varargin)    
 % ANIMAL_STATISTICS constructs a matrix of trajectory indices for each 
 % trial and user's defined group(s) of animals.
 
@@ -44,7 +44,7 @@ function [exit,animals_trajectories_map] = trajectories_map(my_trajectories,my_t
             if size(animals_trajectories_map,2) > 1
                 if size(animals_trajectories_map{1,1},2)~=size(animals_trajectories_map{1,2},2)
                     features = my_trajectories_features(:,9:11);
-                    [~, animals_trajectories_map] = equalize_groups(user_groups, animals_ids, animals_trajectories_map, features);
+                    [animals_ids, animals_trajectories_map] = equalize_groups(user_groups, animals_ids, animals_trajectories_map, features);
                     % if Cancel or X was clicked, return
                     if size(animals_trajectories_map{1,1},2)~=size(animals_trajectories_map{1,2},2)
                         exit = 1;

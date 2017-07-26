@@ -1,10 +1,11 @@
-function [error,dir_master] = generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed, groups, varargin)
+function [error,dir_master] = generate_results(project_path, name, my_trajectories, segmentation_configs, classifications, animals_trajectories_map, animals_ids, b_pressed, groups, varargin)
 %GENERATE_RESULTS creates results folder tree, forms the final results and
 %saves them inside the specific folders
     
     error = 1;
     WAITBAR = 1;
     FIGURES = 1;
+    DISTRIBUTION = 3;
     
     for i = 1:length(varargin)
         if isequal(varargin{i},'extra_segments')
@@ -18,6 +19,8 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
             WAITBAR = varargin{i+1};
         elseif isequal(varargin{i},'FIGURES')    
             FIGURES = varargin{i+1};
+        elseif isequal(varargin{i},'DISTRIBUTION') 
+            DISTRIBUTION = varargin{i+1};
         end        
     end
 
@@ -51,6 +54,10 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
     vals_grps_ = cell(1,length(classifications)); 
     %Position of each boxplot in the figure  
     pos_ = cell(1,length(classifications)); 
+    %Strategies distributions
+    strat_distr_ = cell(1,length(classifications)); 
+    %Time of each interval
+    time_per_segment_ = cell(1,length(classifications));
     try
         switch b_pressed
             case 'Transitions'
@@ -64,12 +71,17 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
                     end
                 end
             case 'Strategies'
+                data_per_all = cell(1,length(classifications)); 
                 for i = 1:length(classifications)
                     %[mfried_all, p_mfried, mfriedAnimal_all, p_mfriedAnimal, data_all, groups_all, pos, p_days]
-                    [~,p,~,~,vals,vals_grps,pos] = results_strategies_distributions(segmentation_configs,classifications{i},animals_trajectories_map,FIGURES,dir_list{i},varargin{:});
+                    [~,p,~,~,vals,vals_grps,pos,~,strat_distr,time_per_segment] = results_strategies_distributions(segmentation_configs,classifications{i},animals_trajectories_map,FIGURES,dir_list{i},varargin{:});
+                    data_per = results_strategies_distributions_percentage(segmentation_configs,classifications{i},animals_trajectories_map,FIGURES,dir_list{i},varargin{:});
+                    data_per_all{i} = data_per;
                     p_{i} = p;
                     vals_{i} = vals;
                     vals_grps_{i} = vals_grps;
+                    strat_distr_{i} = strat_distr;
+                    time_per_segment_{i} = time_per_segment;
                     if WAITBAR
                         waitbar(i/length(classifications)); 
                     end
@@ -104,6 +116,14 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
         error_messages(18);
         return
     end
+    
+    %% Export raw data
+    if isequal(b_pressed,'Strategies')
+        trajectories_map_csv(my_trajectories,segmentation_configs,animals_trajectories_map,animals_ids,strat_distr_,dir_list);
+        if isequal(DISTRIBUTION,3)
+            trajectories_map_time_csv(my_trajectories,segmentation_configs,animals_trajectories_map,animals_ids,time_per_segment_,dir_list);
+        end
+    end
         
     %% Generate a summary of the results
     if WAITBAR
@@ -116,6 +136,7 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
         switch b_pressed
             case 'Strategies'
                 create_average_figure(animals_trajectories_map,vals_,vals_grps_{1},pos,dir_list{end},total_trials,class_tags);
+                create_average_figure_per(animals_trajectories_map,data_per_all,dir_list{end},total_trials,class_tags);
             case 'Transitions'
                 class_tags = {{'Transitions','Transitions',0,0}};
                 create_average_figure(animals_trajectories_map,vals_,vals_grps_{1},pos,dir_list{end},total_trials,class_tags);
@@ -157,4 +178,3 @@ function [error,dir_master] = generate_results(project_path, name, segmentation_
     end
     error = 0;
 end
-

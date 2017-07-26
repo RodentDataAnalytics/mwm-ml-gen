@@ -60,8 +60,8 @@ function [trans,varargout] = animal_transitions(segmentation_configs,classificat
     
     % Transition probabilities
     if PROBABILITIES
-        if length(groups) == 2
-            groups = [groups,0];
+        if length(groups) == 1
+            groups = [groups,-1];
         end
         trajectories_groups = arrayfun( @(t) t.group, segmentation_configs.TRAJECTORIES.items);
         nc = classification_configs.CLASSIFICATION.nclasses;

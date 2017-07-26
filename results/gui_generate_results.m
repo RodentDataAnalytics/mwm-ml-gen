@@ -25,12 +25,18 @@ function error_all = gui_generate_results(handles,eventdata)
     try
         if groups == -2
             return
+        elseif groups == -1
+            groups_all = arrayfun( @(t) t.group, my_trajectories.items);
+            groups = unique(groups_all);
+            if length(groups) ~= 1
+                return
+            end
         end
     catch
     end
            
     % Construct the trajectories_map and equalize the groups
-    [exit, animals_trajectories_map] = trajectories_map(my_trajectories,my_trajectories_features,groups,'Friedman');
+    [exit, animals_trajectories_map, animals_ids] = trajectories_map(my_trajectories,my_trajectories_features,groups,'Friedman');
     if exit
         return
     end
@@ -94,21 +100,12 @@ function error_all = gui_generate_results(handles,eventdata)
 
     % Full trajectories
     full_traj = 0;
-    if length(segmentation_configs.FEATURES_VALUES_TRAJECTORIES) == length(segmentation_configs.FEATURES_VALUES_SEGMENTS)
+    if segmentation_configs.SEGMENTATION_PROPERTIES(1) == 0 && segmentation_configs.SEGMENTATION_PROPERTIES(2) == 0
         if isequal(b_pressed,'Transitions') || isequal(b_pressed,'Probabilities')
-            msgbox('Transitions and Probabilities not avilable for full trajectories','Info');
+            msgbox('Transitions and Probabilities not available for full trajectories','Info');
             return;
         elseif isequal(b_pressed,'Strategies')
-            choice = questdlg('Use manual labels or classification results?','Strategies', ...
-                'Manual Labels','Class Results','Manual Labels');
-            switch choice
-                case 'Manual Labels'
-                    full_traj = 1;
-                case 'Class Results'
-                    full_traj = 0;
-                otherwise 
-                    return;
-            end            
+            full_traj = 1;
         end
     end
     
@@ -162,17 +159,17 @@ function error_all = gui_generate_results(handles,eventdata)
                     tmp_path = {project_path};
                 end    
                 [~,extra_segments] = browse(tmp_path,segmentation_configs);
-                error_all = generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed, groups,...
+                error_all = generate_results(project_path, name, my_trajectories, segmentation_configs, classifications, animals_trajectories_map, animals_ids, b_pressed, groups,...
                     'DISTRIBUTION',DISTRIBUTION,'SIGMA',SIGMA,'INTERVAL',INTERVAL,'extra_segments',extra_segments, 'FIGURES', FIGURES, 'EXTRA_NAME', EXTRA_NAME);
             case 'No'
-                error_all = generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed, groups,...
+                error_all = generate_results(project_path, name, my_trajectories, segmentation_configs, classifications, animals_trajectories_map, animals_ids, b_pressed, groups,...
                     'DISTRIBUTION',DISTRIBUTION,'SIGMA',SIGMA,'INTERVAL',INTERVAL,'FIGURES', FIGURES, 'EXTRA_NAME', EXTRA_NAME);
             otherwise
-                error_all = generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed, groups,...
+                error_all = generate_results(project_path, name, my_trajectories, segmentation_configs, classifications, animals_trajectories_map, animals_ids, b_pressed, groups,...
                     'DISTRIBUTION',DISTRIBUTION,'SIGMA',SIGMA,'INTERVAL',INTERVAL,'FIGURES', FIGURES, 'EXTRA_NAME', EXTRA_NAME);
         end    
     else %Transitions or Probabilities
-        error_all = generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed, groups,...
+        error_all = generate_results(project_path, name, my_trajectories, segmentation_configs, classifications, animals_trajectories_map, animals_ids, b_pressed, groups,...
             'DISTRIBUTION',DISTRIBUTION,'SIGMA',SIGMA,'INTERVAL',INTERVAL,'FIGURES', FIGURES, 'EXTRA_NAME', EXTRA_NAME);
     end
 end

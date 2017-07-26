@@ -19,7 +19,7 @@ function [varargout] = results_transition_counts(segmentation_configs,classifica
         elseif isequal(varargin{i},'SCRIPTS')
             SCRIPTS = varargin{i+1};
         elseif isequal(varargin{i},'DISPLAY')
-            SCRIPTS = varargin{i+1};            
+            DISPLAY = varargin{i+1};            
         end
     end
 
@@ -99,7 +99,7 @@ function [varargout] = results_transition_counts(segmentation_configs,classifica
     
     %% Generate figures
     % get the configurations from the configs file
-    [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
+    [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs; 
     % arrange each bar of the plot to a certain position
     pos = zeros(1,total_trials*length(animals_trajectories_map));
     pos(1) = 0.05;
@@ -141,14 +141,14 @@ function [varargout] = results_transition_counts(segmentation_configs,classifica
         h = findobj(faxis, 'Tag', 'Median');
         if length(animals_trajectories_map) > 1
             for j=1:2:length(h)
-                 line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.8 .8 .8], 'LineWidth', 2);
+                 line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.8 .8 .8], 'LineWidth', 2.5);
             end
             for j=2:2:length(h)
-                 line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.0 .0 .0], 'LineWidth', 2);
+                 line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.0 .0 .0], 'LineWidth', 2.5);
             end
         else
             for j=1:length(h)
-                 line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.8 .8 .8], 'LineWidth', 2);
+                 line('XData', get(h(j),'XData'), 'YData', get(h(j), 'YData'), 'Color', [.8 .8 .8], 'LineWidth', 2.5);
             end                
         end
 

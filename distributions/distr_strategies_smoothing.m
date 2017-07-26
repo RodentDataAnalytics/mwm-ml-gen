@@ -1,4 +1,4 @@
-function [class_map_detailed,d_points,store_d,class_map_detailed_flat] = distr_strategies_smoothing(segmentation_configs, classification_configs, varargin)
+function [class_map_detailed,d_points,store_d,class_map_detailed_flat,time_per_segment,rem_time] = distr_strategies_smoothing(segmentation_configs, classification_configs, varargin)
 %Maps the segments to the whole trajectories using discrete path intervals
 %that depend on the size of the arena.
 %Equation inspired from Gehring et al.: val = w * exp(-d^2 / (2*SIGMA^2))
@@ -35,7 +35,7 @@ function [class_map_detailed,d_points,store_d,class_map_detailed_flat] = distr_s
     
     % DEBUG
     DEBUG = 0;
-    DEBUG_SPEED = 0.5;
+    DEBUG_SPEED = 1.5;
     
     % Arena radius
     R = segmentation_configs.COMMON_PROPERTIES{8}{1};
@@ -70,11 +70,25 @@ function [class_map_detailed,d_points,store_d,class_map_detailed_flat] = distr_s
     if STHRESHOLD >= 0
         THRESHOLD = -1;
     end
+    
+    try
+        tmp = classification_configs.CLASSIFICATION_TAGS;
+        Flag = 1;
+    catch %class_map is given
+        Flag = 0;
+    end
         
     % Classes
     %classes = unique(classification_configs.CLASSIFICATION.class_map);
     %classes = classes(2:end);
-    classes = 1:length(classification_configs.CLASSIFICATION_TAGS);
+    if Flag
+        classes = 1:length(classification_configs.CLASSIFICATION_TAGS);
+        cmap = classification_configs.CLASSIFICATION.class_map;
+    else
+        tmp = unique(classification_configs);
+        classes = 1:length(tmp)-1;
+        cmap = classification_configs;
+    end
     
     % Weights
     if isequal(WEIGHTS,'com')    
@@ -82,9 +96,9 @@ function [class_map_detailed,d_points,store_d,class_map_detailed_flat] = distr_s
         segments_per_class = zeros(1,length(classes));
         perc_segments_per_class = zeros(1,length(classes));
         for i = 1:length(classes)
-            iseg = find(classification_configs.CLASSIFICATION.class_map == i);
+            iseg = find(cmap == i);
             segments_per_class(1,i) = length(iseg);
-            perc_segments_per_class(1,i) = 100 * segments_per_class(1,i) / length(classification_configs.CLASSIFICATION.class_map);
+            perc_segments_per_class(1,i) = 100 * segments_per_class(1,i) / length(cmap);
         end
         w = 1./perc_segments_per_class;
 
@@ -226,7 +240,7 @@ function [class_map_detailed,d_points,store_d,class_map_detailed_flat] = distr_s
                 hold on
                 for ii = wi:wf
                     cm = segmentation_configs.CUM_PARTITIONS;
-                    if classification_configs.CLASSIFICATION.class_map(ii + cm(straj(i))) == 0
+                    if cmap(ii + cm(straj(i))) == 0
                         plot_trajectory(segmentation_configs.SEGMENTS.items(ii + cm(straj(i))),'LineWidth',2,'Color','magenta');
                     else
                         plot_trajectory(segmentation_configs.SEGMENTS.items(ii + cm(straj(i))),'LineWidth',2);
@@ -292,4 +306,8 @@ function [class_map_detailed,d_points,store_d,class_map_detailed_flat] = distr_s
         class_map_detailed_flat = [class_map_detailed_flat,class_map_detailed(i,1:idx)];
     end
     store_d = d_rem_points;
+    %store_dist = d_rem_distances;
+    % Return also the time of each segment
+    [time_per_segment,rem_time] = intervals_time(d_points, store_d);
+    
 end

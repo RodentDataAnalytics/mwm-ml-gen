@@ -159,6 +159,22 @@ classdef semisupervised_clustering < handle
         
     methods%(Access = private)                                        
         function [res, res1st, flag] = internal_cluster(inst, nclusters, training_set, test_set)            
+            if size(inst.features,1) == size(inst.non_empty_labels_idx,2)
+                % we have label all the segments
+                flag = [0,0];
+                res1st = [];
+                class_idx = zeros(1,length(inst.labels));
+                for i = 1:length(inst.labels)
+                    tmp = inst.labels{i};
+                    if length(tmp) > 1
+                        class_idx(i) = 0;
+                    else
+                        class_idx(i) = inst.labels{i};
+                    end
+                end
+                res = clustering_results(inst.segments, length(inst.classes), inst.labels, training_set, test_set, inst.nexternal_labels, 0, class_idx, [], [], [], inst.classes);        
+                return
+            end
             % divide the data into labelled/unlabelled elements
             % move labelled items to the front   
             labels_idx = inst.non_empty_labels_idx(training_set == 1);       

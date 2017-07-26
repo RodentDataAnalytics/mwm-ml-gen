@@ -24,5 +24,8 @@ function error = full_trajectory_features(ppath)
     my_trajectories_features = compute_features(my_trajectories.items, features_list, properties);
     f = fullfile(ppath,'settings','my_trajectories_features.mat');
     save(f,'my_trajectories_features');
+    
+    % Create also a segmentation object
+    execute_segmentation(ppath,99,1,'dummy');
 end
 

@@ -27,7 +27,7 @@ function [dir_list,tmp] = build_results_tree(project_path, option, name, class, 
         tmp = fullfile(project_path,'results',f1);
         try
             % delete the folder if already exists
-            if exist(output_dir,'dir');
+            if exist(output_dir,'dir')
                 rmdir(output_dir,'s');
             end
             mkdir(output_dir);

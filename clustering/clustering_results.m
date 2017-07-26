@@ -53,6 +53,10 @@ classdef clustering_results < handle
             if nargin > 10
                 inst.classes = cl;
             end
+                        
+            if isempty(ccm)
+                return
+            end
     
             % look for non-empty labels
             class_map_true = inst.class_map;

@@ -124,6 +124,20 @@ function results_full_classified_trajectories(segmentation_configs,classificatio
     end   
     delete(f);
     
+    %% Do also the full trajectories
+    if ~DEBUG
+        other_trajectories_map = find(long_trajectories(segmentation_configs) == 0); 
+        for i = 1:length(other_trajectories_map)
+            f = figure;
+            set(f,'Visible','off');
+            plot_arena(segmentation_configs);
+            hold on;     
+            plot_trajectory(segmentation_configs.TRAJECTORIES.items(other_trajectories_map(i)));
+            export_figure(f, output_dir, sprintf('trajectory_%d', other_trajectories_map(i)), Export, ExportStyle);
+            delete(f);
+        end
+    end
+    
     if WAITBAR
         delete(h);
     end

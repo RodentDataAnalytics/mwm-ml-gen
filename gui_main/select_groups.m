@@ -48,6 +48,11 @@ function [groups,my_trajectories] = select_groups(my_trajectories)
         return;
     end
     
+    if length(numbers) == 1
+        groups = numbers;
+        return
+    end
+    
     % No group merging
     if isempty(merge)
         if ~isempty(find(groups_all == numbers(1))) && ~isempty(find(groups_all == numbers(2)))

@@ -42,12 +42,12 @@ function demo(set,user_path,varargin)
         seg_length = [300,250,250,200];
         groups = [1,2];
         if UCLUSTERS
-            num_clusters = {300,0.7,10:58, 250,0.7,10:80, 250,0.9,10:99, 200,0.7,10:73}; %49,71,90,64 classifiers
+            num_clusters = {300,0.7,[10:49,53], 250,0.7,[10:68,70,74,75,82,83,84], 250,0.9,10:100, 200,0.7,[10:54,56:60]}; %41,65,91,50 classifiers
         else
             num_clusters = 10:58; %49 classifiers
         end
-        sample = 11;
-        iterations = 15;
+        sample = [41,65,91,50];
+        iterations = 1;
         %Mclusters = num_clusters;
     elseif set == 2
         return
@@ -114,11 +114,12 @@ function demo(set,user_path,varargin)
             load(fullfile(project_path,'settings','new_properties.mat'));
             load(fullfile(project_path,'settings','animal_groups.mat'));
             load(fullfile(project_path,'settings','my_trajectories.mat'));
-            load(fullfile(project_path,'settings','my_trajectories_features.mat'));
         catch
             errordlg('Cannot load project settings','Error');
             return
         end
+        full_trajectory_features(project_path); % Trajectories
+        load(fullfile(project_path,'settings','my_trajectories_features.mat'));
         for i = 1:length(seg_overlap)
             seg_properties = [seg_length(i),seg_overlap(i)];
             segmentation_configs = config_segments(new_properties, seg_properties, trajectory_groups, my_trajectories, my_trajectories_features, '');
@@ -130,7 +131,7 @@ function demo(set,user_path,varargin)
     % Copy the labels csv files and generate the mat files
     lfiles = dir(fullfile(datapath,'labels','*.csv'));
     sfiles = dir(fullfile(project_path,'segmentation','*.mat'));
-    for i = 1:length(sfiles)
+    for i = 1:length(lfiles)
         copyfile(fullfile(datapath,'labels',lfiles(i).name),fullfile(project_path,'labels'));
         path_labels = fullfile(project_path,'labels',lfiles(i).name);
         [~,len,ovl,~,~] = split_labels_name(path_labels);
@@ -143,8 +144,11 @@ function demo(set,user_path,varargin)
                 break;
             end
         end
-    end    
+    end   
     
+    %% Animal Trajectories Map
+    [~, animals_trajectories_map, animals_ids] = trajectories_map(my_trajectories,my_trajectories_features,groups,'Friedman',set);
+       
     %% Classification
     if CLASSIFICATION
         lfiles = dir(fullfile(project_path,'labels','*.mat'));
@@ -155,14 +159,21 @@ function demo(set,user_path,varargin)
                 path_segs = fullfile(project_path,'segmentation',sfiles(j).name);
                 [~,~,seg_length,seg_overlap] = split_segmentation_name(path_segs);
                 if isequal(seg_length,len) && isequal(seg_overlap,ovl)
+                    if isequal(seg_length,'0') && isequal(seg_overlap,'0')
+                        %Generate full trajectories results
+                        [~,tmp1] = fileparts(path_segs);
+                        [~,tmp2] = fileparts(path_labels);
+                        results_strategies_distributions_manual_full(project_path,tmp1,tmp2,animals_trajectories_map,1);
+                        break;
+                    end
                     if iscell(num_clusters)
                         for k = 1:3:length(num_clusters)
                             if num_clusters{k} == str2num(seg_length) && num_clusters{k+1} == str2num(seg_overlap)/10
-                                error = execute_classification(project_path,sfiles(j).name,lfiles(i).name,num2str(num_clusters{k+2}),varargin);
+                                error = execute_classification(project_path,sfiles(j).name,lfiles(i).name,num_clusters{k+2},varargin);
                             end
                         end
                     else
-                        error = execute_classification(project_path,sfiles(j).name,lfiles(i).name,num2str(num_clusters),varargin);    
+                        error = execute_classification(project_path,sfiles(j).name,lfiles(i).name,num_clusters,varargin);    
                     end
                 end
             end        
@@ -174,14 +185,12 @@ function demo(set,user_path,varargin)
         classifs = dir(fullfile(project_path,'classification'));
         for i = 3:length(classifs)
             %execute_Mclassification(project_path, {classifs(i).name}, sample, iterations, 0, 'CLUSTERS', Mclusters)
-            execute_Mclassification(project_path, {classifs(i).name}, sample, iterations, 0, varargin{:});
+            tmp = dir(fullfile(project_path,'classification',classifs(i).name,'*.mat'));
+            execute_Mclassification(project_path, {classifs(i).name}, length(tmp), iterations, 0, varargin{:});
         end
     end   
     
     %% Results
-    % Animal Trajectories Map
-    [~, animals_trajectories_map] = trajectories_map(my_trajectories,my_trajectories_features,groups,'Friedman',set);
-    
     % METRICS
     str = num2str(groups);
     str = regexprep(str,'[^\w'']',''); %remove gaps
@@ -191,7 +200,7 @@ function demo(set,user_path,varargin)
         mkdir(output_dir);
     end
     try
-        results_latency_speed_length(new_properties,my_trajectories,my_trajectories_features,animals_trajectories_map,1,output_dir);
+        results_latency_speed_length(new_properties,my_trajectories,my_trajectories_features,animals_trajectories_map,1,output_dir,'DISPLAY', DISPLAY);
     catch
         errordlg('Error: metrics generation','Error');
     end
@@ -207,31 +216,43 @@ function demo(set,user_path,varargin)
     for i = 1:length(segs)
         seg = fullfile(project_path,'segmentation',segs(i).name);
         [~,~,sl,so] = split_segmentation_name(seg);
+        if isequal(sl,'0') || isequal(so,'0')
+            continue;
+        end        
         for j = 3:length(mclasses)
             mclass = fullfile(project_path,'Mclassification',mclasses(j).name);
             [~,~,~,seg_length,seg_overlap,~,~,~] = split_mclassification_name(mclass);
             if isequal(sl,seg_length) && isequal(so,seg_overlap)
                 load(fullfile(project_path,'segmentation',segs(i).name));
                 % Check the classification
-                [error,name,classifications] = check_classification(project_path,segmentation_configs,mclasses(j).name, 'WAITBAR',0);
+                [error,name,classifications] = check_classification(project_path,segmentation_configs,mclasses(j).name, 'WAITBAR',WAITBAR, 'DISPLAY', DISPLAY);
                 if error
                     errordlg('Classification check failed','Error');
                     return
                 end    
                 % Generate the results
                 for b = 1:length(b_pressed)
-                    error = generate_results(project_path, name, segmentation_configs, classifications, animals_trajectories_map, b_pressed{b}, groups, 'WAITBAR',0);
+                    error = generate_results(project_path, name, my_trajectories, segmentation_configs, classifications, animals_trajectories_map, animals_ids, b_pressed{b}, groups, 'WAITBAR',WAITBAR, 'DISPLAY', DISPLAY);
                     if error
                         errordlg('Cannot create results for strategies, transitions and probabilities','Error');
                         return
                     end
+                    error = generate_results(project_path, name, my_trajectories, segmentation_configs, classifications, animals_trajectories_map, animals_ids, b_pressed{b}, groups, 'DISTRIBUTION',2, 'EXTRA_NAME','_nosmooth', 'WAITBAR',WAITBAR, 'DISPLAY', DISPLAY);
+                    if error
+                        errordlg('Cannot create results for strategies, transitions and probabilities (smooth)','Error');
+                        return
+                    end                    
                 end     
                 % Statistics
                 if STATISTICS
-                    [error,~,~] = class_statistics(project_path, mclasses(j).name);
+                    [error,~,~] = class_statistics(project_path, mclasses(j).name, 'WAITBAR', WAITBAR);
                     if error
                         errordlg('Error: statistics generation','Error');
                     end  
+                    [error,~,~] = class_statistics(project_path, mclasses(j).name, 'SEGMENTATION', segmentation_configs, 'WAITBAR', WAITBAR, 'DISPLAY', DISPLAY);
+                    if error
+                        errordlg('Error: statistics generation (smooth)','Error');
+                    end
                 end
                 break;
             end

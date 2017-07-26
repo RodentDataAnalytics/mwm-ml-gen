@@ -1,104 +1,90 @@
-function [error,project_path,seg_name,lab_name] = initialize_classification(handles,eventdata)
+function [error,project_path,seg_name,lab_name,numbers] = initialize_classification(handles,varargin)
 %INITIALIZE_CLASSIFICATION checks if we require classification of the full
 %trajectories and creates a dummy segmentation object
 
     seg_name = '';
     lab_name = '';
     error = 1;
+    TEST_NUM_CLUSTERS = 1;
+    numbers = -1;
     
-    if isa(handles,'trajectories')
-        [pathstr,lab_name,~] = fileparts(eventdata); %labels file
-        project_path = fileparts(pathstr);
-        t = strsplit(lab_name,'_');
-        if isequal(t{3},'0') && isequal(t{4},'0')
-            % Check if we have dummy segmenation configs file and if not
-            % make it
-            tmp = strcat('segmentation_configs_',t{2},'_',t{3},'_',t{4},'.mat');
-            if exist(fullfile(project_path,'segmentation',tmp),'file')
-                seg_name = tmp;
-            else
-                uiwait(msgbox('A segmentation object will be created for the full trajectories. This object can be selected from the Default Segmentation dropbox.','Info','modal'));
-                error = execute_segmentation(project_path,0,0,'dummy');
-                seg_name = tmp;
-            end
+    for i = 1:length(varargin)
+        if isequal(varargin{i},'TEST_NUM_CLUSTERS')
+            TEST_NUM_CLUSTERS = varargin{i+1};
         end
+    end
+    
+    if isstruct(handles) % Run through GUI
+        sel_labels = get(handles.select_labels,'String'); 
+        tmp = get(handles.select_labels,'Value'); 
+        sel_labels = sel_labels{tmp};
+        sel_segmentation = get(handles.select_segmentation,'String');
+        tmp = get(handles.select_segmentation,'Value');
+        sel_segmentation = sel_segmentation{tmp};
+        num_clusters = get(handles.default_clusters,'String');
+        project_path = get(handles.classification_adv,'UserData');
+    else % Run through function
+        sel_labels = handles{1};
+        sel_segmentation = handles{2};
+        num_clusters = handles{3};
+        project_path = handles(4);
+    end
+    
+    %check if project is loaded
+    project_path = char_project_path(project_path);
+    if isempty(project_path)
         return
     end
     
-    if isequal(eventdata.Source.String,'Default')
-        project_path = char_project_path(get(handles.classification_adv,'UserData'));
-        if isempty(project_path)
-            error_messages(8)
-            return
-        end
-        % Load segmentation_config and labels
-        seg_name = get(handles.default_segmentation,'String');
-        idx = get(handles.default_segmentation,'Value');
-        seg_name = seg_name{idx};
-        lab_name = get(handles.default_labels,'String');
-        idx = get(handles.default_labels,'Value');
-        lab_name = lab_name{idx};
-        if isempty(lab_name)
-            error_messages(9)
-            return;
-        end
-        t = strsplit(lab_name,{'_','.mat'});
-        if isequal(t{3},'0') && isequal(t{4},'0')
-            % Check if we have dummy segmenation configs file and if not
-            % make it
-            tmp = strcat('segmentation_configs_',t{2},'_',t{3},'_',t{4},'.mat');
-            if exist(fullfile(project_path,'segmentation',tmp),file)
-                seg_name = tmp;
-            else
-                error = execute_segmentation(project_path,0,0,'dummy');
-            end
-        else % check if a segmentation is selected
-            if isempty(seg_name)
-                error_messages(10);
-                return;
-            end
-        end
+    %check if labels or segmentation fields are empty
+    if isequal(sel_labels,'<no labels>') || isequal(sel_labels,'') || isequal(sel_segmentation,'')    
+        return
+    end
+    
+    %check if labels and segmentation match
+    [Lnum,Llen,Lovl,~,~] = split_labels_name(sel_labels);
+    [~,Snum,Slen,Sovl] = split_segmentation_name(sel_segmentation);
+    
+    if isequal(Slen,'0') || isequal(Sovl,'0')
+        msgbox('Classification cannot be performed on the full swimming paths','Info');
+        return
+    end
+    
+    if ~isequal(Slen,Llen) && ~isequal(Lovl,Sovl)
+        errordlg('Selected segmentation and labelling do not match.','Error');
+        return
+    end
         
-    elseif isequal(eventdata.Source.String,'Generate Classifiers')  
-        project_path = char_project_path(get(handles.classification_adv,'UserData'));
-        if isempty(project_path)
-            error_messages(8);
+    %check number of clusters
+    if isequal(Lnum,Snum)
+        numbers = -1; %in case Nlabels = Nsegments
+    else
+        try
+            load(fullfile(project_path,'labels',sel_labels));
+        catch
+            errordlg('Cannot load selected labels.','Error');
             return
         end
-        %get labels
-        idx = get(handles.select_labels,'Value');
-        lab_name = get(handles.select_labels,'String');
-        lab_name = lab_name{idx};    
-        if isempty(lab_name)
-            error_messages(9);
-            return;
-        end
-        t = strsplit(lab_name,{'_','.mat'});
-        if length(t) > 1
-            if isequal(t{3},'0') && isequal(t{4},'0')
-                % Check if we have dummy segmenation configs file and if not
-                % make it
-                tmp = strcat('segmentation_configs_',t{2},'_',t{3},'_',t{4},'.mat');
-                if exist(fullfile(project_path,'segmentation',tmp),'file')
-                    seg_name = tmp;
-                else
-                    error = execute_segmentation(project_path,0,0,'dummy');
-                    seg_name = tmp;
-                end
-                error = 0;
+        if TEST_NUM_CLUSTERS
+            [error,numbers,removed] = check_num_of_clusters(num_clusters,LABELLING_MAP);
+            if error == 1
+                errordlg('All classifiers have been removed.','Error');
+                return
+            elseif error == 2
                 return
             end
+            if ~isempty(removed)
+                str = strcat('The following classifiers have been excluded:',num2str(removed));
+                msgbox(str,'Info');
+            end
+        else
+            numbers = num_clusters;
         end
-        % check if a segmentation is selected
-        %get selected segmentation
-        idx = get(handles.select_segmentation,'Value');
-        seg_name = get(handles.select_segmentation,'String');
-        seg_name = seg_name{idx};
-        if isempty(seg_name)
-            error_messages(10);
-            return;
-        end
-        error = 0;
     end
+    
+    seg_name = sel_segmentation;
+    lab_name = sel_labels;
+    error = 0;
+    fclose('all');
 end
 

@@ -27,7 +27,11 @@ function [distr_maps_segs, length_map, segments] = form_class_distr(segmentation
             distr_map(i,:) = -2;
         else
             for j = 1:(partitions(i))
-                distr_map(i,j) = classification_configs.CLASSIFICATION.class_map(idx);
+                try
+                    distr_map(i,j) = classification_configs.CLASSIFICATION.class_map(idx);
+                catch %in case the class map is given directly
+                    distr_map(i,j) = classification_configs(idx);
+                end
                 length_map(i,j) = segment_length(idx);
                 segments{i,j} = segmentation_configs.SEGMENTS.items(idx);
                 idx = idx + 1;

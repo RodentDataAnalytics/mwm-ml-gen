@@ -24,7 +24,7 @@ function [seg_points,distances,rem_points,rem_distances] = detailed_trajectory_s
     s = size(a,1); %total number of trajectory points
     i = 2; %points index
     k = 1; %keeps track of i
-    while coverage < 999999
+    while coverage < intmax
         d = norm(a(i,2:3) - a(i-1,2:3)); %compute distance between the 2 points
         %update the temp and true coverage
         cov = cov + d;

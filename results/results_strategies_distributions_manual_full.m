@@ -55,8 +55,6 @@ function [error] = results_strategies_distributions_manual_full(project_path,seg
         return
     end
             
-    % Get the configurations from the configs file
-    [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
     % Get number of trials
     trials_per_session = segmentation_configs.EXPERIMENT_PROPERTIES{30};
     total_trials = sum(trials_per_session);
@@ -87,6 +85,7 @@ function [error] = results_strategies_distributions_manual_full(project_path,seg
     ncl = length(CLASSIFICATION_TAGS);
     tot_all = cell(1,ncl);
     pos_all = cell(1,ncl);
+    maxv = 0;
     
     for c = 1:ncl
         pos = [];
@@ -134,50 +133,64 @@ function [error] = results_strategies_distributions_manual_full(project_path,seg
 
         tot_all{1,c} = tot;
         pos_all{1,c} = pos;  
-    end     
-    
+    end      
     fclose(fileID);
-    
+
+    if length(animals_trajectories_map) == 1
+        g = 1;
+    else
+        g = 2;
+    end   
+    % Turn data into percentages
+    data_ = -1*ones(1,total_trials*g);
+    data_all = cell(1,ncl);
+    for c = 1:ncl
+        for b = 1:(total_trials*g)   
+            if n(b) > 0
+                data = tot_all{1,c}(b) / n(b);
+            else
+                data = 0;
+            end
+            data_(b) = data;
+        end
+        data_all{1,c} = data_;   
+        if max(data_) > maxv
+            maxv = max(data_);
+            extra = 5*maxv/100;
+        end
+    end
+ 
     %% Generate figures
     if figures
-        data_ = -1*ones(1,total_trials*2);
-        data_all = cell(1,ncl);
+        % Get the configurations from the configs file
+        [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;       
         for c = 1:ncl
             f = figure;
             set(f,'Visible','off'); 
-            for b = 1:(total_trials*2)   
-                if n(b) > 0
-                    data = tot_all{1,c}(b) / n(b);
-                else
-                    data = 0;
-                end
-                data_(b) = data;
-                h = bar(pos_all{1,c}(b), data, 0.04);
-                if mod(b, 2) == 0
-                    set(h, 'facecolor', [0 0 0]);
-                else
-                    set(h, 'facecolor', [1 1 1]);
-                end           
-                hold on;
-            end
-            data_all{1,c} = data_;
-            lbls = {};
-            lbls = arrayfun( @(i) sprintf('%d', i), 1:total_trials, 'UniformOutput', 0);    
+            tmp = 100.*data_all{c};
+            if g == 1
+                ba = bar(tmp, 'LineWidth',1.5);
+                set(ba(1),'FaceColor','black');
+            else
+                tmp = reshape(tmp,[2,length(tmp)/2]);
+                ba = bar(tmp', 'LineWidth',1.5);
+                set(ba(1),'FaceColor','white');
+                set(ba(2),'FaceColor','black');
+            end      
+            %Axes
             faxis = findobj(f,'type','axes');
-            set(faxis, 'XTick', (pos(1:2:2*total_trials - 1) + pos(2:2:2*total_trials)) / 2, 'XTickLabel', lbls, 'FontSize', FontSize, 'FontName', FontName);
-            set(faxis, 'Ylim', [0,1]);
-            set(faxis, 'LineWidth', LineWidth);   
+            set(faxis, 'Xlim', [0, total_trials+0.5], 'Ylim', [0, 100*(maxv+extra)], 'LineWidth', LineWidth, 'FontSize', FontSize, 'FontName', FontName);   
             title(CLASSIFICATION_TAGS{1,c}{1,2}, 'FontSize', FontSize, 'FontName', FontName)
             xlabel('trials', 'FontSize', FontSize, 'FontName', FontName);  
-            ylabel('percentage of trajectories', 'FontSize', FontSize, 'FontName', FontName); 
+            ylabel('% of trajectories', 'FontSize', FontSize, 'FontName', FontName); 
+            %Overall
             set(f, 'Color', 'w');
             box off;  
             set(f,'papersize',[8,8], 'paperposition',[0,0,8,8]);
-    
+            %Export and delete
             export_figure(f, output_dir, sprintf('animal_strategy_%d', c), Export, ExportStyle);
-            close(f)
-        end  
-        
+            delete(f)
+        end
         % Export figure data
         for c = 1:ncl
             fpath = fullfile(output_dir,strcat('animal_strategy_',num2str(c),'.csv'));
@@ -197,5 +210,3 @@ function [error] = results_strategies_distributions_manual_full(project_path,seg
     end
     error = 0;
 end
-
-

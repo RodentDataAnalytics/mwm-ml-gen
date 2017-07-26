@@ -23,36 +23,23 @@ function [new_labels,new_indexes] = browse_check_labels(num_tags,labels,indexes)
     end
     % if we have new tags ask the user if he wants them removed or conf
     if ~isempty(new_tag);
-        str = strcat('New tags were found: ',strjoin(new_tag,','),'. Would you like to delete or configure them?');
-        choice = questdlg(str,'New tags','Delete','Configure','Delete');
-        if isempty(choice)
-            return
-        elseif isequal(choice,'Configure');
-            msgbox('Press the Configure Tags button','Info','help');
-            return
-        elseif isequal(choice,'Delete');
-            for i = 1:size(labels,2)
-                col = labels(:,i);
-                for c = 1:length(col)
-                    for k = 1:length(new_tag)
-                        if isequal(col{c},new_tag{k})
-                            col{c} = [];
-                        end
+        str = strcat('New tags were found: ',strjoin(new_tag,','),'. These tags will be removed. In order to configure them refer to Configure Tags under the Options in the Main Menu.');
+        msgbox(str,'Info','help');
+        for i = 1:size(labels,2)
+            col = labels(:,i);
+            for c = 1:length(col)
+                for k = 1:length(new_tag)
+                    if isequal(col{c},new_tag{k})
+                        col{c} = [];
                     end
                 end
-                labels(:,i) = col;
             end
-            %remove empty rows and indexes
-            emptyCells = cellfun(@isempty,labels);
-            rem = [];
-            for i = 1:size(emptyCells,1)
-                if sum(emptyCells(1,:)) == size(emptyCells,2)
-                    rem = [rem,i];
-                end
-            end
-            indexes(rem) = [];
-            labels(all(cellfun(@isempty,labels),2),:) = [];
+            labels(:,i) = col;
         end
+        %remove empty rows and indexes
+        rem = find(all(cellfun(@isempty,labels),2)==1);
+        indexes(rem) = [];
+        labels(all(cellfun(@isempty,labels),2),:) = [];
     end
     % if we do not have new tags then labels can be of length num_tags
     if size(labels,2) < length(num_tags)

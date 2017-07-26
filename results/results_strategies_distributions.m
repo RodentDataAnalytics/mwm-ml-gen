@@ -20,7 +20,7 @@ function [varargout] = results_strategies_distributions(segmentation_configs,cla
         elseif isequal(varargin{i},'SCRIPTS')
             SCRIPTS = varargin{i+1};
         elseif isequal(varargin{i},'DISPLAY')
-            SCRIPTS = varargin{i+1};            
+            DISPLAY = varargin{i+1};            
         end
     end
     
@@ -37,10 +37,12 @@ function [varargout] = results_strategies_distributions(segmentation_configs,cla
     switch DISTRIBUTION
         case 1
             strat_distr = distr_strategies_gaussian(segmentation_configs, classification_configs);
+            time_per_segment = 0;
         case 2
             [strat_distr, ~, ~] = form_class_distr(segmentation_configs,classification_configs,'REMOVE_DIRECT_FINDING',1);
+            time_per_segment = 0;
         case 3
-            strat_distr = distr_strategies_smoothing(segmentation_configs, classification_configs,varargin{:});
+            [strat_distr,~,~,~,time_per_segment,~] = distr_strategies_smoothing(segmentation_configs, classification_configs,varargin{:});
     end
     
 %     for i = 1:size(strat_distr,1)
@@ -138,7 +140,8 @@ function [varargout] = results_strategies_distributions(segmentation_configs,cla
             end
             if DISPLAY
                 disp(str);
-            end            
+            end         
+            %Friedman test over days
             p_mfried = [p_mfried;p];
             p = friedman(mfriedAnimal, total_trials, 'off');
             if c <= ncl
@@ -274,5 +277,7 @@ function [varargout] = results_strategies_distributions(segmentation_configs,cla
     varargout{6} = groups_all;
     varargout{7} = pos;
     varargout{8} = p_days;
+    varargout{9} = strat_distr;
+    varargout{10} = time_per_segment;
 end
 

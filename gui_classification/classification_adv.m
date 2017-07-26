@@ -33,10 +33,6 @@ function classification_adv_OpeningFcn(hObject, eventdata, handles, varargin)
     def_color = get(handles.close_button,'BackgroundColor');
     set(handles.close_button,'UserData',def_color);
     refresh_classadv_Callback(hObject, eventdata, handles)
-    if isequal(segmentations{1},'') || isequal(labels{1},'');
-        errordlg('No segmentation or labelling data found','Error');
-        classification_adv_CloseRequestFcn(hObject, eventdata, handles);
-    end  
     handles.output = hObject;
     guidata(hObject, handles);
     uiwait(handles.classification_adv);
@@ -75,12 +71,10 @@ function refresh_classadv_Callback(hObject, eventdata, handles)
         set(handles.select_groups,'Value',1);
     end
     
-
-%%%% Classifiers %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% CLASSIFIERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Button
 function generate_classifiers_Callback(hObject, eventdata, handles) 
-    num_clusters = get(handles.default_clusters,'String'); 
-    [error,project_path,selected_seg,selected_labels] = initialize_classification(handles,eventdata);
+    [error,project_path,selected_seg,selected_labels,num_clusters] = initialize_classification(handles,eventdata);
     if error || isempty(project_path)
         return
     end

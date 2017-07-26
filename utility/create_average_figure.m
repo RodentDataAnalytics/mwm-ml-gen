@@ -1,7 +1,7 @@
 function create_average_figure(animals_trajectories_map,data,groups,positions,output_dir,total_trials,tags)
-%CREATE_AVERAGE_STRAT_FIGURES generates one figure for each strategy that
-%illustrates the average segment length of the strategy from all the
-%classifiers
+%CREATE_AVERAGE_FIGURE_PER generates one figure for each strategy that
+%illustrates the average number of segments that fall under each  
+%strategy throughout the trials.
 
     [FontName, FontSize, LineWidth, Export, ExportStyle] = parse_configs;
     nanimals = size(animals_trajectories_map{1,1},2);

@@ -28,7 +28,7 @@ classdef config_classification < handle
             
             for i = 1:length(varargin)
                 if isequal(varargin{i},'UNSUPERVISED')
-                    UNSUPERVISED = varargin{i+1};         
+                    UNSUPERVISED = varargin{i+1};                               
                 end
             end
 

@@ -52,6 +52,11 @@ function error = execute_classification(project_path,seg_name,lab_name,num_clust
     elseif error == 2
         return
     end   
+
+    %Nlabels = Nsegs
+    if num_clusters(1) == -1;
+        num_clusters = 0;
+    end   
     
     %% Generate the classifiers
     if unsupervised

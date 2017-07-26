@@ -439,8 +439,8 @@ function m_export_ud_Callback(hObject, eventdata, handles)
         plot_arena(segmentation_configs);
         plot_trajectory(segment,'LineWidth',1.5); 
         % export the figure
-        [traj_id, seg_id] = find_traj_of_seg(segmentation_configs.SEGMENTS, a{1}(i));
-        export_figure(f, folder, strcat(selected_tag,'traj',num2str(traj_id),'seg',num2str(seg_id)), Export, ExportStyle);
+        [traj_id, seg_id] = find_traj_of_seg(segmentation_configs.SEGMENTS, i);
+        export_figure(f, folder, strcat('UD','traj',num2str(traj_id),'seg',num2str(seg_id)), Export, ExportStyle);
         % refresh the figure
         clf(f,'reset');
     end

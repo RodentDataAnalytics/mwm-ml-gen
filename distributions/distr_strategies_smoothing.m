@@ -153,7 +153,15 @@ function [class_map_detailed,d_points,store_d,class_map_detailed_flat,time_per_s
     tmp_size = 0;
     k = 1;
     for i = 1:length(segmentation_configs.TRAJECTORIES.items)
-        if segmentation_configs.PARTITION(i) <= 1
+        if segmentation_configs.PARTITION(i) < 1
+            continue;
+        elseif segmentation_configs.PARTITION(i) == 1 %trajectory turned to segment
+            d_points{k,1} = segmentation_configs.SEGMENTS.items(2).points;
+            d_lengths(k,1) = segmentation_configs.FEATURES_VALUES_SEGMENTS(i,10);
+            d_offsets(k,1) = segmentation_configs.SEGMENTS.items(2).offset;  
+            d_rem_points = [d_rem_points;{[0,0,0]}];
+            d_rem_distances = [d_rem_distances;{[0,0,0]}];
+            k = k + 1;
             continue;
         end
         trajectory_points = segmentation_configs.TRAJECTORIES.items(i).points;
@@ -197,6 +205,7 @@ function [class_map_detailed,d_points,store_d,class_map_detailed_flat,time_per_s
         endIndex = length(find(d_lengths(i,:) ~= -1));
         % If we have only 1 interval continue
         if endIndex == 1
+            class_map_detailed(i,1) = class_map(i,1); %trajectory turn to segment
             continue;
         end
         endIndex_traj = length(find(class_map(i,:) ~= -1));

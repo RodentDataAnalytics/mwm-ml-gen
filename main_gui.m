@@ -33,6 +33,7 @@ function main_gui_OpeningFcn(hObject, eventdata, handles, varargin)
     set(handles.res_compare_class,'Visible','off');
     set(handles.classification_conf,'UserData',[0,100,0,25,40,0]);
     set(handles.paths_features,'Visible','off');
+    set(handles.features_conf,'Visible','off'); %custom features
     % Choose default command line output for main_gui
     handles.output = hObject;
     % Update handles structure

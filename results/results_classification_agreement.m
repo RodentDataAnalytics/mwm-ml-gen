@@ -56,7 +56,7 @@ function results_classification_agreement(ouput_folder, varargin)
     
     % Check if folder is correct
     try
-        load(fullfile(folder,files{i}));
+        load(fullfile(folder,files{1}));
     catch
         errordlg('Cannot load merged classifier file','Error');
         return;
@@ -91,7 +91,7 @@ function results_classification_agreement(ouput_folder, varargin)
     end
     cmatrix = 100*eye(length(files));
     for iter = 1:length(files)
-        load(fullfile(folder,files{i}));
+        load(fullfile(folder,files{iter}));
         class_map_1 = classification_configs.CLASSIFICATION.class_map;
         if SEGMENTATION
             [~,~,~,class_map_1] = distr_strategies_smoothing(segmentation_configs, classification_configs,varargin{:});

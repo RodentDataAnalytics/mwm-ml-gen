@@ -16,7 +16,17 @@ function [varargout] = results_clustering_parameters(segmentation_configs,labels
 % Optional: min number of clusters
 %           max number of clusters
 %           increment
-  
+
+    WAITBAR = 1;
+    DISPLAY = 1;
+    for i = 1:length(varargin)
+        if isequal(varargin{i},'WAITBAR')
+            WAITBAR = varargin{i+1};         
+        elseif isequal(varargin{i},'DISPLAY')
+            DISPLAY = varargin{i+1};     
+        end
+    end
+    
     % Iterations
     min_num = 1;
     max_num = 10;
@@ -61,7 +71,9 @@ function [varargout] = results_clustering_parameters(segmentation_configs,labels
     test_set = [];      
     covering = [];  
     
-    h = waitbar(0,'Loading...','Name','Clustering');
+    if WAITBAR
+        h = waitbar(0,'Loading...','Name','Clustering');
+    end
     
     for i = min_num:step:max_num
         % original code
@@ -98,10 +110,14 @@ function [varargout] = results_clustering_parameters(segmentation_configs,labels
         % see if we already have the data
         fn = fullfile(output_path, sprintf('clustering_%d_%s.mat', n,a));
         if exist(fn ,'file')
-            fprintf('\nData for %d number of clusters (two-phase clustering) found. Loading data...\n', n);
+            if DISPLAY
+                fprintf('\nData for %d number of clusters (two-phase clustering) found. Loading data...\n', n);
+            end
             load(fn);
-        else            
-            fprintf('\nData for %d number of clusters (two-phase clustering) not found. Computing...\n', n);
+        else        
+            if DISPLAY
+                fprintf('\nData for %d number of clusters (two-phase clustering) not found. Computing...\n', n);
+            end
             [res, res1st] = classif.cluster_cross_validation(n, 'Folds', 10, 'TestSet', test_set);
             save(fn, 'res', 'res1st');
         end 
@@ -116,16 +132,22 @@ function [varargout] = results_clustering_parameters(segmentation_configs,labels
         classif.two_stage = 1;        
         fn = fullfile(output_path, sprintf('clustering_all_%d_%s.mat', n,a));
         if exist(fn ,'file')
-            fprintf('\nData for %d number of clusters (clustering using all the constraints) found. Loading data...\n', n);
+            if DISPLAY
+                fprintf('\nData for %d number of clusters (clustering using all the constraints) found. Loading data...\n', n);
+            end
             load(fn);
-        else            
-            fprintf('\nData for %d number of clusters (clustering using all the constraints) not found. Computing...\n', n);
+        else   
+            if DISPLAY
+                fprintf('\nData for %d number of clusters (clustering using all the constraints) not found. Computing...\n', n);
+            end
             res = classif.cluster(n);
             save(fn, 'res');
         end        
         res3 = [res3, res];
         covering = [covering, res.coverage(feature_length)]; 
-        waitbar(i/max_num);
+        if WAITBAR
+            waitbar(i/max_num);
+        end
     end
     
     % remap the classes as to not invalidate mixed clusters
@@ -152,5 +174,7 @@ function [varargout] = results_clustering_parameters(segmentation_configs,labels
         varargout{6} = res3;
         varargout{7} = covering;
     end   
-    delete(h);    
+    if WAITBAR
+        delete(h);    
+    end
 end

@@ -40,6 +40,8 @@ function er = generate_classifiers(cpath, numbers, segmentation_configs, LABELLI
         end
     end   
     er = 0;
-    delete(h)
+    if WAITBAR
+        delete(h)
+    end
 end
 

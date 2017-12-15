@@ -179,15 +179,15 @@ function [error, count, percentage_per_classifier] = class_statistics(ppath, cla
     if length(cols)-4 > 1 % only if we have more than one classifiers
         if SEGMENTATION
             if flag
-                results_classification_agreement(rpath,'FOLDER',mcpath,'CLASSIFICATION',CLASSIFICATION,'SEGMENTATION',segmentation_configs, 'CLASSIFIERS',varargin{flag});
+                results_classification_agreement(rpath,'FOLDER',mcpath,'CLASSIFICATION',CLASSIFICATION,'SEGMENTATION',segmentation_configs, 'CLASSIFIERS',varargin{flag}, 'WAITFAR',WAITBAR);
             else
-                results_classification_agreement(rpath,'FOLDER',mcpath,'CLASSIFICATION',CLASSIFICATION,'SEGMENTATION',segmentation_configs);
+                results_classification_agreement(rpath,'FOLDER',mcpath,'CLASSIFICATION',CLASSIFICATION,'SEGMENTATION',segmentation_configs, 'WAITFAR',WAITBAR);
             end
         else
             if flag
-                results_classification_agreement(rpath,'FOLDER',mcpath,'CLASSIFICATION',CLASSIFICATION, 'CLASSIFIERS',varargin{flag});
+                results_classification_agreement(rpath,'FOLDER',mcpath,'CLASSIFICATION',CLASSIFICATION, 'CLASSIFIERS',varargin{flag}, 'WAITFAR',WAITBAR);
             else
-                results_classification_agreement(rpath,'FOLDER',mcpath,'CLASSIFICATION',CLASSIFICATION);
+                results_classification_agreement(rpath,'FOLDER',mcpath,'CLASSIFICATION',CLASSIFICATION, 'WAITFAR',WAITBAR);
             end
         end
     end

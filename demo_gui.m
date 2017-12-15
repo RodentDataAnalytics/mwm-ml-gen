@@ -55,7 +55,15 @@ function ok_button_Callback(hObject, eventdata, handles)
     PROBABILITIES = get(handles.opt_probabilities,'Value');
     WAITBAR = get(handles.opt_wait,'Value');
     DISPLAY = get(handles.opt_display,'Value');
-    demo(set,user_path,'LABELLING_QUALITY',LABELLING_QUALITY,'STATISTICS',STATISTICS,...
+    handles.set_menu.Enable = 'off';
+    handles.opt_wait.Enable = 'off';
+    handles.opt_display.Enable = 'off';
+    handles.opt_quality.Enable = 'off';
+    handles.opt_statistics.Enable = 'off';
+    handles.opt_probabilities.Enable = 'off';
+    handles.cancel_button.Enable = 'off';
+    handles.ok_button.Enable = 'off';
+    demo(set,user_path,'NO_INIT','LABELLING_QUALITY',LABELLING_QUALITY,'STATISTICS',STATISTICS,...
         'PROBABILITIES',PROBABILITIES,'WAITBAR',WAITBAR,'DISPLAY',DISPLAY);
     demo_gui_CloseRequestFcn(hObject, eventdata, handles);
     

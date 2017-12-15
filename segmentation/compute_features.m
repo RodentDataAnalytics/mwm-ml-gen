@@ -1,27 +1,44 @@
-function [ featval_all ] = compute_features(obj,features,variables)
+function [ featval_all ] = compute_features(obj,features,variables,varargin)
 %% COMPUTE_FEATURES computes the features found in features_list.m.
 % The features are computed by calling the appropriate functions required
 % per feature and passing the appropriate arguments.
 %%
-    
-    %% progress %%
-    if length(obj)<1000
-        div = 100;
-    else 
-        div = 1000;
+
+    WAITBAR = 1;
+    DISPLAY = 1;
+    for i = 1:length(varargin)
+        if isequal(varargin{i},'WAITBAR')
+            WAITBAR = varargin{i+1};
+        elseif isequal(varargin{i},'DISPLAY')
+            DISPLAY = varargin{i+1};
+        end
     end
     
-    h = waitbar(0,'Computing features...','Name','Computing Features');
+    %% progress %%
+    if DISPLAY
+        if length(obj)<1000
+            div = 100;
+        else 
+            div = 1000;
+        end
+    end
+    
+    if WAITBAR
+        h = waitbar(0,'Computing features...','Name','Computing Features');
+    end
     
     featval_all = zeros(length(obj), length(features));  
     for idx = 1:length(features)
         featval = zeros(length(obj),1);
-        fprintf('\nComputing ''%s'' feature values for %d trajectories/segments...', features{idx}{1,2}, length(obj));
-        q = floor(length(obj) / div);
-        fprintf('0.0% '); 
-        
-        str = ['Feature ',num2str(idx),'/',num2str(length(features)),': ',sprintf('%s',features{idx}{1,2})];
-        waitbar(0,h,str);
+        if DISPLAY
+            fprintf('\nComputing ''%s'' feature values for %d trajectories/segments...', features{idx}{1,2}, length(obj));
+            q = floor(length(obj) / div);
+            fprintf('0.0% '); 
+        end
+        if WAITBAR
+            str = ['Feature ',num2str(idx),'/',num2str(length(features)),': ',sprintf('%s',features{idx}{1,2})];
+            waitbar(0,h,str);
+        end
          
         for i = 1:length(obj)
             switch length(features{idx})
@@ -78,19 +95,27 @@ function [ featval_all ] = compute_features(obj,features,variables)
             end    
 
             % show the progress
-            waitbar(i/length(obj));
-            if mod(i, q) == 0
-                val = 100.*i/length(obj);
-                if val < 10.
-                    fprintf('\b\b\b\b\b%02.1f%% ', val);
-                else
-                    fprintf('\b\b\b\b\b%04.1f%%', val);
-                end
-            end 
+            if WAITBAR
+                waitbar(i/length(obj));
+            end
+            if DISPLAY
+                if mod(i, q) == 0
+                    val = 100.*i/length(obj);
+                    if val < 10.
+                        fprintf('\b\b\b\b\b%02.1f%% ', val);
+                    else
+                        fprintf('\b\b\b\b\b%04.1f%%', val);
+                    end
+                end 
+            end
         end
-        fprintf('\b\b\b\b\bDone.\n');
+        if DISPLAY
+            fprintf('\b\b\b\b\bDone.\n');
+        end
         featval_all(:, idx) = featval(:, idx);
     end
-    delete(h);
+    if WAITBAR
+        delete(h);
+    end
 end
 

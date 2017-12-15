@@ -125,26 +125,48 @@ function [varargout] = results_strategies_distributions_percentage(segmentation_
     for i = 1:length(data_all)
         data_per{i} = tmp_data_per;
     end
+    
+    % Percentage: group and trial over all strategies (each bar)
+    %Doesn't work very well, the difference is not clear
+%     for gr = 1:g*total_trials %iterate through trials
+%         counter_strategies = zeros(1,length(data_all));
+%         for i = 1:length(data_all) %iterate through strategies
+%             sel_data = data_all{i};
+%             sel_group = groups_all{i};
+%             tmp = find(sel_group == gr);
+%             counter_strategies(i) = counter_strategies(i) + sum(sel_data(tmp));
+%         end
+%         for i = 1:length(data_all)
+%             sel_data = data_all{i};
+%             sel_group = groups_all{i};
+%             tmp = find(sel_group == gr); 
+%             per = (100*sum(sel_data(tmp))) / sum(counter_strategies);
+%             data_per{i}(gr) = per;
+%             if max(per) > maxv
+%                 maxv = max(per);
+%                 extra = 5*maxv / 100;
+%             end
+%         end
+%     end
+
+    % Percentage: divide each bar with the sum of everything
+    total_sum = 0;
+    for gr = 1:g*total_trials
+        total_sum = total_sum + sum(data_all{i});
+    end
     for gr = 1:g*total_trials %iterate through trials
-        counter_strategies = zeros(1,length(data_all));
-        for i = 1:length(data_all) %iterate through strategies
-            sel_data = data_all{i};
-            sel_group = groups_all{i};
-            tmp = find(sel_group == gr);
-            counter_strategies(i) = counter_strategies(i) + sum(sel_data(tmp));
-        end
         for i = 1:length(data_all)
             sel_data = data_all{i};
             sel_group = groups_all{i};
             tmp = find(sel_group == gr); 
-            per = (100*sum(sel_data(tmp))) / sum(counter_strategies);
+            per = (100*sum(sel_data(tmp))) / total_sum;
             data_per{i}(gr) = per;
             if max(per) > maxv
                 maxv = max(per);
                 extra = 5*maxv / 100;
             end
         end
-    end
+    end    
     
     %% Generate figures
     % get the configurations from the configs file

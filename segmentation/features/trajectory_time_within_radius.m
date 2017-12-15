@@ -1,7 +1,7 @@
 function val = trajectory_time_within_radius( traj, values )
     x0 = values(1);
     y0 = values(2);
-    r = values(3);
+    r = values(3)*6;
     tol = values(4);
 
     pts = trajectory_simplify_impl(traj.points, tol); 

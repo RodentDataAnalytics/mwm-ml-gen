@@ -44,9 +44,9 @@ classdef trajectories < handle
         function [ segments, partition, cum_partitions] = partition(obj, nmin, func, varargin)
         %   SEGMENT(LSEG, OVLP) breaks all trajectories into segments
         %   of length LEN and overlap OVL (given in %)   
-        %   returns an array of trajectory segments    
-            h = waitbar(0,'Segmenting trajectories...');
-            fprintf('Segmenting trajectories... ');
+        %   returns an array of trajectory segments      
+            %h = waitbar(0,'Segmenting trajectories...');
+            %fprintf('Segmenting trajectories... ');
             % construct new object
             segments = trajectories([]);
             partition = zeros(1, obj.count);
@@ -65,15 +65,15 @@ classdef trajectories < handle
                     cum_partitions(i) = off;
                 end
                 if segments.count > p*1000
-                    fprintf('%d ', segments.count);
+                    %fprintf('%d ', segments.count);
                     p = p + 1; 
                 end  
-                waitbar(i/obj.count);
+                %waitbar(i/obj.count);
             end
-            delete(h);
+            %delete(h);
             segments.partitions_ = partition;
             segments.parent = obj;
-            fprintf(': %d segments created.\n', segments.count);
+            %fprintf(': %d segments created.\n', segments.count);
         end
         
         function out = partitions(inst)

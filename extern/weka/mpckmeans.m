@@ -12,6 +12,8 @@ function [ distr, centroids, flag ] = mpckmeans( x, constr, k )
 
     d = size(x);
     flag = 1; % capture any error
+	tmp = find(isnan(x));
+    x(tmp) = 0
             
      % create attributes Cell Array
     attr = {};
@@ -30,12 +32,12 @@ function [ distr, centroids, flag ] = mpckmeans( x, constr, k )
     mpck.setTotalTrainWithLabels(data);    
     
     % in case of error continue;
-    try
+    %try
         mpck.buildClusterer(c, data, data, k, data.numInstances())   
-    catch
+    %catch
         flag = 0;
         %disp('error');
-    end    
+    %end    
     
     distr = mpck.getClusterAssignments();
     distr = distr';

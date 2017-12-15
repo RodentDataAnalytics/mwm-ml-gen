@@ -91,7 +91,7 @@ function results_classification_agreement(ouput_folder, varargin)
     end
     cmatrix = 100*eye(length(files));
     for iter = 1:length(files)
-        load(fullfile(folder,files{iter}));
+        load(fullfile(folder,files{1}));
         class_map_1 = classification_configs.CLASSIFICATION.class_map;
         if SEGMENTATION
             [~,~,~,class_map_1] = distr_strategies_smoothing(segmentation_configs, classification_configs,varargin{:});

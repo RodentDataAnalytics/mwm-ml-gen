@@ -124,7 +124,8 @@ function refresh_labs_Callback(hObject, eventdata, handles)
 %%%% CLASSIFICATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function default_classification_Callback(hObject, eventdata, handles)
     exe_default_classification(hObject, eventdata, handles);
-    refresh_class_Callback(hObject, eventdata, handles);    
+    refresh_class_Callback(hObject, eventdata, handles); 
+    fclose('all');
 
 function advanced_classification_Callback(hObject, eventdata, handles)
     project_path = get(handles.load_project,'UserData');
@@ -136,6 +137,7 @@ function advanced_classification_Callback(hObject, eventdata, handles)
     classification_adv(project_path);
     set(temp(idx),'Visible','on');
     refresh_class_Callback(hObject, eventdata, handles)
+    fclose('all');
     
 function refresh_class_Callback(hObject, eventdata, handles)
     project_path = get(handles.load_project,'UserData');

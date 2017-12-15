@@ -40,7 +40,7 @@ function exe_check_labels(hObject, eventdata, handles)
         return
     end
     % Run the cross-validation process
-    [temp, idx] = hide_gui('MWM-ML');
+    [temp, idx] = hide_gui('RODA');
     p = strsplit(lab_name,'.mat');
     p = p{1};
     [s,e,step,options] = cross_validation_clusters;

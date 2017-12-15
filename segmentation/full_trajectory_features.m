@@ -1,4 +1,4 @@
-function error = full_trajectory_features(ppath)
+function error = full_trajectory_features(ppath,varargin)
 %FULL_TRAJECTORY_FEATURES computes the features for the whole swimming
 %path of the animal
     error = 0;
@@ -21,7 +21,7 @@ function error = full_trajectory_features(ppath)
         end
     end      
 
-    my_trajectories_features = compute_features(my_trajectories.items, features_list, properties);
+    my_trajectories_features = compute_features(my_trajectories.items, features_list, properties, varargin{:});
     f = fullfile(ppath,'settings','my_trajectories_features.mat');
     save(f,'my_trajectories_features');
     

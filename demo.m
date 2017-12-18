@@ -318,23 +318,37 @@ function demo(set,user_path,varargin)
     
     %% Labelling Quality
     if LABELLING_QUALITY
-        for i = 1:length(seg_overlap)
-            load(fullfile(project_path,'segmentation',seg_name(i).name));
-            p = strsplit(files(i).name,'.mat');
+        labs = dir(fullfile(project_path,'labels','*.mat'));
+        segs = dir(fullfile(project_path,'segmentation','*.mat'));
+        for i = 1:length(labs)
+            [~,len,ovl,~,~] = split_labels_name(labs(i).name);
+            if isequal(len,'0') || isequal(ovl,'0')
+                continue
+            end  
+            p = strsplit(labs(i).name,'.mat');
             p = p{1};
             output_path = char(fullfile(project_path,'labels',strcat(p,'_check')));
             if ~exist(output_path,'dir')
                 mkdir(output_path);
             end
-            [nc,res1bare,res2bare,res1,res2,res3,covering] = results_clustering_parameters(segmentation_configs,fullfile(project_path,'labels',lab_name(i).name),0,output_path,10,100,10,'WAITBAR', WAITBAR, 'DISPLAY', DISPLAY);
+            for s = 1:length(segs)
+                seg = fullfile(project_path,'segmentation',segs(s).name);
+                [~,~,sl,so] = split_segmentation_name(seg);
+                if isequal(sl,len) && isequal(so,ovl)
+                    load(fullfile(project_path,'segmentation',segs(s).name));
+                    break;
+                end 
+            end
+            mkdir(output_path);            
+            [nc,res1bare,res2bare,res1,res2,res3,covering] = cross_validation(segmentation_configs,fullfile(project_path,'labels',labs(i).name),10,[10,100,10],output_path,'labels',0,'WAITBAR', WAITBAR, 'DISPLAY', DISPLAY);
+            [nc,per_errors1,per_undefined1,coverage,per_errors1_true] = algorithm_statistics(1,1,nc,res1bare,res2bare,res1,res2,res3,covering);
+            data = [nc', per_errors1', per_undefined1', coverage', per_errors1_true'];
+            % export results to CSV file
+            export_num_of_clusters(output_path,data);
             output_path = char(fullfile(project_path,'results',strcat(p,'_cross_validation')));
-            if exist(output_path,'dir');
+            if exist(output_path,'dir')
                 rmdir(output_path,'s');
             end
-            mkdir(output_path);
-            [nc,per_errors1,per_undefined1,coverage] = algorithm_statistics(1,1,nc,res1bare,res2bare,res1,res2,res3,covering);
-            data = [nc', per_errors1', per_undefined1', coverage'];
-            % export results to CSV file
             export_num_of_clusters(output_path,data);
             % generate graphs
             results_clustering_parameters_graphs(output_path,nc,res1bare,res2bare,res1,res2,res3,covering);

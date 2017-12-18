@@ -1,6 +1,16 @@
-function [ varargout ] = cross_validation( segmentation_configs, labels_path, folds, clusters, output_path, options, graph)
+function [ varargout ] = cross_validation( segmentation_configs, labels_path, folds, clusters, output_path, options, graph, varargin)
 %CROSS_VALIDATION Summary of this function goes here
 %   Detailed explanation goes here
+
+    WAITBAR = 1;
+    DISPLAY = 1;
+    for i = 1:length(varargin)
+        if isequal(varargin{i},'WAITBAR')
+            WAITBAR = varargin{i+1};
+        elseif isequal(varargin{i},'DISPLAY')
+            DISPLAY = varargin{i+1};
+        end
+    end
 
 %% INITIALIZATION
     min_num = clusters(1);
@@ -48,7 +58,9 @@ function [ varargout ] = cross_validation( segmentation_configs, labels_path, fo
 
     idx = 1:classif.nlabels;
     %test_set = ones(1, inst.nlabels);
-    h = waitbar(0,'Loading...','Name','Clustering');
+    if WAITBAR
+        h = waitbar(0,'Loading...','Name','Clustering');
+    end
     
     for i = min_num:step:max_num
         nclusters = i;
@@ -57,10 +69,14 @@ function [ varargout ] = cross_validation( segmentation_configs, labels_path, fo
         % i) two-phase clustering (default)   
         fn = fullfile(output_path, sprintf('clustering_%d_%s.mat',nclusters,a));
         if exist(fn ,'file')
-            fprintf('\nData for %d number of clusters (two-phase clustering) found. Loading data...\n', nclusters);
+            if DISPLAY
+                fprintf('\nData for %d number of clusters (two-phase clustering) found. Loading data...\n', nclusters);
+            end
             load(fn);
-        else            
-            fprintf('\nData for %d number of clusters (two-phase clustering) not found. Computing...\n', nclusters);
+        else      
+            if DISPLAY
+                fprintf('\nData for %d number of clusters (two-phase clustering) not found. Computing...\n', nclusters);
+            end
             [res, res1st] = cross_validation_exe( classif, segmentation_configs, idx, folds, labels_path, nclusters, options, features, LABELLING_MAP, CLASSIFICATION_TAGS, segments);
             save(fn, 'res', 'res1st');
         end
@@ -72,17 +88,23 @@ function [ varargout ] = cross_validation( segmentation_configs, labels_path, fo
         % ii) clustering using all the constraints (compute coverate) 
         fn = fullfile(output_path, sprintf('clustering_all_%d_%s.mat',nclusters,a));
         if exist(fn ,'file')
-            fprintf('\nData for %d number of clusters (two-phase clustering) found. Loading data...\n', nclusters);
+            if DISPLAY
+                fprintf('\nData for %d number of clusters (two-phase clustering) found. Loading data...\n', nclusters);
+            end
             load(fn);
         else            
-            fprintf('\nData for %d number of clusters (two-phase clustering) not found. Computing...\n', nclusters);
+            if DISPLAY
+                fprintf('\nData for %d number of clusters (two-phase clustering) not found. Computing...\n', nclusters);
+            end
             res = classif.cluster(nclusters);
             save(fn, 'res');
         end        
         res3 = [res3, res];
         covering = [covering, res.coverage(feature_length)];        
         
-        waitbar(i/max_num);        
+        if WAITBAR
+            waitbar(i/max_num);        
+        end
     end
     
     % remap the classes as to not invalidate mixed clusters
@@ -108,7 +130,9 @@ function [ varargout ] = cross_validation( segmentation_configs, labels_path, fo
         varargout{5} = res2;
         varargout{6} = res3;
         varargout{7} = covering;
-    end   
-    delete(h);    
+    end  
+    if WAITBAR
+        delete(h);   
+    end
     
 end

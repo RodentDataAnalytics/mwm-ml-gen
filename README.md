@@ -6,7 +6,7 @@
 
 For more information about 'how to use' this software visit our [wiki](https://github.com/RodentDataAnalytics/mwm-ml-gen/wiki).
 
-For more information about the analysis and the classification procedure refer to the publication of [Gehring, T. V. et al.](http://www.nature.com/articles/srep14562) and [Vouros et al](https://arxiv.org/abs/1711.07446). The results of this publication can be reproduced by using the original code ([github](https://github.com/RodentDataAnalytics/mwm-ml), [bitbucket](https://bitbucket.org/tiagogehring/mwm_trajectories)).
+For more information about the analysis and the classification procedure refer to the publication of [Gehring, T. V. et al.](http://www.nature.com/articles/srep14562) and [Vouros et al](https://arxiv.org/abs/1711.07446). The results of [Gehring, T. V. et al.](http://www.nature.com/articles/srep1456) can be reproduced by using the code [github](https://github.com/RodentDataAnalytics/mwm-ml) or [bitbucket](https://bitbucket.org/tiagogehring/mwm_trajectories).
 
 For questions contact Avgoustinos Vouros (avouros1@sheffield.ac.uk)
 

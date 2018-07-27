@@ -18,3 +18,4 @@ If you are the developer of any of the below software and would like us to chang
 * MATLAB and Statistics Toolbox, The MathWorks, Inc., Natick, Massachusetts, United States.
 * [detect_UTF_encoding.m](https://uk.mathworks.com/matlabcentral/answers/uploaded_files/45445/detect_UTF_encoding.m) written by [Walter Roberson](https://uk.mathworks.com/matlabcentral/profile/authors/434782-walter-roberson) is being used to read UTF16LE txt files. Original code has minor modifications.
 * [This code chunk](https://uk.mathworks.com/help/matlab/matlab_external/read-special-system-folder-path.html) is being used to get special folder paths in Windows OS (for MAC OS java.lang.System.getProperty is being used).
+* Moshtagh, Nima (2009). [Minimum Volume Enclosing Ellipsoid](https://uk.mathworks.com/matlabcentral/fileexchange/9542-minimum-volume-enclosing-ellipsoid), MATLAB Central File Exchange. Retrieved May 18, 2014.
